@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+header {
+    /*position: fixed;*/
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+h1 {
+    margin-left: 40px;
+    letter-spacing: 2px;
+}
+[create],
+[login] {
+    margin: 20px 20px 20px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    color:black;
+}
+a:visited {
+    color: black;
+}
+[create] {
+    margin-left: auto;
+}
+[login] {
+    margin-right: 100px;
+}
+article {
+    display: flex;
+    flex-direction: row;
+    margin-top: 25px;
+    justify-content: center;
+}
+section {
+    margin: 0px auto 0px auto;
+}
+[About] {
+    width: 500px;
+}
+[schedule] {
+    text-decoration: none;
+    font-weight: bold;
+    color:black;
+}
+[Contacts] {
+    width: 250px;
+}

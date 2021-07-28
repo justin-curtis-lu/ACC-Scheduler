@@ -18,7 +18,7 @@ from django.urls import include, path
 from scheduling_application import views as sa_views
 
 urlpatterns = [
-    path('', sa_views.register, name='main'),                 # temporary
+    path('', sa_views.main, name='main'),                 # temporary
     path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
 ]
