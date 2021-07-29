@@ -4,4 +4,4 @@ from scheduling_application.models import Senior
 # Register your models here.
 @admin.register(Senior)
 class SeniorAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("last_name", "first_name", "age", "vaccinated")
