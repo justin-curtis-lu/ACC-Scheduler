@@ -2,8 +2,11 @@ from django.shortcuts import render, redirect
 # from django.contrib.auth.forms import UserCreationForm
 # from django.contrib import messages
 from .forms import UserRegisterForm
+from django.http import HttpResponse
 
 # Create your views here.
+def main(response):
+    return render(response, "scheduling_application/home.html", {})
 
 def register(request):
     if request.method == 'POST':
