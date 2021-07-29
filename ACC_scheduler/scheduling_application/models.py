@@ -8,5 +8,4 @@ class Senior(models.Model):
     address = models.TextField(default="N/A")
     vaccinated = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.last_name}, {self.first_name}"
+

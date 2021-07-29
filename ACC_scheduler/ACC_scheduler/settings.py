@@ -31,9 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'scheduling_application.apps.SchedulingApplicationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
+    'scheduling_application.apps.SchedulingApplicationConfig',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
