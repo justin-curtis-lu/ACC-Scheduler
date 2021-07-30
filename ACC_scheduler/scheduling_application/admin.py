@@ -6,7 +6,7 @@ from scheduling_application.models import Senior
 
 @admin.register(Senior)
 class SeniorAdmin(admin.ModelAdmin):
-    list_display = ("last_name", "first_name", "age", "vaccinated")
+    list_display = ("last_name", "first_name", "address", "vaccinated")
 
 admin.site.site_header = "Scheduling Application Admin Page"
 admin.site.unregister(Group)

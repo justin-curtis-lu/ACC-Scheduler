@@ -9,3 +9,4 @@ class Senior(models.Model):
     vaccinated = models.BooleanField(default=False)
 
 
+
