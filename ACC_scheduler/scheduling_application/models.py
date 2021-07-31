@@ -7,6 +7,7 @@ class Senior(models.Model):
     age = models.IntegerField(default=0)
     address = models.TextField(default="N/A")
     vaccinated = models.BooleanField(default=False)
-
-
-
+    # Either add a time attribute here OR a way to connect to appointment models
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}."
