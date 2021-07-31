@@ -6,4 +6,4 @@ class SchedulingApplicationConfig(AppConfig):
     name = 'scheduling_application'
 
     # changes the header name on the admin site
-    verbose_name = 'Users Database'         # MAY NEED TO CHANGE IF USED ELSEWHERE
+    verbose_name = 'Scheduling Database'         # MAY NEED TO CHANGE IF USED ELSEWHERE
