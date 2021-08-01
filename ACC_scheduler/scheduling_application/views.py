@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 # from django.contrib.auth.forms import UserCreationForm
 # from django.contrib import messages
 from .forms import UserRegisterForm
-from .models import Senior
+from .models import Senior, Volunteer, Appointment
 
 
 # Create your views here.
@@ -22,12 +22,24 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'scheduling_application/register.html', {'form': form})
 
+
 def success(response):
     return render(response, "scheduling_application/success.html", {})
 
+
 def appointment(request):
     seniors_list = Senior.objects.all()
+    volunteers_list = Volunteer.objects.all()
+    appointments_list = Appointment.objects.all()
+
     context = {
         'seniors_list': seniors_list,
+        'volunteers_list': volunteers_list,
+        'appointments_list': appointments_list
     }
+
+    # On button trigger -> Match times from senior with times from volunteers
+    # Middleman probably enters Senior's time, however Volunteers time comes from a set avalibility
+    # And create an appointment in appointment database
+
     return render(request, 'scheduling_application/appointment.html', context)

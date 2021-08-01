@@ -1,4 +1,5 @@
 {% if seniors_list %}
+    <p><b>Seniors currently in the database  </b> </p>
     {% for senior in seniors_list %}
         <p>{{ senior }}</p>
     {% endfor %}
@@ -6,3 +7,24 @@
 {% else %}
     <p>No seniors currently added.</p>
 {% endif %}
+
+{% if volunteers_list %}
+    <p><b> Volunteers currently in the database </b> </p>
+    {% for volunteer in volunteers_list %}
+        <p>{{ volunteer }}</p>
+    {% endfor %}
+
+{% else %}
+    <p>No volunteers currently added.</p>
+{% endif %}
+
+{% if appointments_list %}
+    <p><b> Appointments currently in the database </b> </p>
+    {% for appointment in appointments_list %}
+        <p>{{ appointment }}</p>
+    {% endfor %}
+
+{% else %}
+    <p>No appointments currently added.</p>
+{% endif %}
+
