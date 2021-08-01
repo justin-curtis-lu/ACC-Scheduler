@@ -17,11 +17,13 @@ def register(request):
             form.save()
             username = form.cleaned_data.get('username')
             # messages.success(request, f'Account created for {username}.')         # resume tutorial for message display on main page
-            return redirect('register')             # brings user back to register page after account creation (need to change)
+            return redirect('account_created')             # brings user back to register page after account creation (need to change)
     else:
         form = UserRegisterForm()
     return render(request, 'scheduling_application/register.html', {'form': form})
 
+def success(response):
+    return render(response, "scheduling_application/success.html", {})
 
 def appointment(request):
     seniors_list = Senior.objects.all()
