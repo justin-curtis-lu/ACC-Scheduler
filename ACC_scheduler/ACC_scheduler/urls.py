@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
     path('success/', sa_views.success, name='account_created')
+    path('appointment/', sa_views.appointment, name='appointment'),
 ]

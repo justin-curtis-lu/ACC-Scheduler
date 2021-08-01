@@ -1,0 +1,8 @@
+{% if seniors_list %}
+    {% for senior in seniors_list %}
+        <p>{{ senior }}</p>
+    {% endfor %}
+
+{% else %}
+    <p>No seniors currently added.</p>
+{% endif %}

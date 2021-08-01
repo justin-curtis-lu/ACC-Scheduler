@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect
 # from django.contrib.auth.forms import UserCreationForm
 # from django.contrib import messages
 from .forms import UserRegisterForm
-from django.http import HttpResponse
+from .models import Senior
+
 
 # Create your views here.
 def main(response):
     return render(response, "scheduling_application/home.html", {})
+
 
 def register(request):
     if request.method == 'POST':
@@ -22,3 +24,10 @@ def register(request):
 
 def success(response):
     return render(response, "scheduling_application/success.html", {})
+
+def appointment(request):
+    seniors_list = Senior.objects.all()
+    context = {
+        'seniors_list': seniors_list,
+    }
+    return render(request, 'scheduling_application/appointment.html', context)
