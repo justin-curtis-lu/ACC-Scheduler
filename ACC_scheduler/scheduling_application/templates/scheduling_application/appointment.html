@@ -1,4 +1,5 @@
 {% if seniors_list %}
+    <p><b>Seniors currently in the database  </b> </p>
     {% for senior in seniors_list %}
         <p>{{ senior }}</p>
     {% endfor %}
@@ -6,3 +7,52 @@
 {% else %}
     <p>No seniors currently added.</p>
 {% endif %}
+
+{% if volunteers_list %}
+    <p><b> Volunteers currently in the database </b> </p>
+    {% for volunteer in volunteers_list %}
+        <p>{{ volunteer }}</p>
+    {% endfor %}
+
+{% else %}
+    <p>No volunteers currently added.</p>
+{% endif %}
+
+{% if appointments_list %}
+    <p><b> Appointments currently in the database </b> </p>
+    {% for appointment in appointments_list %}
+        <p>{{ appointment }}</p>
+    {% endfor %}
+
+{% else %}
+    <p>No appointments currently added.</p>
+{% endif %}
+
+
+<p><b> Schedule an Appointment </b> </p>
+<form method='POST' action=''>
+    {% csrf_token %}
+    <select class="form-control" id="senior" name='senior'>
+        {% for senior in  seniors_list %}
+            <option value='{{senior.last_name}}'>{{ senior }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="day"><br>
+    <input type="Submit">
+</form>
+
+{% if potential_list %}
+    <p><b> Confirm Volunteers </b> </p>
+<form method='POST' action=''>
+    {% csrf_token %}
+        {% for volunteer in potential_list %}
+            <input type="checkbox" id={{volunteer}} name={{volunteer}} value={{volunteer}} checked="True">
+            <label for={{volunteer}}>{{volunteer}}</label>
+        {% endfor %}
+    <br>
+        <input type="Submit">
+{% endif %}
+
+    <br>
+    <br>
+<a href="{% url 'main' %}"><button>Return to main page</button></a>

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from .forms import UserRegisterForm
-from .models import Senior
+from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
 
 
@@ -45,9 +45,33 @@ def success(response):
 
 def appointment(request):
     seniors_list = Senior.objects.all()
+    volunteers_list = Volunteer.objects.all()
+    appointments_list = Appointment.objects.all()
+
     context = {
         'seniors_list': seniors_list,
+        'volunteers_list': volunteers_list,
+        'appointments_list': appointments_list
     }
+
+    # Handle scheduling appointment
+    if request.method == 'POST':
+        senior = request.POST['senior']
+        day = request.POST['day']
+        potential_list = Volunteer.objects.filter(day=day)
+        context = {
+            'seniors_list': seniors_list,
+            'volunteers_list': volunteers_list,
+            'potential_list': potential_list,
+            'appointments_list': appointments_list
+        }
+        return render(request, 'scheduling_application/appointment.html', context)
+
+    # Handle confirming emails
+    # if request.method == 'POST':
+        # Email all users returned
+        # Return flash message "Emails sucessfully sent"
+
     return render(request, 'scheduling_application/appointment.html', context)
 
 
