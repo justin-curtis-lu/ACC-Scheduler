@@ -7,7 +7,7 @@
 {% else %}
     <p>No seniors currently added.</p>
 {% endif %}
-
+<br>
 {% if volunteers_list %}
     <p><b> Volunteers currently in the database </b> </p>
     {% for volunteer in volunteers_list %}
@@ -17,17 +17,17 @@
 {% else %}
     <p>No volunteers currently added.</p>
 {% endif %}
-
+<br>
 {% if appointments_list %}
     <p><b> Appointments currently in the database </b> </p>
     {% for appointment in appointments_list %}
         <p>{{ appointment }}</p>
     {% endfor %}
-
+<br>
 {% else %}
-    <p>No appointments currently added.</p>
+    <p><b>No appointments currently added.</b></p>
 {% endif %}
-
+<br>
 
 <p><b> Schedule an Appointment </b> </p>
 <form method='POST' action=''>
@@ -55,4 +55,4 @@
 
     <br>
     <br>
-<a href="{% url 'main' %}"><button>Return to main page</button></a>
+<a href="{% url 'index' %}"><button>Return to main page</button></a>
