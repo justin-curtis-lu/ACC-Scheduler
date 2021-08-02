@@ -20,6 +20,7 @@ class Senior(models.Model):
 class Volunteer(models.Model):
     last_name = models.CharField(max_length=30)
     first_name = models.CharField(max_length=30)
+    day = models.CharField(max_length=1, default='M')
 
     @property
     def full_name(self):

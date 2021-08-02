@@ -43,6 +43,8 @@ def success(response):
     return render(response, "scheduling_application/success.html", {})
 
 
+
+
 def appointment(request):
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
@@ -54,8 +56,22 @@ def appointment(request):
         'appointments_list': appointments_list
     }
 
-    # On button trigger -> Match times from senior with times from volunteers
-    # Middleman probably enters Senior's time, however Volunteers time comes from a set avalibility
-    # And create an appointment in appointment database
+    # Handle scheduling appointment
+    if request.method == 'POST':
+        senior = request.POST['senior']
+        day = request.POST['day']
+        potential_list = Volunteer.objects.filter(day=day)
+        context = {
+            'seniors_list': seniors_list,
+            'volunteers_list': volunteers_list,
+            'potential_list': potential_list,
+            'appointments_list': appointments_list
+        }
+        return render(request, 'scheduling_application/appointment.html', context)
+
+    # Handle confirming emails
+    # if request.method == 'POST':
+        # Email all users returned
+        # Return flash message "Emails sucessfully sent"
 
     return render(request, 'scheduling_application/appointment.html', context)
