@@ -19,7 +19,7 @@ def login(request):                                                     # create
 
         if user is not None:
             auth.login(request, user)
-            return redirect('main')
+            return redirect('index')
         else:
             messages.info(request, 'invalid credentials')
             return redirect('login')                 # TEMPORARY
@@ -38,8 +38,10 @@ def register(request):                                                  # uses D
         form = UserRegisterForm()
     return render(request, 'scheduling_application/register.html', {'form': form})
 
+
 def success(response):
     return render(response, "scheduling_application/success.html", {})
+
 
 def appointment(request):
     seniors_list = Senior.objects.all()
@@ -47,3 +49,22 @@ def appointment(request):
         'seniors_list': seniors_list,
     }
     return render(request, 'scheduling_application/appointment.html', context)
+
+
+def index(request):
+    return render(request, 'scheduling_application/index.html', {})
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect('main')
+
+def view_seniors(request):
+    seniors = Senior.objects.all()
+    context = {
+        'seniors': seniors,
+    }
+    return render(request, 'scheduling_application/view_seniors.html', context)
+
+def senior_profile(request, id):
+    person = Senior

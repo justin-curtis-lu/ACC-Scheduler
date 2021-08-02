@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../static/style.css">
+    <title>Seniors</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Age</th>
+            <th>Address</th>
+        </tr>
+        {% for item in seniors %}
+        <tr>
+             <td>{{ item.last_name }}</td>
+             <td>{{ item.first_name }}</td>
+             <td>{{ item.age }}</td>
+             <td>{{ item.address }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
