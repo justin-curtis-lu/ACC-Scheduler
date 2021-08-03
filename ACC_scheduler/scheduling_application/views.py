@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-# from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from .forms import UserRegisterForm
 from .models import Senior, Volunteer, Appointment
@@ -7,12 +6,14 @@ from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 
 
-# Create your views here.
-def main(response):
+
+def home(response):
+    """View for the home page"""
     return render(response, "scheduling_application/home.html", {})
 
 
-def login(request):                                                     # created own login form
+def login(request):
+    """View for the login page"""
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -27,7 +28,9 @@ def login(request):                                                     # create
     return render(request, 'scheduling_application/login.html', {})
 
 
-def register(request):                                                  # uses Django's built-in UserRegisterForm
+# uses Django's built-in UserRegisterForm
+def register(request):
+    """View for the registration page"""
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
@@ -40,11 +43,16 @@ def register(request):                                                  # uses D
     return render(request, 'scheduling_application/register.html', {'form': form})
 
 
+# Django messages may make this obsolete.
 def success(response):
+    """View for the email sending success page"""
     return render(response, "scheduling_application/success.html", {})
 
 
 def appointment(request):
+    """View for the page where users can schedule an appointment.
+       Shows current seniors, volunteers, and appointments.
+       Allows users to choose a senior and day then continue."""
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
     appointments_list = Appointment.objects.all()
@@ -67,10 +75,13 @@ def appointment(request):
             'appointments_list': appointments_list
         }
         request.session['potential_list'] = list(potential_list)
-        return redirect('appointment_pt2')
+        return redirect('confirm_v')
     return render(request, 'scheduling_application/appointment.html', context)
 
-def appointment_pt2(request):
+
+
+def confirm_v(request):
+    """View for page to confirm which volunteers to send emails to."""
     potential_list = request.session['potential_list']
     print(potential_list)
     available_volunteer_list = []
@@ -79,7 +90,6 @@ def appointment_pt2(request):
 
     context = {
         'available_volunteer_list': available_volunteer_list
-        #'potential_list': potential_list
     }
     if request.method == 'POST':
         selected_volunteers = request.POST.getlist('volunteer')
@@ -90,25 +100,31 @@ def appointment_pt2(request):
         to_email = [i['email'] for i in potential_list if potential_list[0]['first_name'] in selected_volunteers]
         send_mail(email_subject, email_message, from_email, to_email)
         print(to_email)
-        # Return flash message "Emails sucessfully sent"
+        # RETURN MESSAGE "EMAILS SUCCESSFULLY SENT"
     print("available_volunteer_list", available_volunteer_list)
-    return render(request, 'scheduling_application/appointment_pt2.html', context)
+    return render(request, 'scheduling_application/confirm_v.html', context)
 
 
 def index(request):
+    """View for index page (home page when logged in)"""
     return render(request, 'scheduling_application/index.html', {})
 
 
 def logout(request):
+    """View for logging out"""
     auth.logout(request)
-    return redirect('main')
+    return redirect('home')
+
 
 def view_seniors(request):
+    """View for the seniors page (table of all the seniors in the database)"""
     seniors = Senior.objects.all()
     context = {
         'seniors': seniors,
     }
     return render(request, 'scheduling_application/view_seniors.html', context)
 
+
 def senior_profile(request, id):
+    """View for senior profile page"""
     person = Senior
