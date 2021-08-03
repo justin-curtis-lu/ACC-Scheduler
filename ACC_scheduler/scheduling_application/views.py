@@ -37,7 +37,7 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            # messages.success(request, f'Account created for {username}.')         # resume tutorial for message display on main page
+            messages.success(request, f'Account created for {username}.')         # resume tutorial for message display on main page
             return redirect('login')
     else:
         form = UserRegisterForm()
@@ -97,7 +97,7 @@ def confirm_v(request):
         print(selected_volunteers)
         email_subject = 'TEMPORARY SUBJECT'
         email_message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.'
-        from_email = 'yeon@uci.edu'
+        from_email = 'acc.scheduler.care@gmail.com'
         to_email = [i['email'] for i in potential_list if potential_list[0]['first_name'] in selected_volunteers]
         send_mail(email_subject, email_message, from_email, to_email)
         print(to_email)
