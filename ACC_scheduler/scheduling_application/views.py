@@ -139,15 +139,16 @@ def add_senior(request):
     }
     return render(request, 'scheduling_application/add_senior.html', context)
 
-def senior_page(request, last_name):
+def senior_page(request, pk):
     """View for senior profile page"""
-    senior = Senior.objects.get(last_name=last_name)
+    senior = Senior.objects.get(id=pk)
     if request.method == 'POST':
         senior.delete()
         return redirect('view_seniors')
     context = {
         'senior': senior,
     }
+    #print(senior.id)
     return render(request, 'scheduling_application/senior_page.html', context)
 
 def view_volunteers(request):

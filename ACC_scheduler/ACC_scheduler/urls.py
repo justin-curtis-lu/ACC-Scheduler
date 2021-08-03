@@ -29,6 +29,6 @@ urlpatterns = [
     path('confirm_v/', sa_views.confirm_v, name='confirm_v'),
     path('view_seniors/', sa_views.view_seniors, name='view_seniors'),
     path('add_senior/', sa_views.add_senior, name='add_senior'),
-    path('senior/<str:last_name>', sa_views.senior_page, name='senior_page'),
+    path('senior/<str:pk>', sa_views.senior_page, name='senior_page'),
     path('view_volunteers/', sa_views.view_volunteers, name='view_volunteers'),
 ]
