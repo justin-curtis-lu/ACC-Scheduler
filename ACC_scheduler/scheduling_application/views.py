@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm
@@ -128,3 +129,12 @@ def view_seniors(request):
 def senior_profile(request, id):
     """View for senior profile page"""
     person = Senior
+
+
+def view_volunteers(request):
+    """View for the volunteers page (table of all the volunteers in the database)"""
+    volunteers = Volunteer.objects.all()
+    context = {
+        'volunteers': volunteers,
+    }
+    return render(request, 'scheduling_application/view_volunteers.html', context)
