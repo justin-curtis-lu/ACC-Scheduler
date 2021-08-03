@@ -11,7 +11,7 @@ class Senior(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     age = models.IntegerField(default=0)
-    address = models.TextField(default="N/A")
+    address = models.CharField(default='N/A', max_length=100)
     vaccinated = models.BooleanField(default=False)
 
     def __str__(self):

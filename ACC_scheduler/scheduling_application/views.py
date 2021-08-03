@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm
+from .forms import SeniorForm
 from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
@@ -125,11 +126,29 @@ def view_seniors(request):
     }
     return render(request, 'scheduling_application/view_seniors.html', context)
 
+def add_senior(request):
+    """View for adding senior page"""
+    form = SeniorForm()
+    if request.method == 'POST':
+        form = SeniorForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('view_seniors')
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/add_senior.html', context)
 
-def senior_profile(request, id):
+def senior_page(request, last_name):
     """View for senior profile page"""
-    person = Senior
-
+    senior = Senior.objects.get(last_name=last_name)
+    if request.method == 'POST':
+        senior.delete()
+        return redirect('view_seniors')
+    context = {
+        'senior': senior,
+    }
+    return render(request, 'scheduling_application/senior_page.html', context)
 
 def view_volunteers(request):
     """View for the volunteers page (table of all the volunteers in the database)"""
