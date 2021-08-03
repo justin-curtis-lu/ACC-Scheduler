@@ -8,23 +8,25 @@
     <title>Index</title>
 </head>
 <body>
-    {% if user.is_authenticated %}
-    <p>Hello, {{user.first_name}}</p>
-    <a href="{% url 'logout' %}">LOGOUT</a>
-    {% endif %}
-    <div class="buttons">
-        <h2>About</h2>
-        <form action="{% url 'view_seniors' %}">
-            <input type="submit" value="Seniors" />
-        </form>
-        <br>
-        <form action="{% url 'admin:index' %}">
-            <input type="submit" value="Volunteers" />
-        </form>
-        <br>
-        <form action="{% url 'appointment' %}">
-            <input type="submit" value="Schedule an Appointment" />
-        </form>
+    <div class="center">
+        {% if user.is_authenticated %}
+        <p>Hello, {{user.first_name}}</p>
+        <a href="{% url 'logout' %}">LOGOUT</a>
+        {% endif %}
+        <div class="buttons">
+            <h2>About</h2>
+            <form action="{% url 'view_seniors' %}">
+                <input type="submit" value="Seniors" />
+            </form>
+            <br>
+            <form action="{% url 'admin:index' %}">
+                <input type="submit" value="Volunteers" />
+            </form>
+            <br>
+            <form action="{% url 'appointment' %}">
+                <input type="submit" value="Schedule an Appointment" />
+            </form>
+        </div>
     </div>
 </body>
 </html>
