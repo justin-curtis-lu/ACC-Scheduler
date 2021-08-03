@@ -1,3 +1,4 @@
+<!-- Overwrites the admin login page to include reroutes to "create an account" and "return to main page"-->
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
@@ -66,7 +67,7 @@
     <a create href="{%url 'register'%}">Create an Account</a>
   </div>
   <div class="submit-row">
-    <a create href="{%url 'main'%}">Return to Main Page</a>
+    <a create href="{%url 'home'%}">Return to Main Page</a>
   </div>
 </form>
 

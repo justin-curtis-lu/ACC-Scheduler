@@ -1,4 +1,4 @@
-<!-- HTML page for viewing all the seniors -->
+<!-- HTML page for viewing all the volunteers -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,29 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../../static/style.css">
-    <title>Seniors</title>
+    <title>Volunteers</title>
 </head>
 <body>
-    <div class="center">
     <table>
         <tr>
             <th>Last Name</th>
             <th>First Name</th>
-            <th>Age</th>
+            <th>Day</th>
             <th>Address</th>
         </tr>
-        {% for item in seniors %}
+        {% for item in volunteers %}
         <tr>
              <td>{{ item.last_name }}</td>
              <td>{{ item.first_name }}</td>
-             <td>{{ item.age }}</td>
-             <td>{{ item.address }}</td>
+             <td>{{ item.day }}</td>
+             <td>{{ item.vaccinated }}</td>
         </tr>
         {% endfor %}
     </table>
-<!--    <form action="" method="post">-->
-<!--        <input type="submit">-->
-<!--    </form>-->
-    </div>
 </body>
 </html>

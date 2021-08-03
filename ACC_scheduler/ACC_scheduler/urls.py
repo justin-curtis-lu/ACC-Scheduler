@@ -18,7 +18,7 @@ from django.urls import include, path
 from scheduling_application import views as sa_views
 
 urlpatterns = [
-    path('', sa_views.main, name='main'),
+    path('', sa_views.home, name='home'),
     path('index/', sa_views.index, name='index'),
     path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
@@ -26,5 +26,7 @@ urlpatterns = [
     path('logout/', sa_views.logout, name='logout'),
     path('success/', sa_views.success, name='account_created'),
     path('appointment/', sa_views.appointment, name='appointment'),
+    path('confirm_v/', sa_views.confirm_v, name='confirm_v'),
     path('view_seniors/', sa_views.view_seniors, name='view_seniors'),
+    path('view_volunteers/', sa_views.view_volunteers, name='view_volunteers'),
 ]
