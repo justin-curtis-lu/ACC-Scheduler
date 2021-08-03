@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-# from django.forms import ModelForm
-# from .models import Senior
+from django.forms import ModelForm
+from .models import Senior
 
 
 class UserRegisterForm(UserCreationForm):
@@ -14,7 +14,7 @@ class UserRegisterForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 
-# class SeniorForm(ModelForm):
-#     class Meta:
-#         model = Senior
-#         fields = '__all__'
+class SeniorForm(ModelForm):
+    class Meta:
+        model = Senior
+        fields = '__all__'

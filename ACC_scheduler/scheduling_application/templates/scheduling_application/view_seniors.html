@@ -19,16 +19,15 @@
         </tr>
         {% for item in seniors %}
         <tr>
-             <td>{{ item.last_name }}</td>
+             <td><a href="{% url 'senior_page' item.id %}">{{ item.last_name }}</a></td>
              <td>{{ item.first_name }}</td>
              <td>{{ item.age }}</td>
              <td>{{ item.address }}</td>
         </tr>
         {% endfor %}
     </table>
-<!--    <form action="" method="post">-->
-<!--        <input type="submit">-->
-<!--    </form>-->
+    <a href="{% url 'add_senior' %}"><button>Add Senior</button></a>
+    <a href="{% url 'index' %}"><button>exit</button></a>
     </div>
 </body>
 </html>

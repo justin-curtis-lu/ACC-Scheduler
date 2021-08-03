@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../static/style.css">
+    <title>{{ senior.first_name }}'s Profile Page</title>
+</head>
+<body>
+<div class="center">
+    <h2>{{senior.first_name}} {{ senior.last_name }}</h2>
+    <h3>Age: {{senior.age}}</h3>
+    <h3>Address: {{senior.address}}</h3>
+    <h3>Vaccinated: {{senior.vaccinated}}</h3>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit">remove</button>
+    </form>
+    <a href="{% url 'view_seniors' %}"><button>exit</button></a>
+</div>
+</body>
+</html>
