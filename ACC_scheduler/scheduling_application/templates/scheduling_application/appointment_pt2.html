@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% if available_volunteer_list %}
+        <p><b> Confirm Volunteers </b> </p>
+    <form method='POST' action=''>
+        {% csrf_token %}
+            {% for volunteer in available_volunteer_list %}
+                <input type="checkbox" id=volunteer name=volunteer value={{volunteer}} checked="True">
+                <label for={{volunteer}}>{{volunteer}}</label>
+            {% endfor %}
+        <br>
+            <input type="Submit" name="select_volunteers">
+    {% endif %}
+
+        <br>
+        <br>
+    </form>
+    <a href="{% url 'index' %}"><button>Return to main page</button></a>
+</body>
+</html>

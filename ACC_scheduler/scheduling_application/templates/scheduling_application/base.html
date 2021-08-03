@@ -10,8 +10,8 @@
 <body>
     <header>
         <h1>ACC Senior Services Scheduler</h1>
-        <a create href="{%url 'register'%}">Create an Account</a>
-        <a login href="{% url 'admin:index' %}">Log In</a>
+        <a create href="{% url 'register' %}">Create an Account</a>
+        <a login href="{% url 'login' %}">Log In</a>
     </header>
     {% block content %}
     {% endblock %}
