@@ -121,6 +121,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Email Settings
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'acc.scheduler.care@gmail.com'
+EMAIL_HOST_PASSWORD = 'a2379c90-1659-408f-92a3-8247cdbe2f07'
+EMAIL_USE_TLS = True
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

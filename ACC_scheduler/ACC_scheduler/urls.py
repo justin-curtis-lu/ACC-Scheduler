@@ -26,5 +26,6 @@ urlpatterns = [
     path('logout/', sa_views.logout, name='logout'),
     path('success/', sa_views.success, name='account_created'),
     path('appointment/', sa_views.appointment, name='appointment'),
+    path('appointment_pt2/', sa_views.appointment_pt2, name='appointment_pt2'),
     path('view_seniors/', sa_views.view_seniors, name='view_seniors'),
 ]

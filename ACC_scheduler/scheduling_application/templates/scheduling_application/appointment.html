@@ -41,18 +41,6 @@
     <input type="Submit" name="select_senior">
 </form>
 
-{% if potential_list %}
-    <p><b> Confirm Volunteers </b> </p>
-<form method='POST' action=''>
-    {% csrf_token %}
-        {% for volunteer in potential_list %}
-            <input type="checkbox" id={{volunteer}} name={{volunteer}} value={{volunteer}} checked="True">
-            <label for={{volunteer}}>{{volunteer}}</label>
-        {% endfor %}
-    <br>
-        <input type="Submit" name="select_volunteers">
-{% endif %}
-
     <br>
     <br>
 <a href="{% url 'index' %}"><button>Return to main page</button></a>

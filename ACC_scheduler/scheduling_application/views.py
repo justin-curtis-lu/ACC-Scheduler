@@ -6,7 +6,6 @@ from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 
-potential_list = []
 
 # Create your views here.
 def main(response):
@@ -57,26 +56,43 @@ def appointment(request):
     }
 
     # Handle scheduling appointment
-    potential_list = []
-    if 'select_senior' in request.POST:
+    if request.method == 'POST':
         senior = request.POST['senior']
         day = request.POST['day']
-        potential_list = Volunteer.objects.filter(day=day)
+        potential_list = Volunteer.objects.filter(day=day).values()         # get only volunteers' first and last name
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
             'potential_list': potential_list,
             'appointments_list': appointments_list
         }
-    if 'select_volunteers' in request.POST:
+        request.session['potential_list'] = list(potential_list)
+        return redirect('appointment_pt2')
+    return render(request, 'scheduling_application/appointment.html', context)
+
+def appointment_pt2(request):
+    potential_list = request.session['potential_list']
+    print(potential_list)
+    available_volunteer_list = []
+    for i in potential_list:
+        available_volunteer_list.append(i['first_name'] + " " + i['last_name'])
+
+    context = {
+        'available_volunteer_list': available_volunteer_list
+        #'potential_list': potential_list
+    }
+    if request.method == 'POST':
+        selected_volunteers = request.POST.getlist('volunteer')
+        print(selected_volunteers)
         email_subject = 'TEMPORARY SUBJECT'
         email_message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.'
         from_email = 'yeon@uci.edu'
-        to_email = [i for i in potential_list if i.checked == "True"]
+        to_email = [i['email'] for i in potential_list if potential_list[0]['first_name'] in selected_volunteers]
         send_mail(email_subject, email_message, from_email, to_email)
+        print(to_email)
         # Return flash message "Emails sucessfully sent"
-    print("potential list", potential_list)
-    return render(request, 'scheduling_application/appointment.html', context)
+    print("available_volunteer_list", available_volunteer_list)
+    return render(request, 'scheduling_application/appointment_pt2.html', context)
 
 
 def index(request):
