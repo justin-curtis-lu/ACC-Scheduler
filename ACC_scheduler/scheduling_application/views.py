@@ -4,7 +4,9 @@ from django.contrib import messages
 from .forms import UserRegisterForm
 from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
+from django.core.mail import send_mail
 
+potential_list = []
 
 # Create your views here.
 def main(response):
@@ -55,7 +57,8 @@ def appointment(request):
     }
 
     # Handle scheduling appointment
-    if request.method == 'POST':
+    potential_list = []
+    if 'select_senior' in request.POST:
         senior = request.POST['senior']
         day = request.POST['day']
         potential_list = Volunteer.objects.filter(day=day)
@@ -65,13 +68,14 @@ def appointment(request):
             'potential_list': potential_list,
             'appointments_list': appointments_list
         }
-        return render(request, 'scheduling_application/appointment.html', context)
-
-    # Handle confirming emails
-    # if request.method == 'POST':
-        # Email all users returned
+    if 'select_volunteers' in request.POST:
+        email_subject = 'TEMPORARY SUBJECT'
+        email_message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.'
+        from_email = 'yeon@uci.edu'
+        to_email = [i for i in potential_list if i.checked == "True"]
+        send_mail(email_subject, email_message, from_email, to_email)
         # Return flash message "Emails sucessfully sent"
-
+    print("potential list", potential_list)
     return render(request, 'scheduling_application/appointment.html', context)
 
 
