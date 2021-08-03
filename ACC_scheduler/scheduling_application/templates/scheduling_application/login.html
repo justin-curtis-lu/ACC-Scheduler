@@ -9,6 +9,7 @@
     <title>Login</title>
 </head>
 <body>
+    <div class="center">
     <form method="POST">
         {% csrf_token %}
         <input type="text" name="username" placeholder="username"><br>
@@ -21,6 +22,7 @@
         {% for message in messages %}
         <h3> {{message}} </h3>
         {% endfor %}
+    </div>
     </div>
 </body>
 </html>

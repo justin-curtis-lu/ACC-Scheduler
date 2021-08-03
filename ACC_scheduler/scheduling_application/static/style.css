@@ -1,3 +1,4 @@
+/* Temporary Home Page Styling */
 body {
     margin: 0;
     padding: 0;
@@ -49,3 +50,14 @@ section {
 [Contacts] {
     width: 250px;
 }
+
+/* Temporary centering */
+.center {
+    text-align: center;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
