@@ -95,13 +95,13 @@ def confirm_v(request):
     }
     if request.method == 'POST':
         selected_volunteers = request.POST.getlist('volunteer')
-        print(selected_volunteers)
+        print("selected_volunteers", selected_volunteers)
         email_subject = 'TEMPORARY SUBJECT'
         email_message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.'
         from_email = 'acc.scheduler.care@gmail.com'
-        to_email = [i['email'] for i in potential_list if potential_list[0]['first_name'] in selected_volunteers]
+        to_email = [i['email'] for i in potential_list if i['first_name'] in selected_volunteers]
         send_mail(email_subject, email_message, from_email, to_email)
-        print(to_email)
+        print("to email", to_email)
         # RETURN MESSAGE "EMAILS SUCCESSFULLY SENT"
     print("available_volunteer_list", available_volunteer_list)
     return render(request, 'scheduling_application/confirm_v.html', context)
