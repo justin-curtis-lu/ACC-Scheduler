@@ -1,14 +1,5 @@
-<!-- HTML page for scheduling an appointment. Currently displays all seniors, volunteers, appointments, and form to schedule an appointment -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="../../static/style.css">
-    <title>appointments</title>
-</head>
-<body>
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
     <div class="center">
 {% if seniors_list %}
     <p><b>Seniors currently in the database  </b> </p>
@@ -57,4 +48,4 @@
     <br>
 <a href="{% url 'index' %}"><button>Return to main page</button></a>
     </div>
-</body>
+{% endblock %}

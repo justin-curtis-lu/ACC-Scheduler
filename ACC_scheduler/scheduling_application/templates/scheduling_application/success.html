@@ -1,16 +1,8 @@
-<!-- HTML page for successfully sending an email -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Created</title>
-</head>
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
 <body>
     <h1>Your Account Has Been Created</h1>
     <p>A confirmation email has been sent</p>
     <a href="{% url 'admin:index' %}"><button>Start Scheduling</button></a>
     <a href="{% url 'home' %}"><button>Return to main page</button></a>
-</body>
-</html>
+{% endblock %}

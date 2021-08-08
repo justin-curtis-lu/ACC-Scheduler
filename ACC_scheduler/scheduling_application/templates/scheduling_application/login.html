@@ -1,28 +1,23 @@
-<!-- HTML page for user login -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="../../static/style.css">
-    <title>Login</title>
-</head>
-<body>
-    <div class="center">
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="username"><br>
-        <input type="password" name="password" placeholder="password"><br>
-        <input type="Submit">
-    </form>
-    <a href="{% url 'home' %}"><button>Return to main page</button></a>
-
-    <div>
-        {% for message in messages %}
-        <h3> {{message}} </h3>
-        {% endfor %}
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-auto">
+        <div class="card text-center" style="width: 18rem;">
+            <div class="card-body">
+                <form method="POST">
+                {% csrf_token %}
+                    <input type="text" name="username" placeholder="username"><br>
+                    <input type="password" name="password" placeholder="password"><br>
+                    <input type="Submit">
+                </form>
+                    <a href="{% url 'home' %}"><button>Return to main page</button></a>
+                <div>
+                    {% for message in messages %}
+                    <h3> {{message}} </h3>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}

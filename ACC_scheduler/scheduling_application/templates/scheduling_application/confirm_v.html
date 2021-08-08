@@ -1,12 +1,5 @@
-<!-- HTML page for selecting available volunteers and sending the emails to them -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="../../static/style.css">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
 <div class="center">
     {% if available_volunteer_list %}
         <p><b> Confirm Volunteers </b> </p>
@@ -25,5 +18,4 @@
     </form>
     <a href="{% url 'index' %}"><button>Return to main page</button></a>
 </div>
-</body>
-</html>
+{% endblock %}
