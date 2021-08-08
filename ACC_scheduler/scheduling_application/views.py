@@ -7,13 +7,7 @@ from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-# from .tokens import appointment_confirmation_token
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
-from django.urls import reverse
 from django.utils.crypto import get_random_string
-from django.urls import resolve
 
 
 
@@ -73,10 +67,10 @@ def make_appointment(request):
         senior_id = request.POST['senior']
         senior = Senior.objects.get(id=senior_id)
         day = request.POST['day']
-        print("SENIORS LIST:", seniors_list)
+        # print("SENIORS LIST:", seniors_list)
         #for i in Senior.objects.all():
         #    print(i.id)
-        print(senior)
+        # print(senior)
         appointment = Appointment.objects.create(senior=senior)
         potential_list = Volunteer.objects.filter(day=day).values()         # get only volunteers' first and last name
         context = {
@@ -86,7 +80,7 @@ def make_appointment(request):
             'appointments_list': appointments_list
         }
         request.session['appointment'] = appointment.id
-        print(request.session['appointment'])
+        # print(request.session['appointment'])
         request.session['potential_list'] = list(potential_list)
         return redirect('confirm_v')
     return render(request, 'scheduling_application/make_appointment.html', context)
@@ -96,7 +90,7 @@ def make_appointment(request):
 def confirm_v(request):
     """View for page to confirm which volunteers to send emails to."""
     potential_list = request.session['potential_list']
-    print(potential_list)
+    # print(potential_list)
 
 
     context = {
@@ -105,7 +99,7 @@ def confirm_v(request):
 
     if request.method == 'POST':
         selected_volunteers = request.POST
-        print("selected_volunteers", selected_volunteers)
+        # print("selected_volunteers", selected_volunteers)
 
         domain = get_current_site(request).domain
 
@@ -118,14 +112,14 @@ def confirm_v(request):
                 from_email = 'acc.scheduler.care@gmail.com'
                 to_email = [i['email']]
                 send_mail(email_subject, email_message, from_email, to_email)
-                print("to email", to_email)
+                # print("to email", to_email)
 
         request.session['selected_volunteers'] = request.POST.getlist('volunteer')
-        print("session selected volunteers", request.session['selected_volunteers'])
+        # print("session selected volunteers", request.session['selected_volunteers'])
         # messages.success(request, 'Emails successfully sent')
     return render(request, 'scheduling_application/confirm_v.html', context)
 
-# Django messages may make this obsolete.
+
 def success(request):
     """View for the email sending success page"""
     if request.method == 'GET':
@@ -133,16 +127,13 @@ def success(request):
         vol_email = request.GET.get('email')
         vol_token = request.GET.get('token')
 
-        # test = request.session['appointment']
-        # print("test", test)
-
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
-            print(volunteer, type(volunteer))
+            # print(volunteer, type(volunteer))
             appointment = Appointment.objects.filter(id=request.session['appointment']).update(volunteer=volunteer)
-            print("appointment: ", appointment)
+            # print("appointment: ", appointment)
         except (KeyError, Appointment.DoesNotExist):
-            print("APPOINTMENT DOES NOT EXIST")
+            # print("APPOINTMENT DOES NOT EXIST")
             appointment = None
 
 
