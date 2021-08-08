@@ -2,22 +2,26 @@
 {% block content %}
     <div class="center">
         {% if user.is_authenticated %}
-        <p>Hello, {{user.first_name}}</p>
-        <a href="{% url 'logout' %}">LOGOUT</a>
+            <p>Hello, {{user}}</p>
         {% endif %}
-        <div class="buttons">
-            <h2>About</h2>
+    </div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
             <form action="{% url 'view_seniors' %}">
                 <input type="submit" value="Seniors" />
             </form>
-            <br>
+        </div>
+        <div class="col-sm">
             <form action="{% url 'view_volunteers' %}">
                 <input type="submit" value="Volunteers" />
             </form>
-            <br>
+        </div>
+        <div class="col-sm">
             <form action="{% url 'appointment' %}">
                 <input type="submit" value="Schedule an Appointment" />
             </form>
         </div>
     </div>
+</div>
 {% endblock %}

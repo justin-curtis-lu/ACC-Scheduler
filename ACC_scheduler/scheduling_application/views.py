@@ -20,10 +20,9 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         user = auth.authenticate(username=username, password=password)
-
         if user is not None:
             auth.login(request, user)
-            return redirect('index')
+            return redirect('console')
         else:
             messages.info(request, 'invalid credentials')
             return redirect('login')                 # TEMPORARY
@@ -107,9 +106,12 @@ def confirm_v(request):
     return render(request, 'scheduling_application/confirm_v.html', context)
 
 
-def index(request):
-    """View for index page (home page when logged in)"""
-    return render(request, 'scheduling_application/index.html', {})
+def console(request):
+    """View for console page (home page when logged in)"""
+    if not request.user.is_authenticated:
+        # Pass Flash message ( You must be authenticated to access this page )
+        return render(request, 'scheduling_application/home.html', {})
+    return render(request, 'scheduling_application/console.html', {})
 
 
 def logout(request):
