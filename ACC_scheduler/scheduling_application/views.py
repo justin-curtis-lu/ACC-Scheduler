@@ -8,6 +8,7 @@ from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.crypto import get_random_string
+from twilio.rest import Client
 
 
 
@@ -99,27 +100,38 @@ def confirm_v(request):
 
     if request.method == 'POST':
         selected_volunteers = request.POST
-        # print("selected_volunteers", selected_volunteers)
+        print("selected_volunteers", selected_volunteers)
 
         domain = get_current_site(request).domain
 
         for i in potential_list:
             if str(i['id']) in selected_volunteers['volunteer']:
-                token = get_random_string(length=32)
-                activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token
-                email_subject = 'Appointment Confirmation Email'
-                email_message = 'Click the link below to confirm your availability and attendance of this appointment: ' + activate_url
-                from_email = 'acc.scheduler.care@gmail.com'
-                to_email = [i['email']]
-                send_mail(email_subject, email_message, from_email, to_email)
-                # print("to email", to_email)
+                if i['notif_email'] == True:
+                    token = get_random_string(length=32)
+                    activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token
+                    email_subject = 'Appointment Confirmation Email'
+                    email_message = 'Click the link below to confirm your availability and attendance of this appointment: ' + activate_url
+                    from_email = 'acc.scheduler.care@gmail.com'
+                    to_email = [i['email']]
+                    send_mail(email_subject, email_message, from_email, to_email)
+                    # print("to email", to_email)
+                if i['notif_text'] == True:
+                    token = get_random_string(length=32)
+                    activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token        # MAYBE CAN REMOVE EMAIL QUERY
 
-        request.session['selected_volunteers'] = request.POST.getlist('volunteer')
+                    account_sid = 'AC7b1313ed703f0e2697c57e0c1ec641cd'
+                    auth_token = '3e77ae49deeeb026e625ea93bd5a3214'
+                    client = Client(account_sid, auth_token)
+
+                    message = client.messages.create(body=f'Click the link below to confirm your availability and attendance of this appointment: {activate_url}', from_='+17608218017', to='+16504848988')
+
+        # request.session['selected_volunteers'] = request.POST.getlist('volunteer')
         # print("session selected volunteers", request.session['selected_volunteers'])
         # messages.success(request, 'Emails successfully sent')
     return render(request, 'scheduling_application/confirm_v.html', context)
 
 
+# Currently not using email and token queries
 def success(request):
     """View for the email sending success page"""
     if request.method == 'GET':
@@ -135,12 +147,7 @@ def success(request):
         except (KeyError, Appointment.DoesNotExist):
             # print("APPOINTMENT DOES NOT EXIST")
             appointment = None
-
-
-
         print(appointment)
-
-
         return render(request, "scheduling_application/success.html", {})
 
 
