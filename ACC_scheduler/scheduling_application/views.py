@@ -9,7 +9,9 @@ from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.crypto import get_random_string
 from twilio.rest import Client
-
+from django.db.models import Q
+from .methods import check_time
+from .methods import check_age
 
 
 def home(response):
@@ -65,15 +67,18 @@ def make_appointment(request):
 
     # Handle scheduling appointment
     if request.method == 'POST':
-        senior_id = request.POST['senior']
-        senior = Senior.objects.get(id=senior_id)
-        day = request.POST['day']
-        # print("SENIORS LIST:", seniors_list)
-        #for i in Senior.objects.all():
-        #    print(i.id)
-        # print(senior)
-        appointment = Appointment.objects.create(senior=senior)
-        potential_list = Volunteer.objects.filter(day=day).values()         # get only volunteers' first and last name
+        senior = request.POST['senior']
+        senior_id = Senior.objects.get(id=senior)
+        day_time = request.POST['day_time'].split()
+        check_list = Volunteer.objects.filter(Q(availability__has_key=day_time[0])).values()
+        appointment = Appointment.objects.create(senior=senior_id)
+        potential_list = []
+        for volunteer in check_list:
+            time_list = volunteer['availability'][day_time[0]]
+            for time in time_list:
+                if check_time(day_time[1], time):
+                    potential_list.append(volunteer)
+                    break
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
@@ -93,6 +98,13 @@ def confirm_v(request):
     potential_list = request.session['potential_list']
     print(potential_list)
 
+    #### MAYBE REMOVE THIS AND FIX ON CONFIRM_V.HTML
+    #available_volunteer_list = []
+    #for i in potential_list:
+    #    if i['dob'] != 'N/A' and check_age(i['dob']):
+    #        available_volunteer_list.append(i['first_name'] + " " + i['last_name'] + "(minor)")
+    #    else:
+    #        available_volunteer_list.append(i['first_name'] + " " + i['last_name'])
 
     context = {
         'potential_list': potential_list
