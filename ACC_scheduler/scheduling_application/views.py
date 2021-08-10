@@ -6,7 +6,9 @@ from .forms import SeniorForm
 from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
-
+from django.db.models import Q
+import json
+from .methods import check_time
 
 
 def home(response):
@@ -68,8 +70,15 @@ def appointment(request):
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
-        day = request.POST['day']
-        potential_list = Volunteer.objects.filter(day=day).values()         # get only volunteers' first and last name
+        day_time = request.POST['day_time'].split()
+        check_list = Volunteer.objects.filter(Q(availability__has_key=day_time[0])).values()
+        potential_list = []
+        for volunteer in check_list:
+            time_list = volunteer['availability'][day_time[0]]
+            for time in time_list:
+                if check_time(day_time[1], time):
+                    potential_list.append(volunteer)
+                    break
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
