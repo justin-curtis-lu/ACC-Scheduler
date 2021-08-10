@@ -7,8 +7,8 @@ from .models import Senior, Volunteer, Appointment
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 from django.db.models import Q
-import json
 from .methods import check_time
+from .methods import check_age
 
 
 def home(response):
@@ -97,7 +97,10 @@ def confirm_v(request):
     print(potential_list)
     available_volunteer_list = []
     for i in potential_list:
-        available_volunteer_list.append(i['first_name'] + " " + i['last_name'])
+        if i['dob'] != 'N/A' and check_age(i['dob']):
+            available_volunteer_list.append(i['first_name'] + " " + i['last_name'] + "(minor)")
+        else:
+            available_volunteer_list.append(i['first_name'] + " " + i['last_name'])
 
     context = {
         'available_volunteer_list': available_volunteer_list
