@@ -25,7 +25,7 @@ def check_time(appointment_time, volunteer_time):
     v_time_start = float(format_num[0]) + float(format_num[1]) / 100
     format_num = v_times[1].split(":")
     v_time_end = float(format_num[0]) + float(format_num[1]) / 100
-    if v_time_start < a_time_start < v_time_end and v_time_start < a_time_end < v_time_end:
+    if v_time_start <= a_time_start < v_time_end and v_time_start < a_time_end <= v_time_end:
         return True
     else:
         return False
