@@ -91,7 +91,7 @@ def make_appointment(request):
 def confirm_v(request):
     """View for page to confirm which volunteers to send emails to."""
     potential_list = request.session['potential_list']
-    # print(potential_list)
+    print(potential_list)
 
 
     context = {
@@ -100,13 +100,17 @@ def confirm_v(request):
 
     if request.method == 'POST':
         selected_volunteers = request.POST
-        print("selected_volunteers", selected_volunteers)
+        # print("selected_volunteers", selected_volunteers)
+        # print("selected_volunteers volunteer", selected_volunteers.getlist('volunteer'))
 
         domain = get_current_site(request).domain
 
         for i in potential_list:
-            if str(i['id']) in selected_volunteers['volunteer']:
-                if i['notif_email'] == True:
+            # print("i", i)
+            if str(i['id']) in selected_volunteers.getlist('volunteer'):
+                # print("id in selected volunteers", str(i['id']))
+                if i['notify_email'] == True:
+                    # print("i[notify-email=true]", i)
                     token = get_random_string(length=32)
                     activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token
                     email_subject = 'Appointment Confirmation Email'
@@ -114,8 +118,8 @@ def confirm_v(request):
                     from_email = 'acc.scheduler.care@gmail.com'
                     to_email = [i['email']]
                     send_mail(email_subject, email_message, from_email, to_email)
-                    # print("to email", to_email)
-                if i['notif_text'] == True:
+                    print("to email", to_email)
+                if i['notify_text'] == True:
                     token = get_random_string(length=32)
                     activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token        # MAYBE CAN REMOVE EMAIL QUERY
 
@@ -142,7 +146,9 @@ def success(request):
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
             # print(volunteer, type(volunteer))
-            appointment = Appointment.objects.filter(id=request.session['appointment']).update(volunteer=volunteer)
+            appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).update(volunteer=volunteer)
+            print("appointment", appointment)
+
             # print("appointment: ", appointment)
         except (KeyError, Appointment.DoesNotExist):
             # print("APPOINTMENT DOES NOT EXIST")

@@ -11,13 +11,13 @@
 <body>
     <div class="center">
 {% if seniors_list %}
-    <p><b>Seniors currently in the database  </b> </p>
+    <p><b>Participants currently in the database  </b> </p>
     {% for senior in seniors_list %}
         <p>{{ senior }}</p>
     {% endfor %}
 
 {% else %}
-    <p>No seniors currently added.</p>
+    <p>No participants currently added.</p>
 {% endif %}
 <br>
 {% if volunteers_list %}

@@ -27,9 +27,9 @@ class Volunteer(models.Model):
     email = models.CharField(max_length=40, default='None')
     age = models.IntegerField(default=0)
     vaccinated = models.BooleanField(default=False)
-    notif_email = models.BooleanField(default=False)
-    notif_test = models.BooleanField(default=False)
-    notif_call = models.BooleanField(default=False)
+    notify_email = models.BooleanField(default=False)
+    notify_text = models.BooleanField(default=False)
+    notify_call = models.BooleanField(default=False)
 
     @property
     def full_name(self):
