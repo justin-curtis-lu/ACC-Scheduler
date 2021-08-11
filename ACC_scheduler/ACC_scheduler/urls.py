@@ -19,7 +19,7 @@ from scheduling_application import views as sa_views
 
 urlpatterns = [
     path('', sa_views.home, name='home'),
-    path('index/', sa_views.index, name='index'),
+    path('console/', sa_views.console, name='console'),
     path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
     path('login/', sa_views.login, name='login'),

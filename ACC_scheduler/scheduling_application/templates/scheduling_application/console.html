@@ -1,0 +1,27 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+    <div class="center">
+        {% if user.is_authenticated %}
+            <p>Hello, {{user}}</p>
+        {% endif %}
+    </div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <form action="{% url 'view_seniors' %}">
+                <input type="submit" value="Seniors" />
+            </form>
+        </div>
+        <div class="col-sm">
+            <form action="{% url 'view_volunteers' %}">
+                <input type="submit" value="Volunteers" />
+            </form>
+        </div>
+        <div class="col-sm">
+            <form action="{% url 'make_appointment' %}">
+                <input type="submit" value="Schedule an Appointment" />
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,5 @@
-<!-- HTML page for creating an account -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
@@ -24,5 +18,4 @@
             </small>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

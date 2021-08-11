@@ -1,14 +1,5 @@
-<!-- HTML page for viewing all the seniors -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="../../static/style.css">
-    <title>Seniors</title>
-</head>
-<body>
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
     <div class="center">
     <table>
         <tr>
@@ -30,8 +21,7 @@
         </tr>
         {% endfor %}
     </table>
-    <a href="{% url 'add_senior' %}"><button>Add Participant</button></a>
-    <a href="{% url 'index' %}"><button>exit</button></a>
+    <a href="{% url 'add_senior' %}"><button>Add Senior</button></a>
+    <a href="{% url 'console' %}"><button>exit</button></a>
     </div>
-</body>
-</html>
+{% endblock %}
