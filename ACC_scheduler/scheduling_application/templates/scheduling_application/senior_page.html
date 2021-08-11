@@ -12,7 +12,11 @@
     <h2>{{senior.first_name}} {{ senior.last_name }}</h2>
     <h3>Age: {{senior.age}}</h3>
     <h3>Address: {{senior.address}}</h3>
+    <h3>Phone: {{senior.phone}}</h3>
+    <h3>Email: {{senior.email}}</h3>
+    <h3>Date of Birth: {{senior.dob}}</h3>
     <h3>Vaccinated: {{senior.vaccinated}}</h3>
+    <h3>Call for Confirmation: {{senior.notify_call}}</h3>
     <form action="" method="POST">
         {% csrf_token %}
         <button type="submit">remove</button>

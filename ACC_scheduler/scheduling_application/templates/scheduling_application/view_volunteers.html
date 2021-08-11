@@ -14,15 +14,24 @@
         <tr>
             <th>Last Name</th>
             <th>First Name</th>
-            <th>Day</th>
             <th>Address</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Date of Birth</th>
+            <th>Vaccinated</th>
+            <th>Availability</th>
         </tr>
         {% for item in volunteers %}
         <tr>
              <td>{{ item.last_name }}</td>
              <td>{{ item.first_name }}</td>
-             <td>{{ item.day }}</td>
+             <td>{{ item.address }}</td>
+             <td>{{ item.phone }}</td>
+             <td>{{ item.email }}</td>
+             <td>{{ item.dob }}</td>
              <td>{{ item.vaccinated }}</td>
+             <td>{{ item.availability }}</td>
+
         </tr>
         {% endfor %}
     </table>
