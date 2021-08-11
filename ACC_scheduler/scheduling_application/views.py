@@ -14,9 +14,19 @@ from .methods import check_time
 from .methods import check_age
 
 
+
+
 def home(response):
     """View for the home page"""
     return render(response, "scheduling_application/home.html", {})
+
+
+def console(request):
+    """View for console page (home page when logged in)"""
+    if not request.user.is_authenticated:
+        # Pass Flash message ( You must be authenticated to access this page )
+        return render(request, 'scheduling_application/home.html', {})
+    return render(request, 'scheduling_application/console.html', {})
 
 
 def login(request):
@@ -147,13 +157,6 @@ def confirm_v(request):
         # messages.success(request, 'Emails successfully sent')
     return render(request, 'scheduling_application/confirm_v.html', context)
 
-
-def console(request):
-    """View for console page (home page when logged in)"""
-    if not request.user.is_authenticated:
-        # Pass Flash message ( You must be authenticated to access this page )
-        return render(request, 'scheduling_application/home.html', {})
-    return render(request, 'scheduling_application/console.html', {})
 
 # Currently not using email and token queries
 def success(request):
