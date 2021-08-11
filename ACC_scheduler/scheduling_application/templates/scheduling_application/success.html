@@ -8,9 +8,10 @@
     <title>Account Created</title>
 </head>
 <body>
-    <h1>Your Account Has Been Created</h1>
-    <p>A confirmation email has been sent</p>
-    <a href="{% url 'admin:index' %}"><button>Start Scheduling</button></a>
+    <h1>Your appointment has been confirmed!</h1>
+    <p>Give appointment details here: </p>
+
+    <!-- {{ request.get_full_path }} -->
     <a href="{% url 'home' %}"><button>Return to main page</button></a>
 </body>
 </html>
