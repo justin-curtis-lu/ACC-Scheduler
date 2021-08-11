@@ -5,15 +5,19 @@
         <tr>
             <th>Last Name</th>
             <th>First Name</th>
-            <th>Age</th>
             <th>Address</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Date of Birth</th>
         </tr>
         {% for item in seniors %}
         <tr>
              <td><a href="{% url 'senior_page' item.id %}">{{ item.last_name }}</a></td>
              <td>{{ item.first_name }}</td>
-             <td>{{ item.age }}</td>
              <td>{{ item.address }}</td>
+             <td>{{ item.phone }}</td>
+             <td>{{ item.email }}</td>
+             <td>{{ item.dob }}</td>
         </tr>
         {% endfor %}
     </table>
