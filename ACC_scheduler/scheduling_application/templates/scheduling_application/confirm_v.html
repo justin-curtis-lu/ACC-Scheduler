@@ -14,7 +14,7 @@
         {% csrf_token %}
             {% for volunteer in potential_list %}
                 <input type="checkbox" id=volunteer.id name=volunteer value={{volunteer.id}} checked="True">
-                <label for={{volunteer.id}}>{{volunteer.first_name}} {{volunteer.last_name}} {{% %}}</label>
+                <label for={{volunteer.id}}>{{volunteer.first_name}} {{volunteer.last_name}}</label>
             {% endfor %}
         <br>
             <input type="Submit" name="select_volunteers">

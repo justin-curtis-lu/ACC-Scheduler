@@ -70,6 +70,7 @@ def make_appointment(request):
         senior = request.POST['senior']
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
+        print(day_time)
         check_list = Volunteer.objects.filter(Q(availability__has_key=day_time[0])).values()
         appointment = Appointment.objects.create(senior=senior_id)
         potential_list = []
@@ -139,7 +140,8 @@ def confirm_v(request):
                     auth_token = '3e77ae49deeeb026e625ea93bd5a3214'
                     client = Client(account_sid, auth_token)
 
-                    message = client.messages.create(body=f'Click the link below to confirm your availability and attendance of this appointment: {activate_url}', from_='+17608218017', to='+16504848988')
+                    message = client.messages.create(body=f'Click the link below to confirm your availability and attendance of this appointment: {activate_url}', from_='+17608218017', to=i['phone'])
+                    print("to phone", i['phone'])
 
         # request.session['selected_volunteers'] = request.POST.getlist('volunteer')
         # print("session selected volunteers", request.session['selected_volunteers'])
