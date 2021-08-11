@@ -68,6 +68,8 @@ def make_appointment(request):
     volunteers_list = Volunteer.objects.all()
     appointments_list = Appointment.objects.all()
 
+    print(seniors_list)
+
     context = {
         'seniors_list': seniors_list,
         'volunteers_list': volunteers_list,
@@ -77,6 +79,8 @@ def make_appointment(request):
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
+        print(senior)
+        print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
         print(day_time)
