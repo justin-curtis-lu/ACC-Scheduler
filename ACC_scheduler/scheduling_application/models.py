@@ -10,9 +10,17 @@ class Senior(models.Model):
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
 
-    age = models.IntegerField(default=0)
+    # age = models.IntegerField(default=0)
     address = models.CharField(default='N/A', max_length=100)
+    phone = models.CharField(default='N/A', max_length=30)
+    email = models.CharField(max_length=40, default='None')
+    emergency_contacts = models.CharField(default='N/A', max_length=100)
+    preferred_language = models.CharField(default='N/A', max_length=100)
+    additional_notes = models.TextField(default='N/A')
     vaccinated = models.BooleanField(default=False)
+    notify_email = models.BooleanField(default=False)
+    notify_text = models.BooleanField(default=False)
+    notify_call = models.BooleanField(default=False)
 
     def __str__(self):
         return self.full_name
@@ -23,10 +31,16 @@ class Volunteer(models.Model):
     """Model for all the volunteers in the database"""
     last_name = models.CharField(max_length=30)
     first_name = models.CharField(max_length=30)
-    day = models.CharField(max_length=1, default='M')           # temporary way to choose time (M stands for "Monday")
+    phone = models.CharField(default='N/A', max_length=30)
     email = models.CharField(max_length=40, default='None')
-    age = models.IntegerField(default=0)
+    #age = models.IntegerField(default=0)
+    dob = models.CharField(max_length=10, default='N/A')
     vaccinated = models.BooleanField(default=False)
+    notify_email = models.BooleanField(default=False)
+    notify_text = models.BooleanField(default=False)
+    notify_call = models.BooleanField(default=False)
+    availability = models.JSONField(default=dict)
+    current_appointments = models.JSONField(default=dict, editable=False)
 
     @property
     def full_name(self):
@@ -39,9 +53,9 @@ class Volunteer(models.Model):
 class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE)
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
     location = models.CharField(max_length=50)
-    date_and_time = models.DateTimeField()
+    date_and_time = models.DateTimeField(auto_now_add=True)
     purpose_of_trip = models.TextField(default="N/A")
     notes = models.TextField(default="N/A")
     # Add a Status field (Waiting for confirmation, Confirmed <- should be triggered by the clicked link)

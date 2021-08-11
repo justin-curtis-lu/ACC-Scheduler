@@ -1,8 +1,7 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
 <body>
-    <h1>Your Account Has Been Created</h1>
-    <p>A confirmation email has been sent</p>
-    <a href="{% url 'admin:console' %}"><button>Start Scheduling</button></a>
+    <h1>Your appointment has been confirmed!</h1>
+    <p>Give appointment details here: </p>
     <a href="{% url 'home' %}"><button>Return to main page</button></a>
 {% endblock %}
