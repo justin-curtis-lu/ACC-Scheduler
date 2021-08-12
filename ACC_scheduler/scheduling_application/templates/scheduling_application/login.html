@@ -1,22 +1,25 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
-<div class="row">
-    <div class="col-md-auto">
-        <div class="card text-center" style="width: 18rem;">
-            <div class="card-body">
-                <form method="POST">
+<div class="space">
+    <p class="text-center bigger" > Sign In </p>
+    <p class="special text-center"> Welcome to the SacSSC console! <p>
+    <div class="card center" style="width: 24rem;">
+        <div class="card-body">
+            <form method="POST">
                 {% csrf_token %}
-                    <input type="text" name="username" placeholder="username"><br>
-                    <input type="password" name="password" placeholder="password"><br>
-                    <input type="Submit">
-                </form>
-                    <a href="{% url 'home' %}"><button>Return to main page</button></a>
-                <div>
+                    <p class="special"> Username </p>
+                    <input class="special" type="text" name="username" placeholder="username">
+                    <br>
+                    <br>
+                    <p class="special"> Password </p>
+                    <input class="special" type="password" name="password" placeholder="password">
+                    <br>
+                    <br>
                     {% for message in messages %}
-                    <h3> {{message}} </h3>
+                        <p class="error"> {{message}} </p>
                     {% endfor %}
-                </div>
-            </div>
+                    <input class="special" type="Submit">
+            </form>
         </div>
     </div>
 </div>

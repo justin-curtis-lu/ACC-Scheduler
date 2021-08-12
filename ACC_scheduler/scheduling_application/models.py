@@ -17,10 +17,10 @@ class Senior(models.Model):
     emergency_contacts = models.CharField(default='N/A', max_length=100)
     preferred_language = models.CharField(default='N/A', max_length=100)
     additional_notes = models.TextField(default='N/A')
-    vaccinated = models.BooleanField(default=False)
-    notify_email = models.BooleanField(default=False)
-    notify_text = models.BooleanField(default=False)
-    notify_call = models.BooleanField(default=False)
+    vaccinated = models.BooleanField(default=None)
+    notify_email = models.BooleanField(default=None)
+    notify_text = models.BooleanField(default=None)
+    notify_call = models.BooleanField(default=None)
 
     def __str__(self):
         return self.full_name
@@ -35,10 +35,10 @@ class Volunteer(models.Model):
     email = models.CharField(max_length=40, default='None')
     #age = models.IntegerField(default=0)
     dob = models.CharField(max_length=10, default='N/A')
-    vaccinated = models.BooleanField(default=False)
-    notify_email = models.BooleanField(default=False)
-    notify_text = models.BooleanField(default=False)
-    notify_call = models.BooleanField(default=False)
+    vaccinated = models.BooleanField(default=None)
+    notify_email = models.BooleanField(default=None)
+    notify_text = models.BooleanField(default=None)
+    notify_call = models.BooleanField(default=None)
     availability = models.JSONField(default=dict)
     current_appointments = models.JSONField(default=dict, editable=False)
 
