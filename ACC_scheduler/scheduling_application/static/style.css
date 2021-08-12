@@ -61,3 +61,42 @@ table {
     margin-right: auto;
 }
 
+.space{
+    margin-top: 5rem;
+}
+
+
+.home-spacer{
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  color: #848e9c;
+  font-size: 12px;
+  width: 100%;
+  height: 2.5rem;            /* Footer height */
+}
+
+.bigger {
+    font-size: 40px;
+    color: #0b0e11;
+    font-weight: 100;
+    font-family: Arial,sans-serif!important;
+}
+
+.special {
+   font-size: 14px;
+}
+
+.error {
+   font-size: 14px;
+   color: red;
+}
+
+.center {
+    margin: auto;
+    width: 60%;
+}
