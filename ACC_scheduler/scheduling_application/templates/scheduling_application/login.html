@@ -5,14 +5,14 @@
     <p class="special text-center"> Welcome to the SacSSC console! <p>
     <div class="card center" style="width: 24rem;">
         <div class="card-body">
-            <form method="POST">
+            <form class="form-group" method="POST">
                 {% csrf_token %}
                     <p class="special"> Username </p>
-                    <input class="special" type="text" name="username" placeholder="username">
+                    <input class="special" type="text" name="username" placeholder="Enter Username">
                     <br>
                     <br>
                     <p class="special"> Password </p>
-                    <input class="special" type="password" name="password" placeholder="password">
+                    <input class="special" type="password" name="password" placeholder="Password">
                     <br>
                     <br>
                     {% for message in messages %}
