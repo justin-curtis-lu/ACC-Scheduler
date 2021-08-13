@@ -56,8 +56,8 @@ class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
-    start_address = models.CharField(max_length=50)
-    end_address = models.CharField(max_length=50)
+    start_address = models.CharField(max_length=50, null=True)
+    end_address = models.CharField(max_length=50, null=True)
     date_and_time = models.CharField(max_length=50)
     purpose_of_trip = models.TextField(default="N/A")
     notes = models.TextField(default="N/A")

@@ -72,14 +72,16 @@ def make_appointment(request):
     print(seniors_list)
 
     context = {
-        'seniors_list': seniors_list,
-        'volunteers_list': volunteers_list,
+        'seniors_list': seniors_list[:5],
+        'volunteers_list': volunteers_list[:5],
         'appointments_list': appointments_list
     }
 
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
+        start_address = request.POST['start_address']
+        end_address = request.POST['end_address']
         # print(senior)
         # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
@@ -88,9 +90,9 @@ def make_appointment(request):
         # print("CHECK: " + day_of_week)
         # print(day_time)
         check_list = Volunteer.objects.filter(Q(availability__has_key=day_of_week)).values()
-        appointment = Appointment.objects.create(senior=senior_id)
-        appointment.date_and_time = day_time[0] + " " + day_time[1]
-        appointment.save()
+        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address, end_address=end_address, date_and_time=day_time[0] + " " + day_time[1])
+        #appointment.date_and_time = day_time[0] + " " + day_time[1]
+        #appointment.save()
         potential_list = []
         for volunteer in check_list:
             time_list = volunteer['availability'][day_of_week]

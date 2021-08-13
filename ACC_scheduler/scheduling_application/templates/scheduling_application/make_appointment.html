@@ -27,12 +27,16 @@
         <tr>
             <th>Senior</th>
             <th>Volunteer</th>
+            <th>Starting Address</th>
+            <th>Destination</th>
             <th>Date/Time</th>
         </tr>
         {% for appointment in appointments_list %}
         <tr>
              <td scope="col">{{ appointment.senior }}</td>
              <td>{{ appointment.volunteer }}</td>
+             <td>{{ appointment.start_address }}</td>
+             <td>{{ appointment.end_address }}</td>
              <td>{{ appointment.date_and_time }}</td>
         </tr>
         {% endfor %}
@@ -46,15 +50,17 @@
 <p><b> Schedule an Appointment </b> </p>
 <form method='POST' action=''>
     {% csrf_token %}
-    <select class="form-control" id="senior" name='senior'>
-        {% for senior in seniors_list %}
-            <option value='{{ senior.id }}'>{{ senior.full_name }}</option>
-        {% endfor %}
-    </select>
+    <div class="col col-lg-2 center">
+        <select class="form-control" id="senior" name='senior'>
+            {% for senior in seniors_list %}
+                <option value='{{ senior.id }}'>{{ senior.full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <br>
-    <p><b>Starting Address</b></p><input type="text" name="start_location"><br>
-    <p><b>Destination</b></p><input type="text" name="end_location"><br>
-    <p><b>Day and Time</b></p><input type="text" name="day_time"><br>
+    <p><b>Starting Address</b></p><input type="text" name="start_address"><br>
+    <p><b>Destination</b></p><input type="text" name="end_address"><br>
+    <p><b>Day and Time</b></p><input type="text" name="day_time"><br><br>
     <input type="Submit" name="select_senior">
 </form>
 
