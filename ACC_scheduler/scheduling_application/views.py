@@ -80,13 +80,13 @@ def make_appointment(request):
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
-        print(senior)
-        print(request.POST)
+        # print(senior)
+        # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
         day_of_week = get_day(day_time[0])[:3]
-        print("CHECK: " + day_of_week)
-        print(day_time)
+        # print("CHECK: " + day_of_week)
+        # print(day_time)
         check_list = Volunteer.objects.filter(Q(availability__has_key=day_of_week)).values()
         appointment = Appointment.objects.create(senior=senior_id)
         potential_list = []
