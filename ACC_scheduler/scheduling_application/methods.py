@@ -1,6 +1,5 @@
 import datetime
 from datetime import date
-import calendar
 
 # Function that returns the day of the week given a date in format: mm/dd/yyyy
 def get_day(date):
