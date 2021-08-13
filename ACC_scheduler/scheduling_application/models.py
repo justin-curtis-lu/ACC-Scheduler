@@ -58,7 +58,7 @@ class Appointment(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
     start_address = models.CharField(max_length=50)
     end_address = models.CharField(max_length=50)
-    date_and_time = models.DateTimeField(default=None)
+    date_and_time = models.CharField(max_length=50)
     purpose_of_trip = models.TextField(default="N/A")
     notes = models.TextField(default="N/A")
     # Add a Status field (Waiting for confirmation, Confirmed <- should be triggered by the clicked link)

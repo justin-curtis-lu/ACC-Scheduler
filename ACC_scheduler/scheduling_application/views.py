@@ -12,6 +12,7 @@ from twilio.rest import Client
 from django.db.models import Q
 from .methods import check_time
 from .methods import check_age
+from .methods import get_day
 
 
 
@@ -79,16 +80,20 @@ def make_appointment(request):
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
-        print(senior)
-        print(request.POST)
+        # print(senior)
+        # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
-        print(day_time)
-        check_list = Volunteer.objects.filter(Q(availability__has_key=day_time[0])).values()
+        day_of_week = get_day(day_time[0])[:3]
+        # print("CHECK: " + day_of_week)
+        # print(day_time)
+        check_list = Volunteer.objects.filter(Q(availability__has_key=day_of_week)).values()
         appointment = Appointment.objects.create(senior=senior_id)
+        appointment.date_and_time = day_time[0] + " " + day_time[1]
+        appointment.save()
         potential_list = []
         for volunteer in check_list:
-            time_list = volunteer['availability'][day_time[0]]
+            time_list = volunteer['availability'][day_of_week]
             for time in time_list:
                 if check_time(day_time[1], time):
                     potential_list.append(volunteer)
