@@ -23,9 +23,20 @@
 <br>
 {% if appointments_list %}
     <p><b> Appointments currently in the database </b> </p>
-    {% for appointment in appointments_list %}
-        <p>{{ appointment }}</p>
-    {% endfor %}
+    <table class="table">
+        <tr>
+            <th>Senior</th>
+            <th>Volunteer</th>
+            <th>Date/Time</th>
+        </tr>
+        {% for appointment in appointments_list %}
+        <tr>
+             <td scope="col">{{ appointment.senior }}</td>
+             <td>{{ appointment.volunteer }}</td>
+             <td>{{ appointment.date_and_time }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 <br>
 {% else %}
     <p><b>No appointments currently added.</b></p>

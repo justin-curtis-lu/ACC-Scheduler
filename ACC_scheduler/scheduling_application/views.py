@@ -89,6 +89,8 @@ def make_appointment(request):
         # print(day_time)
         check_list = Volunteer.objects.filter(Q(availability__has_key=day_of_week)).values()
         appointment = Appointment.objects.create(senior=senior_id)
+        appointment.date_and_time = day_time[0] + " " + day_time[1]
+        appointment.save()
         potential_list = []
         for volunteer in check_list:
             time_list = volunteer['availability'][day_of_week]
