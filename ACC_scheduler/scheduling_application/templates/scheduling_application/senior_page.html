@@ -1,18 +1,77 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
-<div class="center">
-    <h2>{{senior.first_name}} {{ senior.last_name }}</h2>
-    <h3>Age: {{senior.age}}</h3>
-    <h3>Address: {{senior.address}}</h3>
-    <h3>Phone: {{senior.phone}}</h3>
-    <h3>Email: {{senior.email}}</h3>
-    <h3>Date of Birth: {{senior.dob}}</h3>
-    <h3>Vaccinated: {{senior.vaccinated}}</h3>
-    <h3>Call for Confirmation: {{senior.notify_call}}</h3>
-    <form action="" method="POST">
-        {% csrf_token %}
-        <button type="submit">remove</button>
+<br>
+<br>
+<p class="text-center bigger" > Sign In </p>
+<p class="special text-center"> Welcome to MyPR! <p>
+<div class="card center" style="width: 24rem;">
+    <div class="card-body">
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p class="special">
+            {{ form.username.label }}<br>
+            {{ form.username(size=48) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p class="special">
+            {{ form.password.label }}<br>
+            {{ form.password(size=48) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p class="special">{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p class="text-center special">{{ form.submit() }}</p>
     </form>
-    <a href="{% url 'view_seniors' %}"><button>exit</button></a>
+    <p class="special2 space text-center ">New User? <a href="{{ url_for('auth.register') }}" class="special2 text-center">Click to Register!</a></p>
+    <p class="special2 text-center">
+        Forgot Your Password?
+        <a href="{{ url_for('auth.reset_password_request') }}" class="special2 text-center">Click to Reset It</a>
+    </p>
 </div>
+</div>
+<br>
+
+<!--<div class="center">-->
+<!--    <div class="card" style="width: 18rem;">-->
+<!--    <div class="card-header">-->
+<!--    {{senior.first_name}} {{ senior.last_name }}-->
+<!--  </div>-->
+<!--        <div class="card-body">-->
+<!--      <ul class="list-group list-group-flush">-->
+<!--        <li class="list-group-item">Age: {{senior.age}}</li>-->
+<!--        <li class="list-group-item">Phone: {{senior.phone}}</li>-->
+<!--        <li class="list-group-item">Email: {{senior.email}}</li>-->
+<!--          <li class="list-group-item">Date of Birth: {{senior.dob}}</li>-->
+<!--          <li class="list-group-item">Vaccinated: {{senior.vaccinated}}</li>-->
+<!--          <li class="list-group-item">Call for Confirmation: {{senior.notify_call}} </li>-->
+<!--      </ul>-->
+<!--            </div>-->
+<!--        <div class="card-footer text-muted">-->
+<!--    <form action="" method="POST">-->
+<!--        {% csrf_token %}-->
+<!--        <button class="btn btn-primary" type="submit">remove</button>-->
+<!--    </form>-->
+<!--             </div>-->
+<!--    </div>-->
+<!--    <a class="btn btn-primary" href="{% url 'view_seniors' %}">exit</a>-->
+<!--</div>-->
+
+<!--<div class="center">-->
+<!--    <h2>{{senior.first_name}} {{ senior.last_name }}</h2>-->
+<!--    <h3>Age: {{senior.age}}</h3>-->
+<!--    <h3>Address: {{senior.address}}</h3>-->
+<!--    <h3>Phone: {{senior.phone}}</h3>-->
+<!--    <h3>Email: {{senior.email}}</h3>-->
+<!--    <h3>Date of Birth: {{senior.dob}}</h3>-->
+<!--    <h3>Vaccinated: {{senior.vaccinated}}</h3>-->
+<!--    <h3>Call for Confirmation: {{senior.notify_call}}</h3>-->
+<!--    <form action="" method="POST">-->
+<!--        {% csrf_token %}-->
+<!--        <button type="submit">remove</button>-->
+<!--    </form>-->
+<!--    <a href="{% url 'view_seniors' %}"><button>exit</button></a>-->
+<!--</div>-->
 {% endblock %}
