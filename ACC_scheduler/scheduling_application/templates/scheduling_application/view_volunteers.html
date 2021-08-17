@@ -1,6 +1,7 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
-    <div class="center">
+<<<<<<< HEAD
+    <div class="center space">
     <table class="table">
         <thead>
             <tr>
@@ -9,6 +10,7 @@
                 <th scope="col">Phone</th>
                 <th scope="col">Email</th>
                 <th scope="col">Vaccinated</th>
+                <th scope="col">Availability</th>
                 <th scope="col">Additional Notes</th>
             </tr>
         </thead>
@@ -20,6 +22,7 @@
                  <td>{{ item.phone }}</td>
                  <td>{{ item.email }}</td>
                  <td>{{ item.vaccinated }}</td>
+                 <td>{{ item.availability }}</td>
                  <td>{{ item.additional_notes }}</td>
             </tr>
             {% endfor %}
