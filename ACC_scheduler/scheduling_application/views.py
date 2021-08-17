@@ -12,12 +12,15 @@ from twilio.rest import Client
 from django.db.models import Q
 from .methods import check_time
 from .methods import check_age
+from django.conf import settings
 
 
 
 
 def home(response):
     """View for the home page"""
+    # print(settings.MONKEY_AUTH)
+    # print(settings.SURVEY_AUTH)
     return render(response, "scheduling_application/home.html", {})
 
 
