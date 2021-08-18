@@ -29,17 +29,18 @@ class Senior(models.Model):
 # Subject to change based on data we can get from Galaxy Digital
 class Volunteer(models.Model):
     """Model for all the volunteers in the database"""
+    galaxy_id = models.IntegerField(default=None, null=True)
     last_name = models.CharField(max_length=30)
     first_name = models.CharField(max_length=30)
-    phone = models.CharField(default='N/A', max_length=30)
+    phone = models.CharField(default=None, max_length=30, null=True)
     email = models.CharField(max_length=40, default='None')
     # age = models.IntegerField(default=0)
     # address?
-    dob = models.CharField(max_length=10, default='N/A')
-    vaccinated = models.BooleanField(default=None)
-    notify_email = models.BooleanField(default=None)
-    notify_text = models.BooleanField(default=None)
-    notify_call = models.BooleanField(default=None)
+    dob = models.CharField(max_length=10, default=None, null=True)
+    vaccinated = models.BooleanField(default=False)
+    notify_email = models.BooleanField(default=False)
+    notify_text = models.BooleanField(default=False)
+    notify_call = models.BooleanField(default=False)
     availability = models.JSONField(default=dict)
     current_appointments = models.JSONField(default=dict, editable=False)
     additional_notes = models.TextField(default='N/A')

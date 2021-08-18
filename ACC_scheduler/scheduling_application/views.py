@@ -14,6 +14,8 @@ from .methods import check_time
 from .methods import check_age
 from django.conf import settings
 from .methods import get_day
+import requests
+from requests.auth import HTTPBasicAuth
 
 
 
@@ -30,7 +32,41 @@ def console(request):
     if not request.user.is_authenticated:
         # Pass Flash message ( You must be authenticated to access this page )
         return render(request, 'scheduling_application/home.html', {})
+    #check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+    #if 4032242 in check_list:
+    #    print("yes")
+    #print("CHECK_LIST", check_list)
     return render(request, 'scheduling_application/console.html', {})
+
+
+def update_volunteers(request):
+    if request.GET.get("update_volunteers"):
+        print("UPDATING VOLUNTEERS")
+        url = 'https://api2.galaxydigital.com/volunteer/user/list/'
+        headers = {'Accept': 'scheduling_application/json'}
+        params = {'key': settings.GALAXY_AUTH}
+        response = requests.get(url, headers=headers, params=params)
+        voldata = response.json()
+        #print(voldata)
+
+        check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+        #print(check_list)
+
+        for i in voldata['data']:
+            galaxy_id = int(i['id'])
+            if galaxy_id in check_list:
+                # update
+                volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
+                volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'])
+                print("updating", volunteer)
+            else:
+                # create
+                Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'])
+                print("creating", i['firstName'], i['lastName'])
+
+
+    return redirect('console')
+    #return render(request, 'scheduling_application/console.html', {})
 
 
 def login(request):
