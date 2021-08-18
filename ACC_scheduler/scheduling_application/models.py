@@ -33,7 +33,8 @@ class Volunteer(models.Model):
     first_name = models.CharField(max_length=30)
     phone = models.CharField(default='N/A', max_length=30)
     email = models.CharField(max_length=40, default='None')
-    #age = models.IntegerField(default=0)
+    # age = models.IntegerField(default=0)
+    # address?
     dob = models.CharField(max_length=10, default='N/A')
     vaccinated = models.BooleanField(default=None)
     notify_email = models.BooleanField(default=None)
@@ -41,6 +42,7 @@ class Volunteer(models.Model):
     notify_call = models.BooleanField(default=None)
     availability = models.JSONField(default=dict)
     current_appointments = models.JSONField(default=dict, editable=False)
+    additional_notes = models.TextField(default='N/A')
 
     @property
     def full_name(self):
@@ -54,8 +56,9 @@ class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
-    location = models.CharField(max_length=50)
-    date_and_time = models.DateTimeField(auto_now_add=True)
+    start_address = models.CharField(max_length=50, null=True)
+    end_address = models.CharField(max_length=50, null=True)
+    date_and_time = models.CharField(max_length=50)
     purpose_of_trip = models.TextField(default="N/A")
     notes = models.TextField(default="N/A")
     # Add a Status field (Waiting for confirmation, Confirmed <- should be triggered by the clicked link)

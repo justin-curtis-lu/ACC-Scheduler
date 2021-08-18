@@ -1,6 +1,17 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
 <div class="center">
+
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <div class="alert alert-success" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
     {% if potential_list %}
         <p><b> Confirm Volunteers </b> </p>
     <form method='POST' action=''>
@@ -12,7 +23,6 @@
         <br>
             <input type="Submit" name="select_volunteers">
     {% endif %}
-
         <br>
         <br>
     </form>
