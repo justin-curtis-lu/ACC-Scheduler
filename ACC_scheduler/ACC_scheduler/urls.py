@@ -31,5 +31,6 @@ urlpatterns = [
     path('add_senior/', sa_views.add_senior, name='add_senior'),
     path('senior/<str:pk>', sa_views.senior_page, name='senior_page'),
     path('view_volunteers/', sa_views.view_volunteers, name='view_volunteers'),
+    path('update_volunteers/', sa_views.update_volunteers, name='update_volunteers'),
     # path('activate/<uidb64>/<token>', sa_views.activate, name='activate'),
 ]
