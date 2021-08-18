@@ -1,5 +1,11 @@
+import datetime
 from datetime import date
 
+# Function that returns the day of the week given a date in format: mm/dd/yyyy
+def get_day(date):
+    month, day, year = (int(i) for i in date.split('/'))
+    born = datetime.date(year, month, day)
+    return born.strftime("%A").lower()
 
 # Function to check if minor or not if minor return true else return false
 def check_age(dob):

@@ -16,7 +16,7 @@ class VolunteerAdmin(admin.ModelAdmin):
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ("senior", "location", "date_and_time", "notes")
+    list_display = ("senior", "start_address", "end_address", "date_and_time", "notes")
 
 
 admin.site.site_header = "Scheduling Application Admin Page"

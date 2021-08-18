@@ -13,6 +13,7 @@ from django.db.models import Q
 from .methods import check_time
 from .methods import check_age
 from django.conf import settings
+from .methods import get_day
 
 
 
@@ -74,28 +75,40 @@ def make_appointment(request):
     print(seniors_list)
 
     context = {
-        'seniors_list': seniors_list,
-        'volunteers_list': volunteers_list,
+        'seniors_list': seniors_list[:5],
+        'volunteers_list': volunteers_list[:5],
         'appointments_list': appointments_list
     }
 
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
-        print(senior)
-        print(request.POST)
+        start_address = request.POST['start_address']
+        end_address = request.POST['end_address']
+        # print(senior)
+        # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
-        print(day_time)
-        check_list = Volunteer.objects.filter(Q(availability__has_key=day_time[0])).values()
-        appointment = Appointment.objects.create(senior=senior_id)
+        day_of_week = get_day(day_time[0])[:3]
+        # print("CHECK: " + day_of_week)
+        # print(day_time)
+        check_list = Volunteer.objects.filter(Q(availability__has_key=day_of_week)).values()
+        #appointment.date_and_time = day_time[0] + " " + day_time[1]
+        #appointment.save()
         potential_list = []
         for volunteer in check_list:
-            time_list = volunteer['availability'][day_time[0]]
+            time_list = volunteer['availability'][day_of_week]
             for time in time_list:
                 if check_time(day_time[1], time):
                     potential_list.append(volunteer)
                     break
+
+        if len(potential_list) == 0:
+            messages.error(request, "No volunteers are available at this time.")
+            return redirect('make_appointment')
+
+        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address, end_address=end_address, date_and_time=day_time[0] + " " + day_time[1])
+
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
@@ -114,6 +127,7 @@ def confirm_v(request):
     """View for page to confirm which volunteers to send emails to."""
     potential_list = request.session['potential_list']
     print(potential_list)
+    emails_sent = False
 
     #### MAYBE REMOVE THIS AND FIX ON CONFIRM_V.HTML
     #available_volunteer_list = []
@@ -148,6 +162,7 @@ def confirm_v(request):
                     to_email = [i['email']]
                     send_mail(email_subject, email_message, from_email, to_email)
                     print("to email", to_email)
+                    emails_sent = True
                 if i['notify_text'] == True:
                     token = get_random_string(length=32)
                     activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token        # MAYBE CAN REMOVE EMAIL QUERY
@@ -158,6 +173,11 @@ def confirm_v(request):
 
                     message = client.messages.create(body=f'Click the link below to confirm your availability and attendance of this appointment: {activate_url}', from_='+17608218017', to=i['phone'])
                     print("to phone", i['phone'])
+                    emails_sent = True
+
+        if emails_sent == True:
+            messages.success(request, "Emails/texts sent successfully!")
+            return redirect('confirm_v')
 
         # request.session['selected_volunteers'] = request.POST.getlist('volunteer')
         # print("session selected volunteers", request.session['selected_volunteers'])

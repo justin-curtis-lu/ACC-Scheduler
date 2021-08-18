@@ -1,25 +1,29 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
     <div class="center">
-    <table>
-        <tr>
-            <th>Last Name</th>
-            <th>First Name</th>
-            <th>Address</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Date of Birth</th>
-        </tr>
-        {% for item in seniors %}
-        <tr>
-             <td><a href="{% url 'senior_page' item.id %}">{{ item.last_name }}</a></td>
-             <td>{{ item.first_name }}</td>
-             <td>{{ item.address }}</td>
-             <td>{{ item.phone }}</td>
-             <td>{{ item.email }}</td>
-             <td>{{ item.dob }}</td>
-        </tr>
-        {% endfor %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Last Name</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Email</th>
+                <th scope="col">Additional Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in seniors %}
+            <tr>
+                 <td><a href="{% url 'senior_page' item.id %}">{{ item.last_name }}</a></td>
+                 <td>{{ item.first_name }}</td>
+                 <td>{{ item.address }}</td>
+                 <td>{{ item.phone }}</td>
+                 <td>{{ item.email }}</td>
+                 <td>{{ item.dob }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
     <a href="{% url 'add_senior' %}"><button>Add Participant</button></a>
     <a href="{% url 'console' %}"><button>exit</button></a>
