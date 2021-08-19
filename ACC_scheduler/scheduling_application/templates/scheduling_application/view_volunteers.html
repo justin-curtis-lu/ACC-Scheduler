@@ -16,7 +16,7 @@
         <tbody>
             {% for item in volunteers %}
             <tr>
-                 <td>{{ item.last_name }}</td>
+                 <td><a href="{% url 'volunteer_page' item.id %}">{{ item.last_name }}</a></td>
                  <td>{{ item.first_name }}</td>
                  <td>{{ item.phone }}</td>
                  <td>{{ item.email }}</td>
@@ -27,6 +27,7 @@
             {% endfor %}
         </tbody>
     </table>
+    <a href="{% url 'add_volunteer' %}"><button>Add Volunteer</button></a>
     <a href="{% url 'console' %}"><button>exit</button></a>
     </div>
 {% endblock %}

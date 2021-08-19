@@ -1,0 +1,28 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="center">
+    <table class="table" style="width:25%">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>{{volunteer.first_name}} {{ volunteer.last_name }}</td></tr>
+            <tr><td>Age: {{volunteer.age}}</td></tr>
+            <tr><td>Address: {{volunteer.address}}</td></tr>
+            <tr><td>Phone: {{volunteer.phone}}</td></tr>
+            <tr><td>Email: {{volunteer.email}}</td></tr>
+            <tr><td>Date of Birth: {{volunteer.dob}}</td></tr>
+            <tr><td>Vaccinated: {{volunteer.vaccinated}}</td></tr>
+            <tr><td>Call for Confirmation: {{volunteer.notify_call}}</td></tr>
+        </tbody>
+    </table>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit">remove</button>
+    </form>
+    <br>
+    <a href="{% url 'view_volunteers' %}"><button>exit</button></a>
+</div>
+{% endblock %}
