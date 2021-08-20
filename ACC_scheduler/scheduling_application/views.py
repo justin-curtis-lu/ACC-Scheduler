@@ -134,8 +134,14 @@ def make_appointment(request):
         potential_list = []
         for volunteer in check_list:
             time_list = volunteer['availability'][day_of_week]
+            # For each day and time a volunteer is available
             for time in time_list:
+                # if there is an available time that fits
                 if check_time(day_time[1], time):
+                    # checks if volunteer already has an appointment at that day if not, the volunteer is available
+                    check_conflict = volunteer['current_appointments']
+                    if day_time[0] in check_conflict:
+                        break
                     potential_list.append(volunteer)
                     break
 
@@ -144,7 +150,6 @@ def make_appointment(request):
             return redirect('make_appointment')
 
         appointment = Appointment.objects.create(senior=senior_id, start_address=start_address, end_address=end_address, date_and_time=day_time[0] + " " + day_time[1])
-
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
@@ -233,13 +238,17 @@ def success(request):
             volunteer = Volunteer.objects.get(id=vol_id)
             # print(volunteer, type(volunteer))
             appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).update(volunteer=volunteer)
-            print("appointment", appointment)
+            appointment_object = Appointment.objects.get(id=request.session['appointment'])
+            appointment_day_time = appointment_object.date_and_time.split(' ')
+            volunteer.current_appointments[appointment_day_time[0]] = appointment_day_time[1]
+            volunteer.save()
+            # print("appointment", appointment)
 
             # print("appointment: ", appointment)
         except (KeyError, Appointment.DoesNotExist):
             # print("APPOINTMENT DOES NOT EXIST")
             appointment = None
-        print(appointment)
+        # print(appointment)
         return render(request, "scheduling_application/success.html", {})
 
 
