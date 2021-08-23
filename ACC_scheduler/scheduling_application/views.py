@@ -251,6 +251,13 @@ def success(request):
         # print(appointment)
         return render(request, "scheduling_application/success.html", {})
 
+def survey(request):
+    if request.method == 'POST':
+        for key, values in request.POST.lists():
+            print(key, values)
+        return render(request, "scheduling_application/survey.html", {})
+    return render(request, "scheduling_application/survey.html", {})
+
 
 def logout(request):
     """View for logging out"""

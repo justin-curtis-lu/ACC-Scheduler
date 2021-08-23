@@ -65,6 +65,11 @@ table {
     margin-top: 5rem;
 }
 
+.small{
+    margin-top: 2rem;
+}
+
+
 
 .home-spacer{
     margin-top: 3rem;
@@ -100,3 +105,4 @@ table {
     margin: auto;
     width: 60%;
 }
+
