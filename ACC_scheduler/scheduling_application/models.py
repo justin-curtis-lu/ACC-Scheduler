@@ -43,7 +43,7 @@ class Volunteer(models.Model):
     notify_call = models.BooleanField(default=False)
     availability = models.JSONField(default=dict)
     current_appointments = models.JSONField(default=dict, editable=False)
-    additional_notes = models.TextField(default='N/A')
+    additional_notes = models.TextField(default=None, null=True)
 
     @property
     def full_name(self):

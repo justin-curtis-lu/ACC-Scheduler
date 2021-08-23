@@ -20,7 +20,11 @@
     </table>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit">remove</button>
+        <button type="submit" name="remove_senior">Remove Participant</button>
+    </form>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" name="update_senior">Update Participant</button>
     </form>
     <br>
     <a href="{% url 'view_seniors' %}"><button>exit</button></a>

@@ -31,19 +31,15 @@ def console(request):
     if not request.user.is_authenticated:
         # Pass Flash message ( You must be authenticated to access this page )
         return render(request, 'scheduling_application/home.html', {})
-    #check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-    #if 4032242 in check_list:
-    #    print("yes")
-    #print("CHECK_LIST", check_list)
     return render(request, 'scheduling_application/console.html', {})
 
-
+# need to place code in console view to automate
 def update_volunteers(request):
     if request.GET.get("update_volunteers"):
         print("UPDATING VOLUNTEERS")
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH}
+        params = {'key': settings.GALAXY_AUTH, 'return[]': ["tags", "extras"]}
         response = requests.get(url, headers=headers, params=params)
         voldata = response.json()
         #print(voldata)
@@ -56,11 +52,21 @@ def update_volunteers(request):
             if galaxy_id in check_list:
                 # update
                 volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-                volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'])
-                print("updating", volunteer)
+                try:
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], additional_notes=i['extras']['availability-context'])
+                    if 'Email' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_email=True)
+                    if 'Text Message' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_text=True)
+                    if 'Phone Call' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_call=True)
+                    print("try updaing", volunteer)
+                except KeyError:
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'])
+                    print("except updating", volunteer)
             else:
                 # create
-                Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'])
+                Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'])
                 print("creating", i['firstName'], i['lastName'])
 
 
@@ -220,6 +226,7 @@ def confirm_v(request):
     return render(request, 'scheduling_application/confirm_v.html', context)
 
 
+
 # Currently not using email and token queries
 def success(request):
     """View for the email sending success page"""
@@ -241,6 +248,41 @@ def success(request):
         print(appointment)
         return render(request, "scheduling_application/success.html", {})
 
+def send_survey(request):
+    if request.GET.get('send_survey'):
+        domain = get_current_site(request).domain
+        for i in Volunteer.objects.all():
+            if i.notify_email == True:
+                # print("i[notify-email=true]", i)
+                token = get_random_string(length=32)
+                activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email + "&token=" + token
+                email_subject = 'Availability Survey Email'
+                email_message = "Click the link below to select next month's availabilities: " + activate_url
+                from_email = 'acc.scheduler.care@gmail.com'
+                to_email = [i.email]
+                send_mail(email_subject, email_message, from_email, to_email)
+                print("to email", to_email)
+                emails_sent = True
+            if i.notify_text == True:
+                token = get_random_string(length=32)
+                activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email + "&token=" + token  # MAYBE CAN REMOVE EMAIL QUERY
+
+                account_sid = 'AC7b1313ed703f0e2697c57e0c1ec641cd'
+                auth_token = '3e77ae49deeeb026e625ea93bd5a3214'
+                client = Client(account_sid, auth_token)
+
+                message = client.messages.create(
+                    body=f"Click the link below to select next month's availabilities:  {activate_url}",
+                    from_='+17608218017', to=i.phone)
+                print("to phone", i.phone)
+    return redirect('console')
+
+
+def survey_page(request):
+    if request.method == 'GET':
+        vol_id = request.GET.get('id')
+        vol_email = request.GET.get('email')
+        vol_token = request.GET.get('token')
 
 def logout(request):
     """View for logging out"""
@@ -257,7 +299,7 @@ def view_seniors(request):
     return render(request, 'scheduling_application/view_seniors.html', context)
 
 def add_senior(request):
-    """View for adding senior page"""
+    """View for adding senior"""
     form = SeniorForm()
     if request.method == 'POST':
         form = SeniorForm(request.POST)
@@ -269,12 +311,31 @@ def add_senior(request):
     }
     return render(request, 'scheduling_application/add_senior.html', context)
 
+def update_senior(request):
+    """View for updating senior"""
+    form = SeniorForm()
+    if request.POST.get("update_senior"):
+        print("HERE")
+        form = SeniorForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('senior_page')
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/update_senior.html', context)
+
 def senior_page(request, pk):
     """View for senior profile page"""
     senior = Senior.objects.get(id=pk)
     if request.method == 'POST':
-        senior.delete()
-        return redirect('view_seniors')
+        print(request.POST)
+        if request.POST.get("remove_senior"):
+            senior.delete()
+            return redirect('view_seniors')
+        elif request.POST.get("update_senior"):
+            print("AYAY")
+            return redirect('update_senior')
     context = {
         'senior': senior,
     }
