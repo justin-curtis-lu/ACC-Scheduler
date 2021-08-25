@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../static/style.css">
+</head>
+<body>
+<div class="center">
+<form action="/survey_page/?id={{ request.POST.id }}" method="POST">
+{% csrf_token %}
+<div class="row">
+<div class="col"></div>
+<div class="col">9:00-10:00</div>
+<div class="col">10:00-11:00</div>
+<div class="col">11:00-12:00</div>
+<div class="col">12:00-1:00</div>
+<div class="col">1:00-2:00</div>
+<div class="col">All Day</div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/1</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option1-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option1-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option1-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option1-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option1-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option1-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/2</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option2-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option2-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option2-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option2-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option2-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option2-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/3</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option3-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option3-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option3-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option3-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option3-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option3-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/4</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option4-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option4-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option4-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option4-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option4-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option4-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/5</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option5-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option5-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option5-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option5-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option5-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option5-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/6</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option6-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option6-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option6-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option6-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option6-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option6-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/7</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option7-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option7-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option7-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option7-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option7-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option7-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/8</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option8-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option8-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option8-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option8-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option8-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option8-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/9</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option9-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option9-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option9-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option9-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option9-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option9-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/10</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option10-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option10-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option10-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option10-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option10-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option10-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/11</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option11-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option11-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option11-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option11-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option11-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option11-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/12</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option12-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option12-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option12-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option12-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option12-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option12-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/13</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option13-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option13-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option13-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option13-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option13-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option13-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/14</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option14-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option14-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option14-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option14-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option14-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option14-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/15</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option15-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option15-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option15-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option15-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option15-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option15-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/16</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option16-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option16-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option16-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option16-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option16-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option16-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/17</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option17-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option17-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option17-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option17-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option17-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option17-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/18</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option18-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option18-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option18-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option18-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option18-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option18-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/19</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option19-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option19-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option19-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option19-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option19-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option19-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/20</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option20-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option20-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option20-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option20-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option20-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option20-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/21</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option21-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option21-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option21-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option21-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option21-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option21-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/22</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option22-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option22-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option22-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option22-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option22-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option22-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/23</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option23-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option23-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option23-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option23-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option23-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option23-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/24</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option24-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option24-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option24-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option24-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option24-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option24-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/25</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option25-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option25-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option25-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option25-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option25-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option25-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/26</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option26-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option26-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option26-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option26-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option26-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option26-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/27</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option27-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option27-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option27-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option27-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option27-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option27-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/28</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option28-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option28-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option28-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option28-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option28-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option28-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/29</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option29-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option29-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option29-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option29-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option29-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option29-5" aria-label="..."></div>
+</div>
+<div class="row">
+<div class="col">0/30</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option30-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option30-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option30-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option30-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option30-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option30-5" aria-label="..."></div>
+</div>
+<div class="row bg-secondary text-white">
+<div class="col">0/31</div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option31-0" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option31-1" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option31-2" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option31-3" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option31-4" aria-label="..."></div>
+<div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option31-5" aria-label="..."></div>
+</div>
+<input class="small" type="submit">
+</form>
+</div>
+</body>
+</html>

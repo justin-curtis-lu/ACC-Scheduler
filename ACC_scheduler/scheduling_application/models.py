@@ -81,9 +81,9 @@ class Volunteer(models.Model):
     notify_email = models.BooleanField(default=False)
     notify_text = models.BooleanField(default=False)
     notify_call = models.BooleanField(default=False)
-    availability = models.ForeignKey(Availability, on_delete=models.CASCADE)
+    availability = models.ForeignKey(Availability, default=None, null=True, blank=True, on_delete=models.CASCADE)
     current_appointments = models.JSONField(default=dict, editable=False)
-    additional_notes = models.TextField(default=None, null=True)
+    additional_notes = models.TextField(default=None, null=True, blank=True)
 
     @property
     def full_name(self):
