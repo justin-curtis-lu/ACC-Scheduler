@@ -53,7 +53,7 @@ class Volunteer(models.Model):
 
 class Day(models.Model):
     # times = models.ForeignKey(Times, default=None, on_delete=models.CASCADE, related_name="day")
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.PROTECT, related_name="Days", blank=True, null=True)
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="Days", blank=True, null=True)
     day_of_month = models.IntegerField(default=None, null=True)
     _9_10 = models.BooleanField(default=False)
     _10_11 = models.BooleanField(default=False)
