@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm
 from .forms import SeniorForm
-from .models import Senior, Volunteer, Appointment
+from .models import Senior, Volunteer, Appointment, Day
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
