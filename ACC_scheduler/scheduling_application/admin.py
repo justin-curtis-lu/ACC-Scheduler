@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from scheduling_application.models import Senior, Volunteer, Appointment, Availability, Day
+from scheduling_application.models import Senior, Volunteer, Appointment, Day
 
 # Register your models here.
 
@@ -17,10 +17,6 @@ class VolunteerAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = ("senior", "start_address", "end_address", "date_and_time", "notes")
-
-@admin.register(Availability)
-class AvailabilityAdmin(admin.ModelAdmin):
-    list_display = ("_1", "_2", "_3")
 
 @admin.register(Day)
 class DayAdmin(admin.ModelAdmin):

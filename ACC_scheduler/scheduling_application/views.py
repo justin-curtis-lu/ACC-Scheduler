@@ -323,31 +323,62 @@ def survey_page(request):
         vol_id = request.session['vol_id']
         vol_email = request.session['vol_email']
         vol_token = request.session['vol_token']
-        print(vol_id, vol_email, vol_token)
-
         option_list = request.POST.getlist('survey-value')
-        print(option_list)
-
         volunteer = Volunteer.objects.get(id=vol_id)
-        # print(volunteer.availability._1._9_10)
+        volunteer.Days.filter(volunteer=volunteer).delete()
+
         for i in option_list:
             date = i[6:].split("-")
-            date[0] = "_" + date[0]
             if date[1] == "0":
-                date[1] = "_9_10"
+                try:
+                    day = volunteer.Days.get(day_of_month=date[0])
+                    day._9_10 = True
+                    day.save()
+                except:
+                    Day.objects.create(_9_10=True, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+                                       day_of_month=date[0], volunteer=volunteer)
             elif date[1] == "1":
-                date[1] = "_10_11"
+                try:
+                    day = volunteer.Days.get(day_of_month=date[0])
+                    day._10_11=True
+                    day.save()
+                except:
+                    Day.objects.create(_9_10=False, _10_11=True, _11_12=False, _12_1=False, _1_2=False, all=False,
+                                       day_of_month=date[0], volunteer=volunteer)
             elif date[1] == "2":
-                date[1] = "_11_12"
+                try:
+                    day = volunteer.Days.get(day_of_month=date[0])
+                    day._11_12 = True
+                    day.save()
+                except:
+                    Day.objects.create(_9_10=False, _10_11=False, _11_12=True, _12_1=False, _1_2=False, all=False,
+                                       day_of_month=date[0], volunteer=volunteer)
             elif date[1] == "3":
-                date[1] = "_12_1"
+                try:
+                    day = volunteer.Days.get(day_of_month=date[0])
+                    day._12_1 = True
+                    day.save()
+                except:
+                    Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=True, _1_2=False, all=False,
+                                       day_of_month=date[0], volunteer=volunteer)
             elif date[1] == "4":
-                date[1] = "_1_2"
+                try:
+                    day = volunteer.Days.get(day_of_month=date[0])
+                    day._1_2 = True
+                    day.save()
+                except:
+                    Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=True, all=False,
+                                       day_of_month=date[0], volunteer=volunteer)
             elif date[1] == "5":
-                date[1] = "all"
-            print(date)
-            # print(a)
-
+                try:
+                    day = volunteer.Days.get(day_of_month=date[0])
+                    day.all= True
+                    day.save()
+                except:
+                    Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
+                                       day_of_month=date[0], volunteer=volunteer)
+            # Render a success page
+            return render(request, "scheduling_application/survey_complete.html", {})
     return render(request, "scheduling_application/survey_page.html", {})
 
 
