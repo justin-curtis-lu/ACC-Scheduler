@@ -211,7 +211,7 @@ def confirm_v(request):
                     # print("i[notify-email=true]", i)
                     token = get_random_string(length=32)
                     activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token
-                    email_subject = 'Appointment Confirmation Email'
+                    email_subject = 'Volunteer Appointment Confirmation'
                     email_message = f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests a buddy! Based on your availability, you would be a perfect match!\n' + \
                                     f'\tWho: {senior[0]["first_name"]} {senior[0]["last_name"]}\n' \
                                     f'\tWhat: {appointment[0]["purpose_of_trip"]}\n' \
@@ -290,8 +290,9 @@ def send_survey(request):
                 # print("i[notify-email=true]", i)
                 token = get_random_string(length=32)
                 activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email + "&token=" + token
-                email_subject = 'Availability Survey Email'
-                email_message = "Click the link below to select next month's availabilities: " + activate_url
+                email_subject = 'Volunteer Availability Survey'
+                email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                                "Your time is so appreciated and we could not provide seniors with free programs without you!\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
                 from_email = 'acc.scheduler.care@gmail.com'
                 to_email = [i.email]
                 send_mail(email_subject, email_message, from_email, to_email)
@@ -306,7 +307,8 @@ def send_survey(request):
                 client = Client(account_sid, auth_token)
 
                 message = client.messages.create(
-                    body=f"Click the link below to select next month's availabilities:  {activate_url}",
+                    body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                          f"Your time is so appreciated and we could not provide seniors with free programs without you!\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
                     from_='+17608218017', to=i.phone)
                 print("to phone", i.phone)
     return redirect('console')
