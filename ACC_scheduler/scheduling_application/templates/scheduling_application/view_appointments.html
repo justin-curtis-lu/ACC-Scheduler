@@ -1,0 +1,44 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="center space">
+    <table class="table">
+        <tr>
+            <th>Senior</th>
+            <th>Volunteer</th>
+            <th>Starting Address</th>
+            <th>Destination</th>
+            <th>Date/Time</th>
+        </tr>
+        {% for appointment in page_obj %}
+        <tr>
+             <td scope="col">{{ appointment.senior }}</td>
+             <td>{{ appointment.volunteer }}</td>
+             <td>{{ appointment.start_address }}</td>
+             <td>{{ appointment.end_address }}</td>
+             <td>{{ appointment.date_and_time }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{% url 'console' %}"><button>exit</button></a>
+</div>
+
+
+
+<div class="center">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endblock %}

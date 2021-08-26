@@ -1,6 +1,6 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
-    <div class="center">
+<div class="center">
     <table class="table">
         <thead>
             <tr>
@@ -12,20 +12,38 @@
                 <th scope="col">Additional Notes</th>
             </tr>
         </thead>
-        <tbody>
-            {% for item in seniors %}
-            <tr>
-                 <td><a href="{% url 'senior_page' item.id %}">{{ item.last_name }}</a></td>
-                 <td>{{ item.first_name }}</td>
-                 <td>{{ item.address }}</td>
-                 <td>{{ item.phone }}</td>
-                 <td>{{ item.email }}</td>
-                 <td>{{ item.dob }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+    <tbody>
+        {% for item in page_obj %}
+        <tr>
+            <td><a href="{% url 'senior_page' item.id %}">{{ item.last_name }}</a></td>
+            <td>{{ item.first_name }}</td>
+            <td>{{ item.address }}</td>
+            <td>{{ item.phone }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.dob }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
     </table>
     <a href="{% url 'add_senior' %}"><button>Add Participant</button></a>
     <a href="{% url 'console' %}"><button>exit</button></a>
-    </div>
+</div>
+
+<div class="center">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
 {% endblock %}

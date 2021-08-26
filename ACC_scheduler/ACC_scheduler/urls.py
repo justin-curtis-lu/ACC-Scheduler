@@ -26,6 +26,7 @@ urlpatterns = [
     path('logout/', sa_views.logout, name='logout'),
     path('success/', sa_views.success, name='confirmation_received'),
     path('make_appointment/', sa_views.make_appointment, name='make_appointment'),
+    path('view_appointments/', sa_views.view_appointments, name='view_appointments'),
     path('confirm_v', sa_views.confirm_v, name='confirm_v'),
     path('view_seniors/', sa_views.view_seniors, name='view_seniors'),
     path('add_senior/', sa_views.add_senior, name='add_senior'),

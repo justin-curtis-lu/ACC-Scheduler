@@ -15,14 +15,11 @@ from django.conf import settings
 from .methods import get_day
 import requests
 from requests.auth import HTTPBasicAuth
-
-
+from django.core.paginator import Paginator
 
 
 def home(response):
     """View for the home page"""
-    # print(settings.MONKEY_AUTH)
-    # print(settings.SURVEY_AUTH)
     return render(response, "scheduling_application/home.html", {})
 
 
@@ -73,7 +70,6 @@ def update_volunteers(request):
 
 
     return redirect('console')
-    #return render(request, 'scheduling_application/console.html', {})
 
 
 def login(request):
@@ -106,35 +102,24 @@ def register(request):
     return render(request, 'scheduling_application/register.html', {'form': form})
 
 
-
 def make_appointment(request):
     """View for the page where users can schedule an appointment.
        Shows current seniors, volunteers, and appointments.
        Allows users to choose a senior and day then continue."""
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
-    appointments_list = Appointment.objects.all()
-
-    print(seniors_list)
-
     context = {
         'seniors_list': seniors_list[:5],
-        'volunteers_list': volunteers_list[:5],
-        'appointments_list': appointments_list
+        'volunteers_list': volunteers_list[:5]
     }
-
     # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
         start_address = request.POST['start_address']
         end_address = request.POST['end_address']
-        # print(senior)
-        # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
         day_of_week = get_day(day_time[0])[:3]
-        # print("CHECK: " + day_of_week)
-        # print(day_time)
 
         #140-141 for testing purposes
         check_list = Volunteer.objects.all().values()
@@ -162,15 +147,21 @@ def make_appointment(request):
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
-            'potential_list': potential_list,
-            'appointments_list': appointments_list
+            'potential_list': potential_list
         }
         request.session['appointment'] = appointment.id
-        # print(request.session['appointment'])
         request.session['potential_list'] = list(potential_list)
         return redirect('confirm_v')
     return render(request, 'scheduling_application/make_appointment.html', context)
 
+
+def view_appointments(request):
+    """View for the seniors page (table of all the seniors in the database)"""
+    seniors = Appointment.objects.all()
+    a_paginator = Paginator(seniors, 10)
+    page_number = request.GET.get('page')
+    page_obj = a_paginator.get_page(page_number)
+    return render(request, 'scheduling_application/view_appointments.html', {'page_obj': page_obj})
 
 
 def confirm_v(request):
@@ -253,7 +244,6 @@ def confirm_v(request):
     return render(request, 'scheduling_application/confirm_v.html', context)
 
 
-
 # Currently not using email and token queries
 def success(request):
     """View for the email sending success page"""
@@ -282,14 +272,110 @@ def success(request):
         return render(request, "scheduling_application/success.html", context)
 
 
+def logout(request):
+    """View for logging out"""
+    auth.logout(request)
+    return redirect('home')
+
+
+def view_seniors(request):
+    """View for the seniors page (table of all the seniors in the database)"""
+    seniors = Senior.objects.all()
+    s_paginator = Paginator(seniors, 10)
+    page_number = request.GET.get('page')
+    page_obj = s_paginator.get_page(page_number)
+    return render(request, 'scheduling_application/view_seniors.html', {'page_obj': page_obj})
+
+
+def add_senior(request):
+    """View for adding senior"""
+    form = SeniorForm()
+    if request.method == 'POST':
+        form = SeniorForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('view_seniors')
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/add_senior.html', context)
+
+
+def update_senior(request):
+    """View for updating senior"""
+    form = SeniorForm()
+    if request.POST.get("update_senior"):
+        print("HERE")
+        form = SeniorForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('senior_page')
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/update_senior.html', context)
+
+
+def senior_page(request, pk):
+    """View for senior profile page"""
+    senior = Senior.objects.get(id=pk)
+    if request.method == 'POST':
+        print(request.POST)
+        if request.POST.get("remove_senior"):
+            senior.delete()
+            return redirect('view_seniors')
+        elif request.POST.get("update_senior"):
+            print("AYAY")
+            return redirect('update_senior')
+    context = {
+        'senior': senior,
+    }
+    return render(request, 'scheduling_application/senior_page.html', context)
+
+
+def view_volunteers(request):
+    """View for the volunteers page (table of all the volunteers in the database)"""
+    volunteers = Volunteer.objects.all()
+    v_paginator = Paginator(volunteers, 10)
+    page_number = request.GET.get('page')
+    page_obj = v_paginator.get_page(page_number)
+    return render(request, 'scheduling_application/view_volunteers.html', {'page_obj': page_obj})
+
+
+def add_volunteer(request):
+    """View for adding volunteer page"""
+    form = VolunteerForm()
+    if request.method == 'POST':
+        form = VolunteerForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('view_volunteers')
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/add_volunteer.html', context)
+
+
+def volunteer_page(request, pk):
+    """View for volunteer profile page"""
+    volunteer = Volunteer.objects.get(id=pk)
+    if request.method == 'POST':
+        volunteer.delete()
+        return redirect('view_volunteers')
+    context = {
+        'volunteer': volunteer,
+    }
+    return render(request, 'scheduling_application/volunteer_page.html', context)
+
 def send_survey(request):
     if request.GET.get('send_survey'):
         domain = get_current_site(request).domain
         for i in Volunteer.objects.all():
-            if i.notify_email == True:
-                # print("i[notify-email=true]", i)
-                token = get_random_string(length=32)
-                activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email + "&token=" + token
+            token = get_random_string(length=32)
+            i.survey_token = token
+            activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email \
+                           + "&token=" + token
+            if i.notify_email:
                 email_subject = 'Availability Survey Email'
                 email_message = "Click the link below to select next month's availabilities: " + activate_url
                 from_email = 'acc.scheduler.care@gmail.com'
@@ -297,18 +383,16 @@ def send_survey(request):
                 send_mail(email_subject, email_message, from_email, to_email)
                 print("to email", to_email)
                 emails_sent = True
-            if i.notify_text == True:
-                token = get_random_string(length=32)
-                activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email + "&token=" + token  # MAYBE CAN REMOVE EMAIL QUERY
-
+            if i.notify_text:
                 account_sid = 'AC7b1313ed703f0e2697c57e0c1ec641cd'
                 auth_token = '3e77ae49deeeb026e625ea93bd5a3214'
                 client = Client(account_sid, auth_token)
-
                 message = client.messages.create(
                     body=f"Click the link below to select next month's availabilities:  {activate_url}",
                     from_='+17608218017', to=i.phone)
                 print("to phone", i.phone)
+            i.survey_token = token
+            i.save()
     return redirect('console')
 
 
@@ -317,6 +401,11 @@ def survey_page(request):
         request.session['vol_id'] = request.GET.get('id')
         request.session['vol_email'] = request.GET.get('email')
         request.session['vol_token'] = request.GET.get('token')
+        vol_id = request.session['vol_id']
+        vol_token = request.session['vol_token']
+        volunteer = Volunteer.objects.get(id=vol_id)
+        if vol_token != volunteer.survey_token:
+            return render(request, "scheduling_application/bad_link.html", {})
 
     if request.method == 'POST':
         ### !!!!! MAKE SURE THIS WORKS WITH MULTIPLE USERS AT SAME TIME, ELSE JUST ADD SECTION WHERE THEY PUT IN EMAIL AND STUFF ON FORM (BUT WHAT ABOUT ID?) !!!!!
@@ -326,7 +415,6 @@ def survey_page(request):
         option_list = request.POST.getlist('survey-value')
         volunteer = Volunteer.objects.get(id=vol_id)
         volunteer.Days.filter(volunteer=volunteer).delete()
-
         for i in option_list:
             date = i[6:].split("-")
             if date[1] == "0":
@@ -377,97 +465,5 @@ def survey_page(request):
                 except:
                     Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
                                        day_of_month=date[0], volunteer=volunteer)
-            # Render a success page
             return render(request, "scheduling_application/survey_complete.html", {})
     return render(request, "scheduling_application/survey_page.html", {})
-
-
-def logout(request):
-    """View for logging out"""
-    auth.logout(request)
-    return redirect('home')
-
-
-def view_seniors(request):
-    """View for the seniors page (table of all the seniors in the database)"""
-    seniors = Senior.objects.all()
-    context = {
-        'seniors': seniors,
-    }
-    return render(request, 'scheduling_application/view_seniors.html', context)
-
-def add_senior(request):
-    """View for adding senior"""
-    form = SeniorForm()
-    if request.method == 'POST':
-        form = SeniorForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('view_seniors')
-    context = {
-        'form': form
-    }
-    return render(request, 'scheduling_application/add_senior.html', context)
-
-def update_senior(request):
-    """View for updating senior"""
-    form = SeniorForm()
-    if request.POST.get("update_senior"):
-        print("HERE")
-        form = SeniorForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('senior_page')
-    context = {
-        'form': form
-    }
-    return render(request, 'scheduling_application/update_senior.html', context)
-
-def senior_page(request, pk):
-    """View for senior profile page"""
-    senior = Senior.objects.get(id=pk)
-    if request.method == 'POST':
-        print(request.POST)
-        if request.POST.get("remove_senior"):
-            senior.delete()
-            return redirect('view_seniors')
-        elif request.POST.get("update_senior"):
-            print("AYAY")
-            return redirect('update_senior')
-    context = {
-        'senior': senior,
-    }
-    #print(senior.id)
-    return render(request, 'scheduling_application/senior_page.html', context)
-
-def view_volunteers(request):
-    """View for the volunteers page (table of all the volunteers in the database)"""
-    volunteers = Volunteer.objects.all()
-    context = {
-        'volunteers': volunteers,
-    }
-    return render(request, 'scheduling_application/view_volunteers.html', context)
-
-def add_volunteer(request):
-    """View for adding volunteer page"""
-    form = VolunteerForm()
-    if request.method == 'POST':
-        form = VolunteerForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('view_volunteers')
-    context = {
-        'form': form
-    }
-    return render(request, 'scheduling_application/add_volunteer.html', context)
-
-def volunteer_page(request, pk):
-    """View for volunteer profile page"""
-    volunteer = Volunteer.objects.get(id=pk)
-    if request.method == 'POST':
-        volunteer.delete()
-        return redirect('view_volunteers')
-    context = {
-        'volunteer': volunteer,
-    }
-    return render(request, 'scheduling_application/volunteer_page.html', context)
