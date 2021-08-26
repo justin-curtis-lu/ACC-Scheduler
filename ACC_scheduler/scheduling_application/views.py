@@ -10,10 +10,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.crypto import get_random_string
 from twilio.rest import Client
 from django.db.models import Q
-from .methods import check_time
-from .methods import check_age
+from .methods import check_time, check_age, get_day, get_timeframes
 from django.conf import settings
-from .methods import get_day
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -24,6 +22,21 @@ def home(response):
     """View for the home page"""
     # print(settings.MONKEY_AUTH)
     # print(settings.SURVEY_AUTH)
+
+    # volunteer = Volunteer.objects.get(id=1)
+    # volunteer2 = Volunteer.objects.get(id=2)
+    # print(volunteer.Days.all())
+    # volunteer.Days.filter(volunteer=volunteer).delete()
+    # volunteer2.Days.filter(volunteer=volunteer2).delete()
+    # print(volunteer.Days.all())
+    # print(volunteer2.Days.all())
+
+    # day_object = volunteer.Days.filter(day_of_month=1)
+    # day_object.update(_10_11=True)
+    # print(day_object.first()._10_11)
+    #print(volunteers_list.Days.filter(day_of_month=7))
+    #volunteers_list.Days.filter(volunteer=volunteers_list).delete()
+    #print(volunteers_list.Days.all())
     return render(response, "scheduling_application/home.html", {})
 
 
@@ -36,6 +49,14 @@ def console(request):
     #if 4032242 in check_list:
     #    print("yes")
     #print("CHECK_LIST", check_list)
+
+    # volunteer = Volunteer.objects.get(last_name="tong")
+    # volunteer2 = Volunteer.objects.get(last_name="vol")
+    # Day.objects.create(_9_10=True, day_of_month=1, volunteer=volunteer)
+    # Day.objects.create(_9_10=True, _10_11=True, _11_12=True, _12_1=True, _1_2=True, day_of_month=1, volunteer=volunteer2)
+
+    #volunteers_list[0].availability = test
+    #print(volunteers_list[0].availability)
     return render(request, 'scheduling_application/console.html', {})
 
 
@@ -125,25 +146,40 @@ def make_appointment(request):
         # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
-        day_of_week = get_day(day_time[0])[:3]
+        # day_of_week = get_day(day_time[0])[:3]
+        day_of_month = int(day_time[0].split('/')[1])
         # print("CHECK: " + day_of_week)
         # print(day_time)
-        check_list = Volunteer.objects.filter(Q(availability__has_key=day_of_week)).values()
+        check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
+        # check_list is a queryset of volunteer ids
+        print(check_list)
+        print("ABOVE")
         #appointment.date_and_time = day_time[0] + " " + day_time[1]
         #appointment.save()
         potential_list = []
         for volunteer in check_list:
-            time_list = volunteer['availability'][day_of_week]
-            # For each day and time a volunteer is available
-            for time in time_list:
-                # if there is an available time that fits
-                if check_time(day_time[1], time):
-                    # checks if volunteer already has an appointment at that day if not, the volunteer is available
-                    check_conflict = volunteer['current_appointments']
-                    if day_time[0] in check_conflict:
+            volunteer_object = Volunteer.objects.filter(id=volunteer)
+            availability = volunteer_object[0].Days.filter(day_of_month=day_of_month)[0]
+            if availability.all:
+                potential_list.append(volunteer_object.values()[0])
+            else:
+                time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
+                for time in time_frames:
+                    if check_time(day_time[1], time):
+                        potential_list.append(volunteer_object.values()[0])
                         break
-                    potential_list.append(volunteer)
-                    break
+            # time_list = volunteer['availability'][day_of_week]
+            # SEARCH THROUGH DAY OBJECT AND GET THE TIMES AVAILABLE
+            # For each day and time a volunteer is available
+            #for time in time_list:
+                # if there is an available time that fits
+            #    if check_time(day_time[1], time):
+                    # checks if volunteer already has an appointment at that day if not, the volunteer is available
+            #        check_conflict = volunteer['current_appointments']
+            #        if day_time[0] in check_conflict:
+            #            break
+            #        potential_list.append(volunteer)
+            #        break
 
         if len(potential_list) == 0:
             messages.error(request, "No volunteers are available at this time.")

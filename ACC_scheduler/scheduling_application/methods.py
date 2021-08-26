@@ -18,6 +18,31 @@ def check_age(dob):
         return False
 
 
+def format_times(start, end):
+    return str(start) + ":00" + "-" + str(end) + ":00"
+# takes in a list of boolean values and formats them accordingly into a list of time frames available for the day
+# ex. [True, True, False, False, True] -> ["9:00-11:00", "13:00-14:00"]
+def get_timeframes(list_of_times):
+    start_time = 9
+    end_time = 10
+    formatted_times = []
+    i = 0
+    while i < 5:
+        if list_of_times[i]:
+            if i < 4:
+                while list_of_times[i + 1]:
+                    end_time += 1
+                    i += 1
+                    if i == 4:
+                        break
+            formatted_times.append(format_times(start_time, end_time))
+            start_time = 9 + (end_time - 10)
+        i += 1
+        start_time += 1
+        end_time += 1
+    return formatted_times
+
+
 # Function to check if volunteer is available at appointment time. Returns true if available, false if not
 def check_time(appointment_time, volunteer_time):
     a_times = appointment_time.split("-")
