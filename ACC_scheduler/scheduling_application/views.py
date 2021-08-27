@@ -16,6 +16,7 @@ from .methods import get_day
 import requests
 from requests.auth import HTTPBasicAuth
 from django.core.paginator import Paginator
+from datetime import datetime
 
 
 def home(response):
@@ -404,14 +405,18 @@ def survey_page(request):
         vol_id = request.session['vol_id']
         vol_token = request.session['vol_token']
         volunteer = Volunteer.objects.get(id=vol_id)
+        current_month = datetime.now().strftime('%m')
+        date = {'month': current_month}
         if vol_token != volunteer.survey_token:
             return render(request, "scheduling_application/bad_link.html", {})
-
-    if request.method == 'POST':
-        ### !!!!! MAKE SURE THIS WORKS WITH MULTIPLE USERS AT SAME TIME, ELSE JUST ADD SECTION WHERE THEY PUT IN EMAIL AND STUFF ON FORM (BUT WHAT ABOUT ID?) !!!!!
+        else:
+            return render(request, "scheduling_application/survey_page.html", context=date)
+    if request.method == 'POST' and 'unsubscribe' in request.POST:
         vol_id = request.session['vol_id']
-        vol_email = request.session['vol_email']
-        vol_token = request.session['vol_token']
+        context = {'id': vol_id}
+        return render(request, "scheduling_application/unsubscribe.html", context=context)
+    elif request.method == 'POST':
+        vol_id = request.session['vol_id']
         option_list = request.POST.getlist('survey-value')
         volunteer = Volunteer.objects.get(id=vol_id)
         volunteer.Days.filter(volunteer=volunteer).delete()
@@ -465,5 +470,4 @@ def survey_page(request):
                 except:
                     Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
                                        day_of_month=date[0], volunteer=volunteer)
-            return render(request, "scheduling_application/survey_complete.html", {})
-    return render(request, "scheduling_application/survey_page.html", {})
+        return render(request, "scheduling_application/survey_complete.html", {})
