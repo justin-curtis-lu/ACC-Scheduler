@@ -1,9 +1,16 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
+<div class="center">
+<h1><b>Add Participant</b></h1>
+<br>
+<table>
 <form action="" method="POST">
         {% csrf_token %}
-        {{form}}
+        {{form.as_p}}
         <input type="submit">
 </form>
-<a href="{% url 'view_seniors' %}"><button>exit</button></a>
+</table>
+<br>
+<a href="{% url 'view_seniors' %}"><button>back</button></a>
+</div>
 {% endblock %}

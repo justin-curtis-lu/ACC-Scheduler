@@ -66,9 +66,7 @@ def update_volunteers(request):
                     print("except updating", volunteer)
             else:
                 # create
-                day = Day.objects.create()
-                availability = Availability.objects.create(_1=day, _2=day, _3=day, _4=day, _5=day, _6=day, _7=day, _8=day, _9=day, _10=day, _11=day, _12=day, _13=day, _14=day, _15=day, _16=day, _17=day, _18=day, _19=day, _20=day, _21=day, _22=day, _23=day, _24=day, _25=day, _26=day, _27=day, _28=day, _29=day, _30=day, _31=day)
-                Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], availability=availability)
+                Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'])
                 print("creating", i['firstName'], i['lastName'])
 
 
@@ -264,8 +262,11 @@ def success(request):
 
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
-            # print(volunteer, type(volunteer))
-            update_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).update(volunteer=volunteer)
+
+            empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
+            if not empty_appointment:
+                return redirect('vol_already_selected')
+            empty_appointment.update(volunteer=volunteer)
             appointment = Appointment.objects.get(id=request.session['appointment'])
             print(appointment)
             appointment_day_time = appointment.date_and_time.split(' ')
@@ -280,6 +281,9 @@ def success(request):
         }
         # print(appointment)
         return render(request, "scheduling_application/success.html", context)
+
+def vol_already_selected(request):
+    return render(request, "scheduling_application/vol_already_selected.html", {})
 
 
 def send_survey(request):
@@ -411,15 +415,18 @@ def add_senior(request):
     }
     return render(request, 'scheduling_application/add_senior.html', context)
 
-def update_senior(request):
+def update_senior(request, pk):
     """View for updating senior"""
-    form = SeniorForm()
-    if request.POST.get("update_senior"):
-        print("HERE")
-        form = SeniorForm(request.POST)
+    senior = Senior.objects.get(id=pk)
+    data = {'last_name': senior.last_name, 'first_name': senior.first_name, 'address': senior.address, 'phone': senior.phone, 'email': senior.email, 'emergency_contacts': senior.emergency_contacts,
+            'preferred_language': senior.preferred_language, 'additional_notes': senior.additional_notes, 'vaccinated': senior.vaccinated,
+            'notify_email': senior.notify_email, 'notify_text': senior.notify_text, 'notify_call': senior.notify_call}
+    form = SeniorForm(initial=data)
+    if request.method == 'POST':
+        form = SeniorForm(request.POST, instance=senior)
         if form.is_valid():
             form.save()
-        return redirect('senior_page')
+        return redirect('senior_page', pk)
     context = {
         'form': form
     }
@@ -434,8 +441,7 @@ def senior_page(request, pk):
             senior.delete()
             return redirect('view_seniors')
         elif request.POST.get("update_senior"):
-            print("AYAY")
-            return redirect('update_senior')
+            return redirect('update_senior', pk)
     context = {
         'senior': senior,
     }

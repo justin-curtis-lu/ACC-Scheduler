@@ -4,29 +4,32 @@
     <table class="table" style="width:25%">
         <thead>
             <tr>
-                <th scope="col">Name</th>
+                <th scope="col">{{senior.first_name}} {{ senior.last_name }}</th>
             </tr>
         </thead>
         <tbody>
-            <tr><td>{{senior.first_name}} {{ senior.last_name }}</td></tr>
-            <tr><td>Age: {{senior.age}}</td></tr>
             <tr><td>Address: {{senior.address}}</td></tr>
             <tr><td>Phone: {{senior.phone}}</td></tr>
             <tr><td>Email: {{senior.email}}</td></tr>
-            <tr><td>Date of Birth: {{senior.dob}}</td></tr>
+            <tr><td>Emergency Contacts: {{senior.emergency_contacts}}</td></tr>
+            <tr><td>Preferred Language: {{senior.preferred_language}}</td></tr>
+            <tr><td>Additional Notes: {{senior.additional_notes}}</td></tr>
             <tr><td>Vaccinated: {{senior.vaccinated}}</td></tr>
-            <tr><td>Call for Confirmation: {{senior.notify_call}}</td></tr>
+            <tr><td>Notify by Email: {{senior.notify_email}}</td></tr>
+            <tr><td>Notify by Text: {{senior.notify_text}}</td></tr>
+            <tr><td>Notify by Call: {{senior.notify_call}}</td></tr>
         </tbody>
     </table>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit" name="remove_senior">Remove Participant</button>
-    </form>
-    <form action="" method="POST">
-        {% csrf_token %}
-        <button type="submit" name="update_senior">Update Participant</button>
+        <button type="submit" name="update_senior" value="update_senior">Update Participant</button>
     </form>
     <br>
-    <a href="{% url 'view_seniors' %}"><button>exit</button></a>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" name="remove_senior" value="remove_senior">Remove Participant</button>
+    </form>
+    <br>
+    <a href="{% url 'view_seniors' %}"><button>back</button></a>
 </div>
 {% endblock %}
