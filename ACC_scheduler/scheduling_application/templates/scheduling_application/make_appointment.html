@@ -12,7 +12,7 @@
 {% endfor %}
 {% endif %}
 
-{% if seniors_list %}
+{% if id %}
     <p><b>Participants currently in the database  </b> </p>
     {% for senior in seniors_list %}
         <p>{{ senior }}</p>
@@ -30,31 +30,6 @@
 
 {% else %}
     <p>No volunteers currently added.</p>
-{% endif %}
-<br>
-{% if appointments_list %}
-    <p><b> Appointments currently in the database </b> </p>
-    <table class="table">
-        <tr>
-            <th>Senior</th>
-            <th>Volunteer</th>
-            <th>Starting Address</th>
-            <th>Destination</th>
-            <th>Date/Time</th>
-        </tr>
-        {% for appointment in appointments_list %}
-        <tr>
-             <td scope="col">{{ appointment.senior }}</td>
-             <td>{{ appointment.volunteer }}</td>
-             <td>{{ appointment.start_address }}</td>
-             <td>{{ appointment.end_address }}</td>
-             <td>{{ appointment.date_and_time }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-<br>
-{% else %}
-    <p><b>No appointments currently added.</b></p>
 {% endif %}
 <br>
 
