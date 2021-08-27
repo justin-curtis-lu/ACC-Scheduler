@@ -12,6 +12,7 @@ from django.db.models import Q
 from .methods import check_time, check_age, get_day, get_timeframes
 from django.conf import settings
 import requests
+from django.forms.models import model_to_dict
 from requests.auth import HTTPBasicAuth
 
 
@@ -59,8 +60,8 @@ def console(request):
     return render(request, 'scheduling_application/console.html', {})
 
 # need to place code in console view to automate
-def update_volunteers(request):
-    if request.GET.get("update_volunteers"):
+def galaxy_update_volunteers(request):
+    if request.GET.get("galaxy_update_volunteers"):
         print("UPDATING VOLUNTEERS")
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
@@ -85,14 +86,25 @@ def update_volunteers(request):
                         volunteer.update(notify_text=True)
                     if 'Phone Call' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_call=True)
-                    print("try updaing", volunteer)
+                    print("try updating", volunteer)
                 except KeyError:
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'])
                     print("except updating", volunteer)
             else:
                 # create
-                Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'])
-                print("creating", i['firstName'], i['lastName'])
+                try:
+                    Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], additional_notes=i['extras']['availability-context'])
+                    if 'Email' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_email=True)
+                    if 'Text Message' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_text=True)
+                    if 'Phone Call' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_call=True)
+                    print("try creating", i['firstName'], i['lastName'])
+                except KeyError:
+                    Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
+                                             phone=i['phone'], email=i['email'], dob=i['birthdate'])
+                    print("except creating", i['firstName'], i['lastName'])
 
 
     return redirect('console')
@@ -416,13 +428,16 @@ def survey_page(request):
             elif date[1] == "5":
                 try:
                     day = volunteer.Days.get(day_of_month=date[0])
-                    day.all= True
+                    day.all = True
                     day.save()
                 except:
                     Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
                                        day_of_month=date[0], volunteer=volunteer)
             # Render a success page
-            return render(request, "scheduling_application/survey_complete.html", {})
+            # return render(request, "scheduling_application/survey_complete.html", {})
+        for i in volunteer.Days.all():
+            print(model_to_dict(i))
+        #print(volunteer.Days.all())
     return render(request, "scheduling_application/survey_page.html", {})
 
 
@@ -453,8 +468,8 @@ def add_senior(request):
     }
     return render(request, 'scheduling_application/add_senior.html', context)
 
-def update_senior(request, pk):
-    """View for updating senior"""
+def edit_senior(request, pk):
+    """View for editing senior"""
     senior = Senior.objects.get(id=pk)
     data = {'last_name': senior.last_name, 'first_name': senior.first_name, 'address': senior.address, 'phone': senior.phone, 'email': senior.email, 'emergency_contacts': senior.emergency_contacts,
             'preferred_language': senior.preferred_language, 'additional_notes': senior.additional_notes, 'vaccinated': senior.vaccinated,
@@ -468,7 +483,7 @@ def update_senior(request, pk):
     context = {
         'form': form
     }
-    return render(request, 'scheduling_application/update_senior.html', context)
+    return render(request, 'scheduling_application/edit_senior.html', context)
 
 def senior_page(request, pk):
     """View for senior profile page"""
@@ -478,8 +493,8 @@ def senior_page(request, pk):
         if request.POST.get("remove_senior"):
             senior.delete()
             return redirect('view_seniors')
-        elif request.POST.get("update_senior"):
-            return redirect('update_senior', pk)
+        elif request.POST.get("edit_senior"):
+            return redirect('edit_senior', pk)
     context = {
         'senior': senior,
     }
@@ -511,9 +526,30 @@ def volunteer_page(request, pk):
     """View for volunteer profile page"""
     volunteer = Volunteer.objects.get(id=pk)
     if request.method == 'POST':
-        volunteer.delete()
-        return redirect('view_volunteers')
+        print(request.POST)
+        if request.POST.get("remove_volunteer"):
+            volunteer.delete()
+            return redirect('view_volunteers')
+        elif request.POST.get("edit_volunteer"):
+            return redirect('edit_volunteer', pk)
     context = {
         'volunteer': volunteer,
     }
     return render(request, 'scheduling_application/volunteer_page.html', context)
+
+def edit_volunteer(request, pk):
+    """View for editing volunteer"""
+    volunteer = Volunteer.objects.get(id=pk)
+    data = {'galaxy_id': volunteer.galaxy_id, 'last_name': volunteer.last_name, 'first_name': volunteer.first_name, 'phone': volunteer.phone, 'email': volunteer.email, 'dob': volunteer.dob,
+            'vaccinated': volunteer.vaccinated,'notify_email': volunteer.notify_email, 'notify_text': volunteer.notify_text, 'notify_call': volunteer.notify_call,
+            'current_appointments': volunteer.current_appointments, 'additional_notes': volunteer.additional_notes}
+    form = VolunteerForm(initial=data)
+    if request.method == 'POST':
+        form = VolunteerForm(request.POST, instance=volunteer)
+        if form.is_valid():
+            form.save()
+        return redirect('volunteer_page', pk)
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/edit_volunteer.html', context)

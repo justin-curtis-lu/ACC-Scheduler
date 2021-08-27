@@ -8,21 +8,21 @@
             </tr>
         </thead>
         <tbody>
-            <tr><td>Address: {{senior.address}}</td></tr>
-            <tr><td>Phone: {{senior.phone}}</td></tr>
-            <tr><td>Email: {{senior.email}}</td></tr>
-            <tr><td>Emergency Contacts: {{senior.emergency_contacts}}</td></tr>
-            <tr><td>Preferred Language: {{senior.preferred_language}}</td></tr>
-            <tr><td>Additional Notes: {{senior.additional_notes}}</td></tr>
-            <tr><td>Vaccinated: {{senior.vaccinated}}</td></tr>
-            <tr><td>Notify by Email: {{senior.notify_email}}</td></tr>
-            <tr><td>Notify by Text: {{senior.notify_text}}</td></tr>
-            <tr><td>Notify by Call: {{senior.notify_call}}</td></tr>
+            <tr><td><b>Address:</b> {{senior.address}}</td></tr>
+            <tr><td><b>Phone:</b> {{senior.phone}}</td></tr>
+            <tr><td><b>Email:</b> {{senior.email}}</td></tr>
+            <tr><td><b>Emergency Contacts:</b> {{senior.emergency_contacts}}</td></tr>
+            <tr><td><b>Preferred Language:</b> {{senior.preferred_language}}</td></tr>
+            <tr><td><b>Additional Notes:</b> {{senior.additional_notes}}</td></tr>
+            <tr><td><b>Vaccinated:</b> {{senior.vaccinated}}</td></tr>
+            <tr><td><b>Notify by Email:</b> {{senior.notify_email}}</td></tr>
+            <tr><td><b>Notify by Text:</b> {{senior.notify_text}}</td></tr>
+            <tr><td><b>Notify by Call:</b> {{senior.notify_call}}</td></tr>
         </tbody>
     </table>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit" name="update_senior" value="update_senior">Update Participant</button>
+        <button type="submit" name="edit_senior" value="edit_senior">Edit Participant</button>
     </form>
     <br>
     <form action="" method="POST">
