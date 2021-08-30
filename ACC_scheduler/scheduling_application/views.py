@@ -129,7 +129,10 @@ def make_appointment(request):
     volunteers_list = Volunteer.objects.all()
     appointments_list = Appointment.objects.all()
 
-    print(seniors_list)
+    # print(seniors_list)
+    # print("BELOW")
+    # print(volunteers_list[0].Appointments.all())
+    # print(volunteers_list[1].Appointments.all())
 
     context = {
         'seniors_list': seniors_list[:5],
@@ -142,20 +145,10 @@ def make_appointment(request):
         senior = request.POST['senior']
         start_address = request.POST['start_address']
         end_address = request.POST['end_address']
-        # print(senior)
-        # print(request.POST)
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
-        # day_of_week = get_day(day_time[0])[:3]
         day_of_month = int(day_time[0].split('/')[1])
-        # print("CHECK: " + day_of_week)
-        # print(day_time)
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
-        # check_list is a queryset of volunteer ids
-        print(check_list)
-        print("ABOVE")
-        #appointment.date_and_time = day_time[0] + " " + day_time[1]
-        #appointment.save()
         potential_list = []
         for volunteer in check_list:
             volunteer_object = Volunteer.objects.filter(id=volunteer)
@@ -165,9 +158,22 @@ def make_appointment(request):
             else:
                 time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
                 for time in time_frames:
+                    # IF THE VOLUNTEER IS AVAILABLE
                     if check_time(day_time[1], time):
+                        # CHECK VOLUNTEERS APPOINTMENTS FOR CONFLICT
+                        check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
+                        break_check = False
+                        for appointment in check_conflict:
+                            if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
+                                break_check = True
+                                break
+                        if break_check:
+                            break
+                        volunteer_object[0].Appointments.filter()
                         potential_list.append(volunteer_object.values()[0])
                         break
+                        # FOR APPOINTMENT OBJECT ASSOCIATED WITH VOLUNTEER
+                        # CHECK DATE_AND_TIME WITH DAY_TIME[1] IF TRUE BREAK ELSE APPEND
             # time_list = volunteer['availability'][day_of_week]
             # SEARCH THROUGH DAY OBJECT AND GET THE TIMES AVAILABLE
             # For each day and time a volunteer is available
@@ -274,10 +280,10 @@ def success(request):
             volunteer = Volunteer.objects.get(id=vol_id)
             # print(volunteer, type(volunteer))
             appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).update(volunteer=volunteer)
-            appointment_object = Appointment.objects.get(id=request.session['appointment'])
-            appointment_day_time = appointment_object.date_and_time.split(' ')
-            volunteer.current_appointments[appointment_day_time[0]] = appointment_day_time[1]
-            volunteer.save()
+            #appointment_object = Appointment.objects.get(id=request.session['appointment'])
+            #appointment_day_time = appointment_object.date_and_time.split(' ')
+            #volunteer.current_appointments[appointment_day_time[0]] = appointment_day_time[1]
+            #volunteer.save()
             # print("appointment", appointment)
 
             # print("appointment: ", appointment)
