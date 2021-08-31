@@ -43,7 +43,7 @@ class Volunteer(models.Model):
     notify_call = models.BooleanField(default=False)
     current_appointments = models.JSONField(default=dict, editable=False)
     additional_notes = models.TextField(default=None, null=True, blank=True)
-    survey_token = models.CharField(default=None, max_length=32)
+    survey_token = models.CharField(default=None, max_length=32, null=True, blank=True)
 
     @property
     def full_name(self):

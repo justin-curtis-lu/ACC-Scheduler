@@ -138,6 +138,8 @@ def make_appointment(request):
         senior = request.POST['senior']
         start_address = request.POST['start_address']
         end_address = request.POST['end_address']
+        purpose_of_trip = request.POST['purpose_of_trip']
+        additional_notes = request.POST['notes']
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
         # day_of_week = get_day(day_time[0])[:3]
@@ -179,7 +181,7 @@ def make_appointment(request):
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
 
-        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address, end_address=end_address, date_and_time=day_time[0] + " " + day_time[1])
+        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address, end_address=end_address, date_and_time=day_time[0] + " " + day_time[1], purpose_of_trip=purpose_of_trip, notes=additional_notes)
         context = {
             'seniors_list': seniors_list,
             'volunteers_list': volunteers_list,
@@ -499,16 +501,12 @@ def survey_page(request):
             elif date[1] == "5":
                 try:
                     day = volunteer.Days.get(day_of_month=date[0])
-                    day.all = True
+                    day.all= True
                     day.save()
                 except:
                     Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
                                        day_of_month=date[0], volunteer=volunteer)
-            # Render a success page
-            return render(request, "scheduling_application/survey_complete.html", {})
-        #for i in volunteer.Days.all():
-        #    print(model_to_dict(i))
-    return render(request, "scheduling_application/survey_page.html", {})
+        return render(request, "scheduling_application/survey_complete.html", {})
 
 
 def logout(request):
@@ -516,6 +514,12 @@ def logout(request):
     auth.logout(request)
     return redirect('home')
 
+def view_appointments(request):
+    appointments = Appointment.objects.all()
+    context = {
+        'appointments': appointments,
+    }
+    return render(request, 'scheduling_application/view_appointments.html', context)
 
 def view_seniors(request):
     """View for the seniors page (table of all the seniors in the database)"""

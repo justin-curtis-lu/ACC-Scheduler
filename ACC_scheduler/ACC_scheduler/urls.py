@@ -39,4 +39,5 @@ urlpatterns = [
     path('send_survey/', sa_views.send_survey, name='send_survey'),
     path('survey_page/', sa_views.survey_page, name='survey_page'),
     path('vol_already_selected/', sa_views.vol_already_selected, name='vol_already_selected'),
+    path('view_appointments/', sa_views.view_appointments, name='view_appointments'),
 ]

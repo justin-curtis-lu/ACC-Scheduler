@@ -24,3 +24,4 @@ class VolunteerForm(ModelForm):
     class Meta:
         model = Volunteer
         fields = '__all__'
+        exclude = ['galaxy_id', 'survey_token']
