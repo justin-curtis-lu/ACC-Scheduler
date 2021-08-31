@@ -158,9 +158,7 @@ def make_appointment(request):
             else:
                 time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
                 for time in time_frames:
-                    # IF THE VOLUNTEER IS AVAILABLE
                     if check_time(day_time[1], time):
-                        # CHECK VOLUNTEERS APPOINTMENTS FOR CONFLICT
                         check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
                         break_check = False
                         for appointment in check_conflict:
@@ -172,20 +170,6 @@ def make_appointment(request):
                         volunteer_object[0].Appointments.filter()
                         potential_list.append(volunteer_object.values()[0])
                         break
-                        # FOR APPOINTMENT OBJECT ASSOCIATED WITH VOLUNTEER
-                        # CHECK DATE_AND_TIME WITH DAY_TIME[1] IF TRUE BREAK ELSE APPEND
-            # time_list = volunteer['availability'][day_of_week]
-            # SEARCH THROUGH DAY OBJECT AND GET THE TIMES AVAILABLE
-            # For each day and time a volunteer is available
-            #for time in time_list:
-                # if there is an available time that fits
-            #    if check_time(day_time[1], time):
-                    # checks if volunteer already has an appointment at that day if not, the volunteer is available
-            #        check_conflict = volunteer['current_appointments']
-            #        if day_time[0] in check_conflict:
-            #            break
-            #        potential_list.append(volunteer)
-            #        break
 
         if len(potential_list) == 0:
             messages.error(request, "No volunteers are available at this time.")
@@ -211,14 +195,6 @@ def confirm_v(request):
     potential_list = request.session['potential_list']
     print(potential_list)
     emails_sent = False
-
-    #### MAYBE REMOVE THIS AND FIX ON CONFIRM_V.HTML
-    #available_volunteer_list = []
-    #for i in potential_list:
-    #    if i['dob'] != 'N/A' and check_age(i['dob']):
-    #        available_volunteer_list.append(i['first_name'] + " " + i['last_name'] + "(minor)")
-    #    else:
-    #        available_volunteer_list.append(i['first_name'] + " " + i['last_name'])
 
     context = {
         'potential_list': potential_list
