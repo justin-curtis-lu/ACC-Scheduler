@@ -43,6 +43,11 @@ class Volunteer(models.Model):
     notify_call = models.BooleanField(default=False)
     additional_notes = models.TextField(default='N/A')
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.notify_email and not self.notify_text and not self.notify_call:
+            raise ValidationError('At least one notification method must be selected')
+
     @property
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
