@@ -14,7 +14,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for item in volunteers %}
+        {% for item in volunteer %}
         <tr>
              <td><a href="{% url 'volunteer_page' item.id %}">{{ item.last_name }}</a></td>
              <td>{{ item.first_name }}</td>

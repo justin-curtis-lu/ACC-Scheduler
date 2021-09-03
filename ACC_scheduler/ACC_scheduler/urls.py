@@ -38,7 +38,7 @@ urlpatterns = [
     path('edit_volunteer/<str:pk>', sa_views.edit_volunteer, name='edit_volunteer'),
     path('send_survey/', sa_views.send_survey, name='send_survey'),
     path('survey_page/', sa_views.survey_page, name='survey_page'),
-    path('view_availability/', sa_views.view_availability, name='view_availability'),
+    path('view_availability/<str:pk>', sa_views.view_availability, name='view_availability'),
     path('vol_already_selected/', sa_views.vol_already_selected, name='vol_already_selected'),
     path('view_appointments/', sa_views.view_appointments, name='view_appointments'),
 ]

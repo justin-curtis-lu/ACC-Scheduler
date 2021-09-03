@@ -1,15 +1,209 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
 <div class="center">
-<h1><b>View Availability</b></h1>
+<h1><b>{{ volunteer.first_name }} {{ volunteer.last_name }}'s Availability</b></h1>
 <br>
-<table>
-        <form action="" method="POST">
-                {% csrf_token %}
-                {{form.as_p}}
-                <input type="submit">
-        </form>
-</table>
+<div class="row">
+<div class="col"></div>
+<div class="col">9:00-10:00</div>
+<div class="col">10:00-11:00</div>
+<div class="col">11:00-12:00</div>
+<div class="col">12:00-1:00</div>
+<div class="col">1:00-2:00</div>
+<div class="col">All Day</div>
+</div>
+<form action="" method="POST">
+{% csrf_token %}
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/01</div>
+        {% for field in form1 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/02</div>
+        {% for field in form2 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/03</div>
+        {% for field in form3 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/04</div>
+        {% for field in form4 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/05</div>
+        {% for field in form5 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/06</div>
+        {% for field in form6 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/07</div>
+        {% for field in form7 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/08</div>
+        {% for field in form8 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/09</div>
+        {% for field in form9 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/10</div>
+        {% for field in form10 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/11</div>
+        {% for field in form11 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/12</div>
+        {% for field in form12 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/13</div>
+        {% for field in form13 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/14</div>
+        {% for field in form14 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/15</div>
+        {% for field in form15 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/16</div>
+        {% for field in form16 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/17</div>
+        {% for field in form17 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/18</div>
+        {% for field in form18 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/19</div>
+        {% for field in form19 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/20</div>
+        {% for field in form20 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/21</div>
+        {% for field in form21 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/22</div>
+        {% for field in form22 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/23</div>
+        {% for field in form23 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/24</div>
+        {% for field in form24 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/25</div>
+        {% for field in form25 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/26</div>
+        {% for field in form26 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/27</div>
+        {% for field in form27 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/28</div>
+        {% for field in form28 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/29</div>
+        {% for field in form29 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row">
+        <div class="col">{{ month }}/30</div>
+        {% for field in form30 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<div class="row bg-secondary text-white">
+        <div class="col">{{ month }}/31</div>
+        {% for field in form31 %}
+                <div class="col">{{field}}</div>
+        {% endfor %}
+</div>
+<br>
+<input type="submit" value="Edit Availability" name="edit_availability"/>
+</form>
+
 <br>
 <a href="{% url 'view_volunteers' %}"><button>back</button></a>
 </div>

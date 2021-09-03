@@ -17,7 +17,7 @@
         {% for item in appointments %}
         <tr>
              <td>{{ item.senior }}</td>
-             <td>{{ item.volunteer }}</td>
+             <td>{% for volunteer in item.volunteer.all %} {{ volunteer }} {% endfor %}</td>
              <td>{{ item.start_address }}</td>
              <td>{{ item.end_address }}</td>
              <td>{{ item.date_and_time }}</td>

@@ -12,7 +12,6 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        model = User
         fields = ['username', 'email', 'password1', 'password2']
 
 
@@ -31,3 +30,4 @@ class DayForm(ModelForm):
     class Meta:
         model = Day
         fields = '__all__'
+        exclude = ['volunteer', 'day_of_month']

@@ -71,7 +71,8 @@ class Day(models.Model):
 class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True, related_name="Appointments")
+    volunteer = models.ManyToManyField(Volunteer, related_name="Appointments")
+    # volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True, related_name="Appointments")
     start_address = models.CharField(max_length=50, null=True)
     end_address = models.CharField(max_length=50, null=True)
     date_and_time = models.CharField(max_length=50)

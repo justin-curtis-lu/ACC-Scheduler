@@ -150,7 +150,15 @@ def make_appointment(request):
             volunteer_object = Volunteer.objects.filter(id=volunteer)
             availability = volunteer_object[0].Days.filter(day_of_month=day_of_month)[0]
             if availability.all:
-                potential_list.append(volunteer_object.values()[0])
+                check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
+                schedule_conflict = False
+                for appointment in check_conflict:
+                    if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
+                        schedule_conflict = True
+                        break
+                if not schedule_conflict:
+                   potential_list.append(volunteer_object.values()[0])
+                # potential_list.append(volunteer_object.values()[0])
             else:
                 time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
                 for time in time_frames:
@@ -268,7 +276,8 @@ def success(request):
             empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
             if not empty_appointment:
                 return redirect('vol_already_selected')
-            empty_appointment.update(volunteer=volunteer)
+            # empty_appointment.update(volunteer=volunteer)
+            empty_appointment[0].volunteer.add(volunteer)
             appointment = Appointment.objects.get(id=request.session['appointment'])
             print(appointment)
 
@@ -518,19 +527,244 @@ def survey_page(request):
                                        day_of_month=date[0], volunteer=volunteer)
         return render(request, "scheduling_application/survey_complete.html", {})
 
-def view_availability(request):
-    #senior = Senior.objects.get(id=pk)
-    #data = {'last_name': senior.last_name, 'first_name': senior.first_name, 'address': senior.address}
-    form = DayForm()
-    #if request.method == 'POST':
-    #    form = SeniorForm(request.POST, instance=senior)
-    #    if form.is_valid():
-    #        form.save()
-    #    return redirect('senior_page', pk)
+def view_availability(request, pk):
+    volunteer = Volunteer.objects.get(id=pk)
+    day1 = volunteer.Days.get(day_of_month=1)
+    day2 = volunteer.Days.get(day_of_month=2)
+    day3 = volunteer.Days.get(day_of_month=3)
+    day4 = volunteer.Days.get(day_of_month=4)
+    day5 = volunteer.Days.get(day_of_month=5)
+    day6 = volunteer.Days.get(day_of_month=6)
+    day7 = volunteer.Days.get(day_of_month=7)
+    day8 = volunteer.Days.get(day_of_month=8)
+    day9 = volunteer.Days.get(day_of_month=9)
+    day10 = volunteer.Days.get(day_of_month=10)
+    day11 = volunteer.Days.get(day_of_month=11)
+    day12 = volunteer.Days.get(day_of_month=12)
+    day13 = volunteer.Days.get(day_of_month=13)
+    day14 = volunteer.Days.get(day_of_month=14)
+    day15 = volunteer.Days.get(day_of_month=15)
+    day16 = volunteer.Days.get(day_of_month=16)
+    day17 = volunteer.Days.get(day_of_month=17)
+    day18 = volunteer.Days.get(day_of_month=18)
+    day19 = volunteer.Days.get(day_of_month=19)
+    day20 = volunteer.Days.get(day_of_month=20)
+    day21 = volunteer.Days.get(day_of_month=21)
+    day22 = volunteer.Days.get(day_of_month=22)
+    day23 = volunteer.Days.get(day_of_month=23)
+    day24 = volunteer.Days.get(day_of_month=24)
+    day25 = volunteer.Days.get(day_of_month=25)
+    day26 = volunteer.Days.get(day_of_month=26)
+    day27 = volunteer.Days.get(day_of_month=27)
+    day28 = volunteer.Days.get(day_of_month=28)
+    day29 = volunteer.Days.get(day_of_month=29)
+    day30 = volunteer.Days.get(day_of_month=30)
+    day31 = volunteer.Days.get(day_of_month=31)
+
+    data1 = {'_9_10': day1._9_10, '_10_11': day1._10_11, '_11_12': day1._11_12, '_12_1': day1._12_1, '_1_2': day1._1_2,
+             'all': day1.all}
+    data2 = {'_9_10': day2._9_10, '_10_11': day2._10_11, '_11_12': day2._11_12, '_12_1': day2._12_1, '_1_2': day2._1_2,
+             'all': day2.all}
+    data3 = {'_9_10': day3._9_10, '_10_11': day3._10_11, '_11_12': day3._11_12, '_12_1': day3._12_1, '_1_2': day3._1_2,
+             'all': day3.all}
+    data4 = {'_9_10': day4._9_10, '_10_11': day4._10_11, '_11_12': day4._11_12, '_12_1': day4._12_1, '_1_2': day4._1_2,
+             'all': day4.all}
+    data5 = {'_9_10': day5._9_10, '_10_11': day5._10_11, '_11_12': day5._11_12, '_12_1': day5._12_1, '_1_2': day5._1_2,
+             'all': day5.all}
+    data6 = {'_9_10': day6._9_10, '_10_11': day6._10_11, '_11_12': day6._11_12, '_12_1': day6._12_1, '_1_2': day6._1_2,
+             'all': day6.all}
+    data7 = {'_9_10': day7._9_10, '_10_11': day7._10_11, '_11_12': day7._11_12, '_12_1': day7._12_1, '_1_2': day7._1_2,
+             'all': day7.all}
+    data8 = {'_9_10': day8._9_10, '_10_11': day8._10_11, '_11_12': day8._11_12, '_12_1': day8._12_1, '_1_2': day8._1_2,
+             'all': day8.all}
+    data9 = {'_9_10': day9._9_10, '_10_11': day9._10_11, '_11_12': day9._11_12, '_12_1': day9._12_1, '_1_2': day9._1_2,
+             'all': day9.all}
+    data10 = {'_9_10': day10._9_10, '_10_11': day10._10_11, '_11_12': day10._11_12, '_12_1': day10._12_1, '_1_2': day10._1_2,
+             'all': day10.all}
+    data11 = {'_9_10': day11._9_10, '_10_11': day11._10_11, '_11_12': day11._11_12, '_12_1': day11._12_1, '_1_2': day11._1_2,
+             'all': day11.all}
+    data12 = {'_9_10': day12._9_10, '_10_11': day12._10_11, '_11_12': day12._11_12, '_12_1': day12._12_1, '_1_2': day12._1_2,
+             'all': day12.all}
+    data13 = {'_9_10': day13._9_10, '_10_11': day13._10_11, '_11_12': day13._11_12, '_12_1': day13._12_1, '_1_2': day13._1_2,
+             'all': day13.all}
+    data14 = {'_9_10': day14._9_10, '_10_11': day14._10_11, '_11_12': day14._11_12, '_12_1': day14._12_1, '_1_2': day14._1_2,
+             'all': day1.all}
+    data15 = {'_9_10': day15._9_10, '_10_11': day15._10_11, '_11_12': day15._11_12, '_12_1': day15._12_1, '_1_2': day15._1_2,
+             'all': day15.all}
+    data16 = {'_9_10': day16._9_10, '_10_11': day16._10_11, '_11_12': day16._11_12, '_12_1': day16._12_1, '_1_2': day16._1_2,
+             'all': day16.all}
+    data17 = {'_9_10': day17._9_10, '_10_11': day17._10_11, '_11_12': day17._11_12, '_12_1': day17._12_1, '_1_2': day17._1_2,
+             'all': day17.all}
+    data18 = {'_9_10': day18._9_10, '_10_11': day18._10_11, '_11_12': day18._11_12, '_12_1': day18._12_1, '_1_2': day18._1_2,
+             'all': day18.all}
+    data19 = {'_9_10': day19._9_10, '_10_11': day19._10_11, '_11_12': day19._11_12, '_12_1': day19._12_1, '_1_2': day19._1_2,
+             'all': day19.all}
+    data20 = {'_9_10': day20._9_10, '_10_11': day20._10_11, '_11_12': day20._11_12, '_12_1': day20._12_1, '_1_2': day20._1_2,
+             'all': day20.all}
+    data21 = {'_9_10': day21._9_10, '_10_11': day21._10_11, '_11_12': day21._11_12, '_12_1': day21._12_1, '_1_2': day21._1_2,
+             'all': day21.all}
+    data22 = {'_9_10': day22._9_10, '_10_11': day22._10_11, '_11_12': day22._11_12, '_12_1': day22._12_1, '_1_2': day22._1_2,
+             'all': day22.all}
+    data23 = {'_9_10': day23._9_10, '_10_11': day23._10_11, '_11_12': day23._11_12, '_12_1': day23._12_1, '_1_2': day23._1_2,
+             'all': day23.all}
+    data24 = {'_9_10': day24._9_10, '_10_11': day24._10_11, '_11_12': day24._11_12, '_12_1': day24._12_1, '_1_2': day24._1_2,
+             'all': day24.all}
+    data25 = {'_9_10': day25._9_10, '_10_11': day25._10_11, '_11_12': day25._11_12, '_12_1': day25._12_1, '_1_2': day25._1_2,
+             'all': day25.all}
+    data26 = {'_9_10': day26._9_10, '_10_11': day26._10_11, '_11_12': day26._11_12, '_12_1': day26._12_1, '_1_2': day26._1_2,
+             'all': day26.all}
+    data27 = {'_9_10': day27._9_10, '_10_11': day27._10_11, '_11_12': day27._11_12, '_12_1': day27._12_1, '_1_2': day27._1_2,
+             'all': day27.all}
+    data28 = {'_9_10': day28._9_10, '_10_11': day28._10_11, '_11_12': day28._11_12, '_12_1': day28._12_1, '_1_2': day28._1_2,
+             'all': day28.all}
+    data29 = {'_9_10': day29._9_10, '_10_11': day29._10_11, '_11_12': day29._11_12, '_12_1': day29._12_1, '_1_2': day29._1_2,
+             'all': day29.all}
+    data30 = {'_9_10': day30._9_10, '_10_11': day30._10_11, '_11_12': day30._11_12, '_12_1': day30._12_1, '_1_2': day30._1_2,
+             'all': day30.all}
+    data31 = {'_9_10': day31._9_10, '_10_11': day31._10_11, '_11_12': day31._11_12, '_12_1': day31._12_1, '_1_2': day31._1_2,
+             'all': day31.all}
+
+
+    form1 = DayForm(initial=data1)
+    form2 = DayForm(initial=data2)
+    form3 = DayForm(initial=data3)
+    form4 = DayForm(initial=data4)
+    form5 = DayForm(initial=data5)
+    form6 = DayForm(initial=data6)
+    form7 = DayForm(initial=data7)
+    form8 = DayForm(initial=data8)
+    form9 = DayForm(initial=data9)
+    form10 = DayForm(initial=data10)
+    form11 = DayForm(initial=data11)
+    form12 = DayForm(initial=data12)
+    form13 = DayForm(initial=data13)
+    form14 = DayForm(initial=data14)
+    form15 = DayForm(initial=data15)
+    form16 = DayForm(initial=data16)
+    form17 = DayForm(initial=data17)
+    form18 = DayForm(initial=data18)
+    form19 = DayForm(initial=data19)
+    form20 = DayForm(initial=data20)
+    form21 = DayForm(initial=data21)
+    form22 = DayForm(initial=data22)
+    form23 = DayForm(initial=data23)
+    form24 = DayForm(initial=data24)
+    form25 = DayForm(initial=data25)
+    form26 = DayForm(initial=data26)
+    form27 = DayForm(initial=data27)
+    form28 = DayForm(initial=data28)
+    form29 = DayForm(initial=data29)
+    form30 = DayForm(initial=data30)
+    form31 = DayForm(initial=data31)
+
+    if request.method == "POST":
+        print(request.POST)
+        form1 = DayForm(request.POST, instance=day1)
+        print(request.POST)
+        if form1.is_valid():
+            form1.save()
+        form2 = DayForm(request.POST, instance=day2)
+        if form2.is_valid():
+            form2.save()
+        form3 = DayForm(request.POST, instance=day3)
+        if form3.is_valid():
+            form3.save()
+        form4 = DayForm(request.POST, instance=day4)
+        if form4.is_valid():
+            form4.save()
+        form5 = DayForm(request.POST, instance=day5)
+        if form5.is_valid():
+            form5.save()
+        form6 = DayForm(request.POST, instance=day6)
+        if form6.is_valid():
+            form6.save()
+        form7 = DayForm(request.POST, instance=day7)
+        if form7.is_valid():
+            form7.save()
+        form8 = DayForm(request.POST, instance=day8)
+        if form8.is_valid():
+            form8.save()
+        form9 = DayForm(request.POST, instance=day9)
+        if form9.is_valid():
+            form9.save()
+        form10 = DayForm(request.POST, instance=day10)
+        if form10.is_valid():
+            form10.save()
+        form11 = DayForm(request.POST, instance=day11)
+        if form11.is_valid():
+            form11.save()
+        form12 = DayForm(request.POST, instance=day12)
+        if form12.is_valid():
+            form12.save()
+        form13 = DayForm(request.POST, instance=day13)
+        if form13.is_valid():
+            form13.save()
+        form14 = DayForm(request.POST, instance=day14)
+        if form14.is_valid():
+            form14.save()
+        form15 = DayForm(request.POST, instance=day15)
+        if form15.is_valid():
+            form15.save()
+        form16 = DayForm(request.POST, instance=day16)
+        if form16.is_valid():
+            form16.save()
+        form17 = DayForm(request.POST, instance=day17)
+        if form17.is_valid():
+            form17.save()
+        form18 = DayForm(request.POST, instance=day18)
+        if form18.is_valid():
+            form18.save()
+        form19 = DayForm(request.POST, instance=day19)
+        if form19.is_valid():
+            form19.save()
+        form20 = DayForm(request.POST, instance=day20)
+        if form20.is_valid():
+            form20.save()
+        form21 = DayForm(request.POST, instance=day21)
+        if form21.is_valid():
+            form21.save()
+        form22 = DayForm(request.POST, instance=day22)
+        if form22.is_valid():
+            form22.save()
+        form23 = DayForm(request.POST, instance=day23)
+        if form23.is_valid():
+            form23.save()
+        form24 = DayForm(request.POST, instance=day24)
+        if form24.is_valid():
+            form24.save()
+        form25 = DayForm(request.POST, instance=day25)
+        if form25.is_valid():
+            form25.save()
+        form26 = DayForm(request.POST, instance=day26)
+        if form26.is_valid():
+            form26.save()
+        form27 = DayForm(request.POST, instance=day27)
+        if form27.is_valid():
+            form27.save()
+        form28 = DayForm(request.POST, instance=day28)
+        if form28.is_valid():
+            form28.save()
+        form29 = DayForm(request.POST, instance=day29)
+        if form29.is_valid():
+            form29.save()
+        form30 = DayForm(request.POST, instance=day30)
+        if form30.is_valid():
+            form30.save()
+        form31 = DayForm(request.POST, instance=day31)
+        if form31.is_valid():
+            form31.save()
+
+        return redirect('volunteer_page', pk)
+
     context = {
-        'form': form
+        'volunteer': volunteer,
+        'form1': form1, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6, 'form7': form7,
+        'form8': form8, 'form9': form9, 'form10': form10, 'form11': form11, 'form12': form12, 'form13': form13, 'form14': form14, 'form15': form15,
+        'form16': form16, 'form17': form17, 'form18': form18, 'form19': form19, 'form20': form20, 'form21': form21, 'form22': form22,
+        'form23': form23, 'form24': form24, 'form25': form25, 'form26': form26, 'form27': form27, 'form28': form28, 'form29': form29,
+        'form30': form30, 'form31': form31,
     }
-    return render(request, "scheduling_application/view_availability", context)
+    return render(request, "scheduling_application/view_availability.html", context)
 
 def logout(request):
     """View for logging out"""
