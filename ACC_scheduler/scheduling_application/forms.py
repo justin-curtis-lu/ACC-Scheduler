@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
 from .models import Senior
 from .models import Volunteer
+from .models import Day
 
 
 class UserRegisterForm(UserCreationForm):
@@ -25,3 +26,8 @@ class VolunteerForm(ModelForm):
         model = Volunteer
         fields = '__all__'
         exclude = ['galaxy_id', 'survey_token']
+
+class DayForm(ModelForm):
+    class Meta:
+        model = Day
+        fields = '__all__'

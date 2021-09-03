@@ -31,15 +31,33 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'console' %}">Home</a>
                 </li>
+                &emsp;
                 {% if not user.is_authenticated %}
                      <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Sign In</a>
                     </li>
+                    &emsp;
                     <li class="nav-item">
                          <a class="nav-link" href="{% url 'register' %}">Sign Up</a>
                      </li>
                 {% endif %}
                 {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'make_appointment' %}">Schedule an Appointment</a>
+                    </li>
+                    &emsp;
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_appointments' %}">View Appointments</a>
+                    </li>
+                    &emsp;
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_seniors' %}">View Participants</a>
+                    </li>
+                    &emsp;
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_volunteers' %}">View Volunteers</a>
+                    </li>
+                    &emsp;
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Sign Out</a>
                     </li>

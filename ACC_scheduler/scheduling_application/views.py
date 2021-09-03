@@ -1,7 +1,7 @@
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm
 from .models import Senior, Volunteer, Appointment, Day
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
@@ -248,8 +248,8 @@ def confirm_v(request):
                     token = get_random_string(length=32)
                     activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token        # MAYBE CAN REMOVE EMAIL QUERY
 
-                    account_sid = 'AC7b1313ed703f0e2697c57e0c1ec641cd'
-                    auth_token = '3e77ae49deeeb026e625ea93bd5a3214'
+                    account_sid = settings.TWILIO_ACCOUNT_SID
+                    auth_token = settings.TWILIO_AUTH
                     client = Client(account_sid, auth_token)
 
                     message = client.messages.create(body=f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests a buddy! Based on your availability, you would be a perfect match!\n' + \
@@ -259,7 +259,7 @@ def confirm_v(request):
                                                           f'\tWhere: {appointment[0]["start_address"]} to {appointment[0]["end_address"]}\n' + \
                                                           'Please click the link below to accept this request.\n' + activate_url + \
                                                           '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
-                                                          from_='+17608218017', to=i['phone'])
+                                                          from_='+19569486977', to=i['phone'])
                     print("to phone", i['phone'])
                     emails_sent = True
 
@@ -293,6 +293,38 @@ def success(request):
             appointment_day_time = appointment.date_and_time.split(' ')
             volunteer.current_appointments[appointment_day_time[0]] = appointment_day_time[1]
             volunteer.save()
+
+            # SEND EMAIL TO SENIORS
+            senior = appointment.senior
+            if senior.notify_email == True:
+                email_subject = 'Participant Appointment Confirmation'
+                email_message = f'Hello Participant!\n\nWe have a Senior Escort Program Volunteer who has accepted your request! Here are the details of the appointment!\n' + \
+                                f'\tVolunteer: {volunteer.first_name} {volunteer.last_name}\n' \
+                                f'\tWhat: {appointment.purpose_of_trip}\n' \
+                                f'\tWhen: {appointment.date_and_time}\n' \
+                                f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
+                                '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
+                from_email = 'acc.scheduler.care@gmail.com'
+                to_email = [senior.email]
+                send_mail(email_subject, email_message, from_email, to_email)
+                print("to email", to_email)
+                # emails_sent = True
+            if senior.notify_text == True:
+                account_sid = settings.TWILIO_ACCOUNT_SID
+                auth_token = settings.TWILIO_AUTH
+                client = Client(account_sid, auth_token)
+
+                message = client.messages.create(
+                    body=f'Hello Participant!\n\nWe have a Senior Escort Program Volunteer who has accepted your request! Here are the details of the appointment!\n' + \
+                         f'\tVolunteer: {volunteer.first_name} {volunteer.last_name}\n' \
+                         f'\tWhat: {appointment.purpose_of_trip}\n' \
+                         f'\tWhen: {appointment.date_and_time}\n' \
+                         f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
+                         '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
+                    from_='+19569486977', to=senior.phone)
+                print("to phone", senior.phone)
+                # emails_sent = True
+
             # print("appointment", appointment)
         except (KeyError, Appointment.DoesNotExist):
             # print("APPOINTMENT DOES NOT EXIST")
@@ -420,13 +452,13 @@ def send_survey(request):
                 print("to email", to_email)
                 emails_sent = True
             if i.notify_text:
-                account_sid = 'AC7b1313ed703f0e2697c57e0c1ec641cd'
-                auth_token = '3e77ae49deeeb026e625ea93bd5a3214'
+                account_sid = settings.TWILIO_ACCOUNT_SID
+                auth_token = settings.TWILIO_AUTH
                 client = Client(account_sid, auth_token)
                 message = client.messages.create(
                     body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
                           f"Your time is so appreciated and we could not provide seniors with free programs without you!\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
-                    from_='+17608218017', to=i.phone)
+                    from_='+19569486977', to=i.phone)
                 print("to phone", i.phone)
             i.survey_token = token
             i.save()
@@ -508,6 +540,19 @@ def survey_page(request):
                                        day_of_month=date[0], volunteer=volunteer)
         return render(request, "scheduling_application/survey_complete.html", {})
 
+def view_availability(request):
+    #senior = Senior.objects.get(id=pk)
+    #data = {'last_name': senior.last_name, 'first_name': senior.first_name, 'address': senior.address}
+    form = DayForm()
+    #if request.method == 'POST':
+    #    form = SeniorForm(request.POST, instance=senior)
+    #    if form.is_valid():
+    #        form.save()
+    #    return redirect('senior_page', pk)
+    context = {
+        'form': form
+    }
+    return render(request, "scheduling_application/view_availability", context)
 
 def logout(request):
     """View for logging out"""
