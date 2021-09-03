@@ -1,0 +1,29 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="space">
+    <p class="text-center bigger" > Enter Valid Keys </p>
+    <div class="card center" style="width: 24rem;">
+        <div class="card-body">
+            <form class="form-group" method="POST">
+                {% csrf_token %}
+                    <p class="special"> Key1 </p>
+                    <input class="special" type="text" name="key1" placeholder="Enter key">
+                    <br>
+                    <br>
+                    <p class="special"> Key2 </p>
+                    <input class="special" type="text" name="key2" placeholder="Enter key">
+                    <br>
+                    <br>
+                    <p class="special"> Key3 </p>
+                    <input class="special" type="text" name="key3" placeholder="Enter key">
+                    <br>
+                    <br>
+                    {% for message in messages %}
+                        <p class="error"> {{message}} </p>
+                    {% endfor %}
+                    <input class="special" type="Submit">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

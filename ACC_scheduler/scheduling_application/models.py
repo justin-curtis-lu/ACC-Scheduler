@@ -52,6 +52,7 @@ class Volunteer(models.Model):
     def __str__(self):
         return self.full_name
 
+
 class Day(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="Days", blank=True, null=True)
     day_of_month = models.IntegerField(default=None, null=True)
@@ -61,6 +62,13 @@ class Day(models.Model):
     _12_1 = models.BooleanField(default=False)
     _1_2 = models.BooleanField(default=False)
     all = models.BooleanField(default=False)
+
+
+class SurveyStatus(models.Model):
+    month = models.IntegerField(null=True)
+    sent = models.BooleanField(default=False)
+    survey_id = models.IntegerField(null=True)
+
 
 class Appointment(models.Model):
     """Model for the appointments"""

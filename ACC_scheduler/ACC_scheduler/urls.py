@@ -22,6 +22,7 @@ urlpatterns = [
     path('console/', sa_views.console, name='console'),
     path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
+    path('keys/', sa_views.keys, name='keys'),
     path('login/', sa_views.login, name='login'),
     path('logout/', sa_views.logout, name='logout'),
     path('success/', sa_views.success, name='confirmation_received'),
@@ -37,5 +38,6 @@ urlpatterns = [
     path('update_volunteers/', sa_views.update_volunteers, name='update_volunteers'),
     path('volunteer/<str:pk>', sa_views.volunteer_page, name='volunteer_page'),
     path('send_survey/', sa_views.send_survey, name='send_survey'),
+    path('pre_send_survey/', sa_views.pre_send_survey, name='pre_send_survey'),
     path('survey_page/', sa_views.survey_page, name='survey_page'),
 ]

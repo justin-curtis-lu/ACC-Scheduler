@@ -302,9 +302,12 @@
 </form>
 </div>
 
-<form action="" method="post">
+<form class="center" action="" method="post">
     {% csrf_token %}
-    Unsubscribe from monthly surveys click <input type="submit" value="here" name="unsubscribe"/>
+    <p class="space">
+        Unsubscribe from monthly surveys click
+    </p>
+    <input type="submit" value="here" name="unsubscribe"/>
 </form>
 </body>
 </html>

@@ -1,36 +1,44 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
 <div class="container">
+    <div class="center">
+        {% if user.is_authenticated %}
+            <p class="space ">Hello, {{user}}</p>
+        {% endif %}
+    </div>
     <div class="row">
         <div class="col-sm">
+            <form class="space" action="{% url 'view_appointments' %}">
+                <input type="submit" value="View Appointments" />
+            </form>
+        </div>
+        <div class="col-sm">
+            <form class="space" action="{% url 'view_seniors' %}">
+                <input type="submit" value="View Participants" />
+            </form>
+        </div>
+        <div class="col-sm">
+            <form class="space" action="{% url 'view_volunteers' %}">
+                <input type="submit" value="View Volunteers" />
+            </form>
+        </div>
+    </div>
+    <div class="row">
+
+            <div class="col-sm">
             <form class="space" action="{% url 'make_appointment' %}">
                 <input type="submit" value="Schedule an Appointment" />
             </form>
-            <form class="space" action="{% url 'view_appointments' %}">
-                <input type="submit" value="Appointments" />
-            </form>
-            <form class="space" action="{% url 'view_seniors' %}">
-                <input type="submit" value="Participants" />
-            </form>
-            <form class="space" action="{% url 'view_volunteers' %}">
-                <input type="submit" value="Volunteers" />
-            </form>
+        </div>
+        <div class="col-sm">
             <form class="space" action="{% url 'update_volunteers' %}">
-                <input type="submit" name="update_volunteers" value="Update volunteers" />
+                <input type="submit" name="sync_GalaxyDigital" value="Sync GalaxyDigital" />
             </form>
-            <form class="space" action="{% url 'send_survey' %}">
-                <input type="submit" name="send_survey" value="Send survey" />
+            </div>
+        <div class="col-sm">
+            <form class="space" action="{% url 'pre_send_survey' %}">
+                <input type="submit" name="send_survey" value="Send Surveys" />
             </form>
-
-        </div>
-        <div class="col-sm">
-                <div class="center">
-                    {% if user.is_authenticated %}
-                        <p>Hello, {{user}}</p>
-                    {% endif %}
-                </div>
-        </div>
-        <div class="col-sm">
         </div>
     </div>
 </div>

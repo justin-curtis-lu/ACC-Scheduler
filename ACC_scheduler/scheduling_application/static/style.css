@@ -106,6 +106,14 @@ table {
     width: 60%;
 }
 
+.success {
+    color: green;
+}
+
+.warning {
+    color: red;
+}
+
 div.container4 {
     height: 10em;
     position: relative }

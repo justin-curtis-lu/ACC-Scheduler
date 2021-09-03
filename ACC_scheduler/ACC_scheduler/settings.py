@@ -138,3 +138,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 load_dotenv()
 GALAXY_AUTH = os.getenv('GALAXY_AUTH')  # Survey Monkey
 MONKEY_AUTH = os.getenv('MONKEY_AUTH')  # Galaxy Digital
+KEY1 = os.getenv('KEY1')
+KEY2 = os.getenv('KEY2')
+KEY3 = os.getenv('KEY3')
