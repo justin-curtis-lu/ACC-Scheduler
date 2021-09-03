@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../static/style.css">
 </head>
 <body>
-    would you like to unsubscribe?
-    {% for i in id %}
-        <p>{{ i }}</p>
-        button that passes the id to a view
-    {% endfor %}
+    <div class="center space">
+        <form action="" method="POST">
+        {% csrf_token %}
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+            <label class="form-check-label" for="flexRadioDefault1">
+             Would you like to unsubscribe from email/sms notifications?
+        </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+            <label class="form-check-label" for="flexRadioDefault2">
+            Would you like to remove yourself from everything?
+            </label>
+        </div>
+            <input class="small" type="submit">
+        </form>
+    </div>
 </body>
 </html>

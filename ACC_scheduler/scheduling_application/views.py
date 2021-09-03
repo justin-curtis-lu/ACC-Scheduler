@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm
 from django.forms import modelformset_factory, formset_factory
-from .models import Senior, Volunteer, Appointment, Day
+from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
@@ -109,6 +109,7 @@ def login(request):
     return render(request, 'scheduling_application/login.html', {})
 
 
+
 # uses Django's built-in UserRegisterForm
 def register(request):
     """View for the registration page"""
@@ -122,6 +123,20 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'scheduling_application/register.html', {'form': form})
+
+
+def keys(request):
+    if request.method == 'POST':
+        key1 = request.POST['key1']
+        key2 = request.POST['key2']
+        key3 = request.POST['key3']
+        if key1 == settings.KEY1 and key2 == settings.KEY2 and key3 == settings.KEY3:
+            return redirect('register')
+        else:
+            messages.info(request, 'invalid credentials')
+            return render(request, 'scheduling_application/keys.html', {})
+    else:
+        return render(request, 'scheduling_application/keys.html', {})
 
 
 def make_appointment(request):
@@ -422,35 +437,54 @@ def volunteer_page(request, pk):
     }
     return render(request, 'scheduling_application/volunteer_page.html', context)
 
+
+def pre_send_survey(request):
+    return render(request, 'scheduling_application/survey_confirmation.html')
+
+
 def send_survey(request):
     if request.GET.get('send_survey'):
-        domain = get_current_site(request).domain
-        for i in Volunteer.objects.all():
-            token = get_random_string(length=32)
-            i.survey_token = token
-            activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email \
-                           + "&token=" + token
-            if i.notify_email:
-                email_subject = 'Volunteer Availability Survey'
-                email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                                "Your time is so appreciated and we could not provide seniors with free programs without you!\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
-                from_email = 'acc.scheduler.care@gmail.com'
-                to_email = [i.email]
-                send_mail(email_subject, email_message, from_email, to_email)
-                print("to email", to_email)
-                emails_sent = True
-            if i.notify_text:
-                account_sid = settings.TWILIO_ACCOUNT_SID
-                auth_token = settings.TWILIO_AUTH
-                client = Client(account_sid, auth_token)
-                message = client.messages.create(
-                    body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                          f"Your time is so appreciated and we could not provide seniors with free programs without you!\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
-                    from_='+19569486977', to=i.phone)
-                print("to phone", i.phone)
-            i.survey_token = token
-            i.save()
-    return redirect('console')
+        dt = datetime.today()
+        curr_month = dt.month
+        if SurveyStatus.objects.count() == 0:
+            survey = SurveyStatus.objects.create(month=curr_month, sent=False, survey_id=1)
+        else:
+            survey = SurveyStatus.objects.get(survey_id=1)
+        if survey.sent is False or survey.month is not curr_month:
+            domain = get_current_site(request).domain
+            for i in Volunteer.objects.all():
+                token = get_random_string(length=32)
+                i.survey_token = token
+                activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email \
+                               + "&token=" + token
+                if i.notify_email:
+                    email_subject = 'Volunteer Availability Survey'
+                    email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                                    "Your time is so appreciated and we could not provide seniors with free programs without you!\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
+                    from_email = 'acc.scheduler.care@gmail.com'
+                    to_email = [i.email]
+                    send_mail(email_subject, email_message, from_email, to_email)
+                    print("to email", to_email)
+                    emails_sent = True
+                if i.notify_text:
+                    account_sid = settings.TWILIO_ACCOUNT_SID
+                    auth_token = settings.TWILIO_AUTH
+                    client = Client(account_sid, auth_token)
+                    message = client.messages.create(
+                        body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                             f"Your time is so appreciated and we could not provide seniors with free programs without you!\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
+                        from_='+19569486977', to=i.phone)
+                    print("to phone", i.phone)
+                i.survey_token = token
+                i.save()
+                survey.month = curr_month
+            survey.sent = True
+            survey.save()
+            messages.success(request, f'Successfully sent surveys for the month of {curr_month}.')
+        else:
+            messages.warning(request, f'You have already sent surveys for the month of {curr_month}.')
+    return redirect('pre_send_survey')
+
 
 
 def survey_page(request):

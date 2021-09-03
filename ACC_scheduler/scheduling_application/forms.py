@@ -20,6 +20,7 @@ class SeniorForm(ModelForm):
         model = Senior
         fields = '__all__'
 
+
 class VolunteerForm(ModelForm):
     class Meta:
         model = Volunteer
