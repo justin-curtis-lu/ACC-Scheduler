@@ -129,6 +129,7 @@ def make_appointment(request):
        Allows users to choose a senior and day then continue."""
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
+
     context = {
         'seniors_list': seniors_list[:5],
         'volunteers_list': volunteers_list[:5]
@@ -142,16 +143,8 @@ def make_appointment(request):
         additional_notes = request.POST['notes']
         senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
-        # day_of_week = get_day(day_time[0])[:3]
         day_of_month = int(day_time[0].split('/')[1])
-        # print("CHECK: " + day_of_week)
-        # print(day_time)
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
-        # check_list is a queryset of volunteer ids
-        print(check_list)
-        print("ABOVE")
-        #appointment.date_and_time = day_time[0] + " " + day_time[1]
-        #appointment.save()
         potential_list = []
         for volunteer in check_list:
             volunteer_object = Volunteer.objects.filter(id=volunteer)
@@ -162,20 +155,17 @@ def make_appointment(request):
                 time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
                 for time in time_frames:
                     if check_time(day_time[1], time):
+                        check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
+                        break_check = False
+                        for appointment in check_conflict:
+                            if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
+                                break_check = True
+                                break
+                        if break_check:
+                            break
+                        volunteer_object[0].Appointments.filter()
                         potential_list.append(volunteer_object.values()[0])
                         break
-            # time_list = volunteer['availability'][day_of_week]
-            # SEARCH THROUGH DAY OBJECT AND GET THE TIMES AVAILABLE
-            # For each day and time a volunteer is available
-            #for time in time_list:
-                # if there is an available time that fits
-            #    if check_time(day_time[1], time):
-                    # checks if volunteer already has an appointment at that day if not, the volunteer is available
-            #        check_conflict = volunteer['current_appointments']
-            #        if day_time[0] in check_conflict:
-            #            break
-            #        potential_list.append(volunteer)
-            #        break
 
         if len(potential_list) == 0:
             messages.error(request, "No volunteers are available at this time.")
@@ -198,14 +188,6 @@ def confirm_v(request):
     potential_list = request.session['potential_list']
     print(potential_list)
     emails_sent = False
-
-    #### MAYBE REMOVE THIS AND FIX ON CONFIRM_V.HTML
-    #available_volunteer_list = []
-    #for i in potential_list:
-    #    if i['dob'] != 'N/A' and check_age(i['dob']):
-    #        available_volunteer_list.append(i['first_name'] + " " + i['last_name'] + "(minor)")
-    #    else:
-    #        available_volunteer_list.append(i['first_name'] + " " + i['last_name'])
 
     context = {
         'potential_list': potential_list
@@ -283,16 +265,12 @@ def success(request):
 
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
-
             empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
             if not empty_appointment:
                 return redirect('vol_already_selected')
             empty_appointment.update(volunteer=volunteer)
             appointment = Appointment.objects.get(id=request.session['appointment'])
             print(appointment)
-            appointment_day_time = appointment.date_and_time.split(' ')
-            volunteer.current_appointments[appointment_day_time[0]] = appointment_day_time[1]
-            volunteer.save()
 
             # SEND EMAIL TO SENIORS
             senior = appointment.senior

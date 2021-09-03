@@ -45,6 +45,12 @@ class Volunteer(models.Model):
     additional_notes = models.TextField(default=None, null=True, blank=True)
     survey_token = models.CharField(default=None, max_length=32, null=True, blank=True)
 
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.notify_email and not self.notify_text and not self.notify_call:
+            raise ValidationError('At least one notification method must be selected')
+
     @property
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
@@ -65,7 +71,7 @@ class Day(models.Model):
 class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True, related_name="Appointments")
     start_address = models.CharField(max_length=50, null=True)
     end_address = models.CharField(max_length=50, null=True)
     date_and_time = models.CharField(max_length=50)
