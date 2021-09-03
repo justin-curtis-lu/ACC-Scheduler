@@ -25,46 +25,6 @@ class Senior(models.Model):
     def __str__(self):
         return self.full_name
 
-class Day(models.Model):
-    _9_10 = models.BooleanField(default=False)
-    _10_11 = models.BooleanField(default=False)
-    _11_12 = models.BooleanField(default=False)
-    _12_1 = models.BooleanField(default=False)
-    _1_2 = models.BooleanField(default=False)
-    all = models.BooleanField(default=False)
-
-class Availability(models.Model):
-    _1 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _2 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _3 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _4 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _5 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _6 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _7 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _8 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _9 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _10 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _11 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _12 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _13 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _14 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _15 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _16 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _17 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _18 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _19 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _20 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _21 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _22 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _23 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _24 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _25 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _26 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _27 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _28 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _29 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _30 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
-    _31 = models.ForeignKey(Day, on_delete=models.CASCADE, related_name="+")
 
 # Subject to change based on data we can get from Galaxy Digital
 class Volunteer(models.Model):
@@ -75,15 +35,21 @@ class Volunteer(models.Model):
     phone = models.CharField(default=None, max_length=30, null=True)
     email = models.CharField(max_length=40, default='None')
     # age = models.IntegerField(default=0)
-    # address?
+    address = models.CharField(default='N/A', max_length=100)
     dob = models.CharField(max_length=10, default=None, null=True)
     vaccinated = models.BooleanField(default=False)
     notify_email = models.BooleanField(default=False)
     notify_text = models.BooleanField(default=False)
     notify_call = models.BooleanField(default=False)
-    availability = models.ForeignKey(Availability, on_delete=models.CASCADE)
     current_appointments = models.JSONField(default=dict, editable=False)
-    additional_notes = models.TextField(default='N/A')
+    additional_notes = models.TextField(default=None, null=True, blank=True)
+    survey_token = models.CharField(default=None, max_length=32, null=True, blank=True)
+
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.notify_email and not self.notify_text and not self.notify_call:
+            raise ValidationError('At least one notification method must be selected')
 
     @property
     def full_name(self):
@@ -92,11 +58,21 @@ class Volunteer(models.Model):
     def __str__(self):
         return self.full_name
 
+class Day(models.Model):
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="Days", blank=True, null=True)
+    day_of_month = models.IntegerField(default=None, null=True)
+    _9_10 = models.BooleanField(default=False)
+    _10_11 = models.BooleanField(default=False)
+    _11_12 = models.BooleanField(default=False)
+    _12_1 = models.BooleanField(default=False)
+    _1_2 = models.BooleanField(default=False)
+    all = models.BooleanField(default=False)
 
 class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
+    volunteer = models.ManyToManyField(Volunteer, related_name="Appointments")
+    # volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True, related_name="Appointments")
     start_address = models.CharField(max_length=50, null=True)
     end_address = models.CharField(max_length=50, null=True)
     date_and_time = models.CharField(max_length=50)
