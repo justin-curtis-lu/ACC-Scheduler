@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm
+from django.forms import modelformset_factory, formset_factory
 from .models import Senior, Volunteer, Appointment, Day
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
@@ -62,7 +63,7 @@ def galaxy_update_volunteers(request):
                 # update
                 volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
                 try:
-                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], additional_notes=i['extras']['availability-context'])
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'], additional_notes=i['extras']['availability-context'])
                     if 'Email' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_email=True)
                     if 'Text Message' in i['extras']['preferred-contact-method']:
@@ -71,7 +72,7 @@ def galaxy_update_volunteers(request):
                         volunteer.update(notify_call=True)
                     print("try updating", volunteer)
                 except KeyError:
-                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'])
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'])
                     print("except updating", volunteer)
             else:
                 # create
@@ -520,7 +521,7 @@ def survey_page(request):
             elif date[1] == "5":
                 try:
                     day = volunteer.Days.get(day_of_month=date[0])
-                    day.all= True
+                    day.all = True
                     day.save()
                 except:
                     Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
@@ -529,7 +530,13 @@ def survey_page(request):
 
 def view_availability(request, pk):
     volunteer = Volunteer.objects.get(id=pk)
-    day1 = volunteer.Days.get(day_of_month=1)
+    try:
+        day1 = volunteer.Days.get(day_of_month=1)
+    except Day.DoesNotExist:
+        for i in range(1, 32):
+            Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+                               day_of_month=i, volunteer=volunteer)
+        day1 = volunteer.Days.get(day_of_month=1)
     day2 = volunteer.Days.get(day_of_month=2)
     day3 = volunteer.Days.get(day_of_month=3)
     day4 = volunteer.Days.get(day_of_month=4)
@@ -624,145 +631,27 @@ def view_availability(request, pk):
     data31 = {'_9_10': day31._9_10, '_10_11': day31._10_11, '_11_12': day31._11_12, '_12_1': day31._12_1, '_1_2': day31._1_2,
              'all': day31.all}
 
+    current_month = datetime.now().strftime('%m')
+    DayFormSet = modelformset_factory(Day, DayForm, fields=('_9_10', '_10_11', '_11_12', '_12_1', '_1_2', 'all'), extra=30, max_num=31)
+    # DayFormSet = modelformset_factory(Day, DayForm, exclude=('volunteer', 'day_of_month'), extra=30, max_num=31)
+    # data = {'form-TOTAL_FORMS': '31', 'form-INITIAL_FORMS': '0', 'form-MAX_NUM_FORMS': ''}
+    formset = DayFormSet(initial=[data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12,
+                                  data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23,
+                                  data24, data25, data26, data27, data28, data29, data30, data31])
 
-    form1 = DayForm(initial=data1)
-    form2 = DayForm(initial=data2)
-    form3 = DayForm(initial=data3)
-    form4 = DayForm(initial=data4)
-    form5 = DayForm(initial=data5)
-    form6 = DayForm(initial=data6)
-    form7 = DayForm(initial=data7)
-    form8 = DayForm(initial=data8)
-    form9 = DayForm(initial=data9)
-    form10 = DayForm(initial=data10)
-    form11 = DayForm(initial=data11)
-    form12 = DayForm(initial=data12)
-    form13 = DayForm(initial=data13)
-    form14 = DayForm(initial=data14)
-    form15 = DayForm(initial=data15)
-    form16 = DayForm(initial=data16)
-    form17 = DayForm(initial=data17)
-    form18 = DayForm(initial=data18)
-    form19 = DayForm(initial=data19)
-    form20 = DayForm(initial=data20)
-    form21 = DayForm(initial=data21)
-    form22 = DayForm(initial=data22)
-    form23 = DayForm(initial=data23)
-    form24 = DayForm(initial=data24)
-    form25 = DayForm(initial=data25)
-    form26 = DayForm(initial=data26)
-    form27 = DayForm(initial=data27)
-    form28 = DayForm(initial=data28)
-    form29 = DayForm(initial=data29)
-    form30 = DayForm(initial=data30)
-    form31 = DayForm(initial=data31)
 
     if request.method == "POST":
-        print(request.POST)
-        form1 = DayForm(request.POST, instance=day1)
-        print(request.POST)
-        if form1.is_valid():
-            form1.save()
-        form2 = DayForm(request.POST, instance=day2)
-        if form2.is_valid():
-            form2.save()
-        form3 = DayForm(request.POST, instance=day3)
-        if form3.is_valid():
-            form3.save()
-        form4 = DayForm(request.POST, instance=day4)
-        if form4.is_valid():
-            form4.save()
-        form5 = DayForm(request.POST, instance=day5)
-        if form5.is_valid():
-            form5.save()
-        form6 = DayForm(request.POST, instance=day6)
-        if form6.is_valid():
-            form6.save()
-        form7 = DayForm(request.POST, instance=day7)
-        if form7.is_valid():
-            form7.save()
-        form8 = DayForm(request.POST, instance=day8)
-        if form8.is_valid():
-            form8.save()
-        form9 = DayForm(request.POST, instance=day9)
-        if form9.is_valid():
-            form9.save()
-        form10 = DayForm(request.POST, instance=day10)
-        if form10.is_valid():
-            form10.save()
-        form11 = DayForm(request.POST, instance=day11)
-        if form11.is_valid():
-            form11.save()
-        form12 = DayForm(request.POST, instance=day12)
-        if form12.is_valid():
-            form12.save()
-        form13 = DayForm(request.POST, instance=day13)
-        if form13.is_valid():
-            form13.save()
-        form14 = DayForm(request.POST, instance=day14)
-        if form14.is_valid():
-            form14.save()
-        form15 = DayForm(request.POST, instance=day15)
-        if form15.is_valid():
-            form15.save()
-        form16 = DayForm(request.POST, instance=day16)
-        if form16.is_valid():
-            form16.save()
-        form17 = DayForm(request.POST, instance=day17)
-        if form17.is_valid():
-            form17.save()
-        form18 = DayForm(request.POST, instance=day18)
-        if form18.is_valid():
-            form18.save()
-        form19 = DayForm(request.POST, instance=day19)
-        if form19.is_valid():
-            form19.save()
-        form20 = DayForm(request.POST, instance=day20)
-        if form20.is_valid():
-            form20.save()
-        form21 = DayForm(request.POST, instance=day21)
-        if form21.is_valid():
-            form21.save()
-        form22 = DayForm(request.POST, instance=day22)
-        if form22.is_valid():
-            form22.save()
-        form23 = DayForm(request.POST, instance=day23)
-        if form23.is_valid():
-            form23.save()
-        form24 = DayForm(request.POST, instance=day24)
-        if form24.is_valid():
-            form24.save()
-        form25 = DayForm(request.POST, instance=day25)
-        if form25.is_valid():
-            form25.save()
-        form26 = DayForm(request.POST, instance=day26)
-        if form26.is_valid():
-            form26.save()
-        form27 = DayForm(request.POST, instance=day27)
-        if form27.is_valid():
-            form27.save()
-        form28 = DayForm(request.POST, instance=day28)
-        if form28.is_valid():
-            form28.save()
-        form29 = DayForm(request.POST, instance=day29)
-        if form29.is_valid():
-            form29.save()
-        form30 = DayForm(request.POST, instance=day30)
-        if form30.is_valid():
-            form30.save()
-        form31 = DayForm(request.POST, instance=day31)
-        if form31.is_valid():
-            form31.save()
-
+        formset = DayFormSet(request.POST)
+        if formset.is_valid():
+            formset.save()
+        else:
+            print(formset.errors)
         return redirect('volunteer_page', pk)
 
     context = {
         'volunteer': volunteer,
-        'form1': form1, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6, 'form7': form7,
-        'form8': form8, 'form9': form9, 'form10': form10, 'form11': form11, 'form12': form12, 'form13': form13, 'form14': form14, 'form15': form15,
-        'form16': form16, 'form17': form17, 'form18': form18, 'form19': form19, 'form20': form20, 'form21': form21, 'form22': form22,
-        'form23': form23, 'form24': form24, 'form25': form25, 'form26': form26, 'form27': form27, 'form28': form28, 'form29': form29,
-        'form30': form30, 'form31': form31,
+        'formset': formset,
+        'current_month': current_month,
     }
     return render(request, "scheduling_application/view_availability.html", context)
 
