@@ -4,25 +4,34 @@
     <table class="table" style="width:25%">
         <thead>
             <tr>
-                <th scope="col">Name</th>
+                <th scope="col">{{volunteer.first_name}} {{ volunteer.last_name }}</th>
             </tr>
         </thead>
         <tbody>
-            <tr><td>{{volunteer.first_name}} {{ volunteer.last_name }}</td></tr>
-            <tr><td>Age: {{volunteer.age}}</td></tr>
-            <tr><td>Address: {{volunteer.address}}</td></tr>
-            <tr><td>Phone: {{volunteer.phone}}</td></tr>
-            <tr><td>Email: {{volunteer.email}}</td></tr>
-            <tr><td>Date of Birth: {{volunteer.dob}}</td></tr>
-            <tr><td>Vaccinated: {{volunteer.vaccinated}}</td></tr>
-            <tr><td>Call for Confirmation: {{volunteer.notify_call}}</td></tr>
+            <tr><td><b>Galaxy Digital ID:</b> {{volunteer.galaxy_id}}</td></tr>
+            <tr><td><b>Phone:</b> {{volunteer.phone}}</td></tr>
+            <tr><td><b>Email:</b> {{volunteer.email}}</td></tr>
+            <tr><td><b>Date of Birth:</b> {{volunteer.dob}}</td></tr>
+            <tr><td><b>Address:</b> {{volunteer.address}}</td></tr>
+            <tr><td><b>Vaccinated:</b> {{volunteer.vaccinated}}</td></tr>
+            <tr><td><b>Notify by Email:</b> {{volunteer.notify_email}}</td></tr>
+            <tr><td><b>Notify by Text:</b> {{volunteer.notify_text}}</td></tr>
+            <tr><td><b>Notify by Call:</b> {{volunteer.notify_call}}</td></tr>
+            <tr><td><b>Current Appointments:</b> {{volunteer.current_appointments}}</td></tr>
+            <tr><td><b>Availability:</b> <a href="{% url 'view_availability' volunteer.id %}"><button>View/Edit Availability</button></a></td></tr>
+            <tr><td><b>Additional Notes:</b> {{volunteer.additional_notes}}</td></tr>
         </tbody>
     </table>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit">remove</button>
+        <button type="submit" name="edit_volunteer", value="edit_volunteer">Edit Volunteer</button>
     </form>
     <br>
-    <a href="{% url 'view_volunteers' %}"><button>exit</button></a>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" name="remove_volunteer", value="remove_volunteer">Remove Volunteer</button>
+    </form>
+    <br>
+    <a href="{% url 'view_volunteers' %}"><button>back</button></a>
 </div>
 {% endblock %}

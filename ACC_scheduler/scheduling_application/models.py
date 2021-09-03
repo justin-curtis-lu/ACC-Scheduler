@@ -35,7 +35,7 @@ class Volunteer(models.Model):
     phone = models.CharField(default=None, max_length=30, null=True)
     email = models.CharField(max_length=40, default='None')
     # age = models.IntegerField(default=0)
-    # address?
+    address = models.CharField(default='N/A', max_length=100)
     dob = models.CharField(max_length=10, default=None, null=True)
     vaccinated = models.BooleanField(default=False)
     notify_email = models.BooleanField(default=False)
@@ -43,7 +43,13 @@ class Volunteer(models.Model):
     notify_call = models.BooleanField(default=False)
     current_appointments = models.JSONField(default=dict, editable=False)
     additional_notes = models.TextField(default=None, null=True, blank=True)
-    survey_token = models.CharField(default=None, max_length=32)
+    survey_token = models.CharField(default=None, max_length=32, null=True, blank=True)
+
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.notify_email and not self.notify_text and not self.notify_call:
+            raise ValidationError('At least one notification method must be selected')
 
     @property
     def full_name(self):
@@ -73,7 +79,8 @@ class SurveyStatus(models.Model):
 class Appointment(models.Model):
     """Model for the appointments"""
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True)
+    volunteer = models.ManyToManyField(Volunteer, related_name="Appointments")
+    # volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True, related_name="Appointments")
     start_address = models.CharField(max_length=50, null=True)
     end_address = models.CharField(max_length=50, null=True)
     date_and_time = models.CharField(max_length=50)

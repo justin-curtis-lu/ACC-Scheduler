@@ -136,8 +136,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # API KEYS
 load_dotenv()
-GALAXY_AUTH = os.getenv('GALAXY_AUTH')  # Survey Monkey
-MONKEY_AUTH = os.getenv('MONKEY_AUTH')  # Galaxy Digital
+GALAXY_AUTH = os.getenv('GALAXY_AUTH')
+MONKEY_AUTH = os.getenv('MONKEY_AUTH')
 KEY1 = os.getenv('KEY1')
 KEY2 = os.getenv('KEY2')
 KEY3 = os.getenv('KEY3')
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')    # Twilio Account SID
+TWILIO_AUTH = os.getenv('TWILIO_AUTH')  # Twilio
