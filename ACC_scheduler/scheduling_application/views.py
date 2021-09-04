@@ -1,7 +1,7 @@
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm, AppointmentForm
 from django.forms import modelformset_factory, formset_factory
 from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 from django.contrib.auth.models import User, auth
@@ -22,7 +22,6 @@ from datetime import datetime
 def home(response):
     """View for the home page"""
     return render(response, "scheduling_application/home.html", {})
-
 
 def console(request):
     """View for console page (home page when logged in)"""
@@ -93,7 +92,6 @@ def galaxy_update_volunteers(request):
 
     return redirect('console')
 
-
 def login(request):
     """View for the login page"""
     if request.method == 'POST':
@@ -107,8 +105,6 @@ def login(request):
             messages.info(request, 'invalid credentials')
             return redirect('login')                 # TEMPORARY
     return render(request, 'scheduling_application/login.html', {})
-
-
 
 # uses Django's built-in UserRegisterForm
 def register(request):
@@ -124,7 +120,6 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'scheduling_application/register.html', {'form': form})
 
-
 def keys(request):
     if request.method == 'POST':
         key1 = request.POST['key1']
@@ -137,7 +132,6 @@ def keys(request):
             return render(request, 'scheduling_application/keys.html', {})
     else:
         return render(request, 'scheduling_application/keys.html', {})
-
 
 def make_appointment(request):
     """View for the page where users can schedule an appointment.
@@ -205,7 +199,6 @@ def make_appointment(request):
         request.session['potential_list'] = list(potential_list)
         return redirect('confirm_v')
     return render(request, 'scheduling_application/make_appointment.html', context)
-
 
 def confirm_v(request):
     """View for page to confirm which volunteers to send emails to."""
@@ -278,7 +271,6 @@ def confirm_v(request):
         # messages.success(request, 'Emails successfully sent')
     return render(request, 'scheduling_application/confirm_v.html', context)
 
-
 # Currently not using email and token queries
 def success(request):
     """View for the email sending success page"""
@@ -341,106 +333,8 @@ def success(request):
 def vol_already_selected(request):
     return render(request, "scheduling_application/vol_already_selected.html", {})
 
-
-def logout(request):
-    """View for logging out"""
-    auth.logout(request)
-    return redirect('home')
-
-
-def view_seniors(request):
-    """View for the seniors page (table of all the seniors in the database)"""
-    seniors = Senior.objects.all()
-    s_paginator = Paginator(seniors, 10)
-    page_number = request.GET.get('page')
-    page_obj = s_paginator.get_page(page_number)
-    return render(request, 'scheduling_application/view_seniors.html', {'page_obj': page_obj})
-
-
-def add_senior(request):
-    """View for adding senior"""
-    form = SeniorForm()
-    if request.method == 'POST':
-        form = SeniorForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('view_seniors')
-    context = {
-        'form': form
-    }
-    return render(request, 'scheduling_application/add_senior.html', context)
-
-
-def update_senior(request):
-    """View for updating senior"""
-    form = SeniorForm()
-    if request.POST.get("update_senior"):
-        print("HERE")
-        form = SeniorForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('senior_page')
-    context = {
-        'form': form
-    }
-    return render(request, 'scheduling_application/update_senior.html', context)
-
-
-def senior_page(request, pk):
-    """View for senior profile page"""
-    senior = Senior.objects.get(id=pk)
-    if request.method == 'POST':
-        print(request.POST)
-        if request.POST.get("remove_senior"):
-            senior.delete()
-            return redirect('view_seniors')
-        elif request.POST.get("update_senior"):
-            print("AYAY")
-            return redirect('update_senior')
-    context = {
-        'senior': senior,
-    }
-    return render(request, 'scheduling_application/senior_page.html', context)
-
-
-def view_volunteers(request):
-    """View for the volunteers page (table of all the volunteers in the database)"""
-    volunteers = Volunteer.objects.all()
-    v_paginator = Paginator(volunteers, 10)
-    page_number = request.GET.get('page')
-    page_obj = v_paginator.get_page(page_number)
-    return render(request, 'scheduling_application/view_volunteers.html', {'page_obj': page_obj})
-
-
-def add_volunteer(request):
-    """View for adding volunteer page"""
-    form = VolunteerForm()
-    if request.method == 'POST':
-        form = VolunteerForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('view_volunteers')
-    context = {
-        'form': form
-    }
-    return render(request, 'scheduling_application/add_volunteer.html', context)
-
-
-def volunteer_page(request, pk):
-    """View for volunteer profile page"""
-    volunteer = Volunteer.objects.get(id=pk)
-    if request.method == 'POST':
-        volunteer.delete()
-        return redirect('view_volunteers')
-    context = {
-        'volunteer': volunteer,
-    }
-    return render(request, 'scheduling_application/volunteer_page.html', context)
-
-
 def pre_send_survey(request):
     return render(request, 'scheduling_application/survey_confirmation.html')
-
 
 def send_survey(request):
     if request.GET.get('send_survey'):
@@ -484,8 +378,6 @@ def send_survey(request):
         else:
             messages.warning(request, f'You have already sent surveys for the month of {curr_month}.')
     return redirect('pre_send_survey')
-
-
 
 def survey_page(request):
     if request.method == 'GET':
@@ -564,13 +456,16 @@ def survey_page(request):
 
 def view_availability(request, pk):
     volunteer = Volunteer.objects.get(id=pk)
+    print(volunteer)
     try:
         day1 = volunteer.Days.get(day_of_month=1)
+        print(day1)
     except Day.DoesNotExist:
         for i in range(1, 32):
             Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
                                day_of_month=i, volunteer=volunteer)
         day1 = volunteer.Days.get(day_of_month=1)
+    day1 = volunteer.Days.get(day_of_month=1)
     day2 = volunteer.Days.get(day_of_month=2)
     day3 = volunteer.Days.get(day_of_month=3)
     day4 = volunteer.Days.get(day_of_month=4)
@@ -666,12 +561,12 @@ def view_availability(request, pk):
              'all': day31.all}
 
     current_month = datetime.now().strftime('%m')
-    DayFormSet = modelformset_factory(Day, DayForm, fields=('_9_10', '_10_11', '_11_12', '_12_1', '_1_2', 'all'), extra=30, max_num=31)
+    DayFormSet = modelformset_factory(Day, DayForm, fields=('_9_10', '_10_11', '_11_12', '_12_1', '_1_2', 'all'), extra=31, max_num=31)
     # DayFormSet = modelformset_factory(Day, DayForm, exclude=('volunteer', 'day_of_month'), extra=30, max_num=31)
     # data = {'form-TOTAL_FORMS': '31', 'form-INITIAL_FORMS': '0', 'form-MAX_NUM_FORMS': ''}
     formset = DayFormSet(initial=[data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12,
                                   data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23,
-                                  data24, data25, data26, data27, data28, data29, data30, data31])
+                                  data24, data25, data26, data27, data28, data29, data30, data31], queryset=Day.objects.none())
 
 
     if request.method == "POST":
@@ -700,6 +595,37 @@ def view_appointments(request):
         'appointments': appointments,
     }
     return render(request, 'scheduling_application/view_appointments.html', context)
+
+def appointment_page(request, pk):
+    """View for appointment profile page"""
+    appointment = Appointment.objects.get(id=pk)
+    if request.method == 'POST':
+        print(request.POST)
+        if request.POST.get("remove_appointment"):
+            appointment.delete()
+            return redirect('view_appointments')
+        elif request.POST.get("edit_appointment"):
+            return redirect('edit_appointment', pk)
+    context = {
+        'appointment': appointment,
+    }
+    return render(request, 'scheduling_application/appointment_page.html', context)
+
+def edit_appointment(request, pk):
+    """View for editing appointment"""
+    appointment = Appointment.objects.get(id=pk)
+    data = {'senior': appointment.senior, 'volunteer': appointment.volunteer, 'start_address': appointment.start_address, 'end_address': appointment.end_address, 'date_and_time': appointment.date_and_time,
+            'purpose_of_trip': appointment.purpose_of_trip, 'notes': appointment.notes}
+    form = AppointmentForm(initial=data)
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST, instance=appointment)
+        if form.is_valid():
+            form.save()
+        return redirect('appointment_page', pk)
+    context = {
+        'form': form
+    }
+    return render(request, 'scheduling_application/edit_appointment.html', context)
 
 def view_seniors(request):
     """View for the seniors page (table of all the seniors in the database)"""
@@ -776,21 +702,6 @@ def add_volunteer(request):
     }
     return render(request, 'scheduling_application/add_volunteer.html', context)
 
-def volunteer_page(request, pk):
-    """View for volunteer profile page"""
-    volunteer = Volunteer.objects.get(id=pk)
-    if request.method == 'POST':
-        print(request.POST)
-        if request.POST.get("remove_volunteer"):
-            volunteer.delete()
-            return redirect('view_volunteers')
-        elif request.POST.get("edit_volunteer"):
-            return redirect('edit_volunteer', pk)
-    context = {
-        'volunteer': volunteer,
-    }
-    return render(request, 'scheduling_application/volunteer_page.html', context)
-
 def edit_volunteer(request, pk):
     """View for editing volunteer"""
     volunteer = Volunteer.objects.get(id=pk)
@@ -807,4 +718,20 @@ def edit_volunteer(request, pk):
         'form': form
     }
     return render(request, 'scheduling_application/edit_volunteer.html', context)
+
+def volunteer_page(request, pk):
+    """View for volunteer profile page"""
+    volunteer = Volunteer.objects.get(id=pk)
+    if request.method == 'POST':
+        print(request.POST)
+        if request.POST.get("remove_volunteer"):
+            volunteer.delete()
+            return redirect('view_volunteers')
+        elif request.POST.get("edit_volunteer"):
+            return redirect('edit_volunteer', pk)
+    context = {
+        'volunteer': volunteer,
+    }
+    return render(request, 'scheduling_application/volunteer_page.html', context)
+
 
