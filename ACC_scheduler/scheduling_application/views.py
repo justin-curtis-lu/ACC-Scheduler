@@ -228,7 +228,7 @@ def confirm_v(request):
         print(appointment[0]['senior_id'])
         senior = Senior.objects.filter(id=appointment[0]['senior_id']).values()
         print(senior)
-
+        callers = []
         for i in potential_list:
             # print("i", i)
             if str(i['id']) in selected_volunteers.getlist('volunteer'):
@@ -268,9 +268,19 @@ def confirm_v(request):
                                                           from_='+19569486977', to=i['phone'])
                     print("to phone", i['phone'])
                     emails_sent = True
+                if i['notify_call'] == True:
+                    first = i['first_name']
+                    last = i['last_name']
+                    phone = i['phone']
+                    callers.append(f'{first} {last} {phone} ')
+                    emails_sent = True
 
         if emails_sent == True:
-            messages.success(request, "Emails/texts sent successfully!")
+            if callers:
+                messages.success(request, f'Emails/texts sent successfully! Please manually call the following volunteers{callers}')
+            else:
+                messages.success(request,
+                                 f'Emails/texts sent successfully!')
             return redirect('confirm_v')
 
         # request.session['selected_volunteers'] = request.POST.getlist('volunteer')
