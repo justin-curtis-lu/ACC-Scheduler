@@ -9,7 +9,7 @@ from twilio.rest import Client
 from datetime import datetime
 # App imports
 from .models import Volunteer, SurveyStatus, Day
-from .methods import check_time,  get_timeframes
+from .methods import check_time,  get_timeframes, check_age, appointment_conflict
 from .forms import DayForm
 
 
@@ -60,7 +60,7 @@ def find_matches(check_list, day_of_month, day_time):
             check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
             schedule_conflict = False
             for appointment in check_conflict:
-                if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
+                if appointment_conflict(day_time[1], appointment.date_and_time.split(' ')[1]):
                     schedule_conflict = True
                     break
             if not schedule_conflict:
@@ -72,7 +72,7 @@ def find_matches(check_list, day_of_month, day_time):
                     check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
                     break_check = False
                     for appointment in check_conflict:
-                        if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
+                        if appointment_conflict(day_time[1], appointment.date_and_time.split(' ')[1]):
                             break_check = True
                             break
                     if break_check:
@@ -81,6 +81,22 @@ def find_matches(check_list, day_of_month, day_time):
                     potential_list.append(volunteer_object.values()[0])
                     break
     return potential_list
+
+
+def update_minors(potential_list):
+    for volunteer in potential_list:
+        if volunteer['dob'] != 'N/A' and check_age(volunteer['dob']):
+            volunteer['minor'] = True
+        else:
+            volunteer['minor'] = False
+    for volunteer in potential_list:
+        set_minor = Volunteer.objects.get(id=volunteer['id'])
+        if set_minor.dob != 'N/A' and check_age(set_minor.dob):
+            set_minor.minor = True
+            set_minor.save()
+        else:
+            set_minor.minor = False
+            set_minor.save()
 
 
 def send_emails(potential_list, selected_volunteers, senior, appointment, domain):

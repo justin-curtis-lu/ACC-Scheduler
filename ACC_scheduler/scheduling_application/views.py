@@ -5,7 +5,7 @@ from django.contrib.auth.models import auth
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 # App imports
-from .utils import sync_galaxy, find_matches, send_emails, notify_senior, send_monthly_surveys, read_survey_data,\
+from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys, send_emails, read_survey_data,\
     generate_v_days
 from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm
 from .models import Senior, Volunteer, Appointment, Day
@@ -306,6 +306,7 @@ def confirm_volunteers(request):
     context = {
         'potential_list': potential_list
     }
+    update_minors(potential_list)
     if request.method == 'POST':
         selected_volunteers = request.POST
         domain = get_current_site(request).domain
@@ -333,7 +334,7 @@ def success(request):
             empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
             if not empty_appointment:
                 return redirect('vol_already_selected')
-            empty_appointment[0].volunteer.add(volunteer)
+            empty_appointment.update(volunteer=volunteer)
             appointment = Appointment.objects.get(id=request.session['appointment'])
             notify_senior(appointment, volunteer)
         except (KeyError, Appointment.DoesNotExist):
