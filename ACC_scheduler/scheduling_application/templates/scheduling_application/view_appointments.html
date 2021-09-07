@@ -4,6 +4,7 @@
 <table id="appointmentTable" class="table table-striped table-bordered table-sm">
     <thead>
         <tr>
+            <th scope="col">Appointment ID</th>
             <th scope="col">Participant</th>
             <th scope="col">Volunteer</th>
             <th scope="col">Starting Location</th>
@@ -16,8 +17,9 @@
     <tbody>
         {% for item in appointments %}
         <tr>
+             <td><a href="{% url 'appointment_page' item.id %}">{{ item.id }}</a></td>
              <td>{{ item.senior }}</td>
-             <td>{% for volunteer in item.volunteer.all %} {{ volunteer }} {% endfor %}</td>
+             <td>{{ item.volunteer }}</td>
              <td>{{ item.start_address }}</td>
              <td>{{ item.end_address }}</td>
              <td>{{ item.date_and_time }}</td>

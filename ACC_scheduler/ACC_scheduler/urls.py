@@ -43,4 +43,6 @@ urlpatterns = [
     path('view_availability/<str:pk>', sa_views.view_availability, name='view_availability'),
     path('vol_already_selected/', sa_views.vol_already_selected, name='vol_already_selected'),
     path('view_appointments/', sa_views.view_appointments, name='view_appointments'),
+    path('appointment_page/<str:pk>', sa_views.appointment_page, name='appointment_page'),
+    path('edit_appointment/<str:pk>', sa_views.edit_appointment, name='edit_appointment'),
 ]
