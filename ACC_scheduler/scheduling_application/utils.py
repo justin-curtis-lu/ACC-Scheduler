@@ -18,20 +18,22 @@ def sync_galaxy(vol_data, check_list):
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
             volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-            try:
-                volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                 phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'],
-                                 additional_notes=i['extras']['availability-context'])
-                if 'Email' in i['extras']['preferred-contact-method']:
-                    volunteer.update(notify_email=True)
-                if 'Text Message' in i['extras']['preferred-contact-method']:
-                    volunteer.update(notify_text=True)
-                if 'Phone Call' in i['extras']['preferred-contact-method']:
-                    volunteer.update(notify_call=True)
-            except KeyError:
-                volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                 phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'])
-                print("except updating", volunteer)
+            # Flag to skip updating if unsubscribed is true
+            if not volunteer.unsubscribed:
+                try:
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
+                                     phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'],
+                                     additional_notes=i['extras']['availability-context'])
+                    if 'Email' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_email=True)
+                    if 'Text Message' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_text=True)
+                    if 'Phone Call' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_call=True)
+                except KeyError:
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
+                                     phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'])
+                    print("except updating", volunteer)
         else:
             # create
             try:

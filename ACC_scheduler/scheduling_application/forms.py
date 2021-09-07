@@ -5,7 +5,6 @@ from django.forms import ModelForm
 from .models import Senior, Volunteer, Day, Appointment
 
 
-
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=False)
 
@@ -26,11 +25,13 @@ class VolunteerForm(ModelForm):
         fields = '__all__'
         exclude = ['galaxy_id', 'survey_token']
 
+
 class DayForm(ModelForm):
     class Meta:
         model = Day
         fields = '__all__'
         exclude = ['volunteer', 'day_of_month']
+
 
 class AppointmentForm(ModelForm):
     class Meta:

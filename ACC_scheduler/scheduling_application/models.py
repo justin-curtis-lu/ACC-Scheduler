@@ -10,7 +10,6 @@ class Senior(models.Model):
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
 
-    # age = models.IntegerField(default=0)
     address = models.CharField(default='N/A', max_length=100)
     phone = models.CharField(default='N/A', max_length=30)
     email = models.CharField(max_length=40, default='None')
@@ -34,7 +33,6 @@ class Volunteer(models.Model):
     first_name = models.CharField(max_length=30)
     phone = models.CharField(default=None, max_length=30, null=True)
     email = models.CharField(max_length=40, default='None')
-    # age = models.IntegerField(default=0)
     address = models.CharField(default='N/A', max_length=100)
     dob = models.CharField(max_length=10, default=None, null=True)
     vaccinated = models.BooleanField(default=False)
@@ -44,7 +42,7 @@ class Volunteer(models.Model):
     current_appointments = models.JSONField(default=dict, editable=False)
     additional_notes = models.TextField(default=None, null=True, blank=True)
     survey_token = models.CharField(default=None, max_length=32, null=True, blank=True)
-
+    unsubscribed = models.BooleanField(default=False)
 
     def clean(self):
         from django.core.exceptions import ValidationError

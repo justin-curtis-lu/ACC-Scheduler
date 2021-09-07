@@ -205,7 +205,7 @@ def edit_volunteer(request, pk):
     volunteer = Volunteer.objects.get(id=pk)
     data = {'galaxy_id': volunteer.galaxy_id, 'last_name': volunteer.last_name, 'first_name': volunteer.first_name, 'phone': volunteer.phone, 'email': volunteer.email, 'dob': volunteer.dob,
             'vaccinated': volunteer.vaccinated,'notify_email': volunteer.notify_email, 'notify_text': volunteer.notify_text, 'notify_call': volunteer.notify_call,
-            'current_appointments': volunteer.current_appointments, 'additional_notes': volunteer.additional_notes}
+            'current_appointments': volunteer.current_appointments, 'additional_notes': volunteer.additional_notes, 'unsubscribed': volunteer.unsubscribed}
     form = VolunteerForm(initial=data)
     if request.method == 'POST':
         form = VolunteerForm(request.POST, instance=volunteer)
@@ -383,11 +383,29 @@ def survey_page(request):
             return render(request, "scheduling_application/bad_link.html", {})
         else:
             return render(request, "scheduling_application/survey_sending/survey_page.html", context=date)
-    # Should likely be moved to entirely separate view (Unsubscribe functionality)
     if request.method == 'POST' and 'unsubscribe' in request.POST:
         vol_id = request.session['vol_id']
-        context = {'id': vol_id}
-        return render(request, "scheduling_application/unsubscribe.html", context=context)
+        return render(request, "scheduling_application/unsubscribe.html", context={})
+    elif request.method == 'POST' and 'confirm_unsubscribe' in request.POST:
+        comms = request.POST.get('comms')
+        everything = request.POST.get('everything')
+        vol_id = request.session['vol_id']
+        # Unsubscribe SMS/Email
+        if comms:
+            volunteer = Volunteer.objects.get(id=vol_id)
+            volunteer.notify_email = False
+            volunteer.notify_text = False
+            volunteer.save()
+        # Unsubscribe from entire service
+        if everything:
+            volunteer = Volunteer.objects.get(id=vol_id)
+            volunteer.notify_email = False
+            volunteer.notify_text = False
+            volunteer = Volunteer.objects.get(id=vol_id)
+            volunteer.Days.filter(volunteer=volunteer).delete()
+            volunteer.unsubscribed = True
+            volunteer.save()
+        return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
     elif request.method == 'POST':
         vol_id = request.session['vol_id']
         option_list = request.POST.getlist('survey-value')
