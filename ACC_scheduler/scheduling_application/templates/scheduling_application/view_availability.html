@@ -18,6 +18,7 @@
     {{ formset.management_form }}
     <table>
         {% for form in formset %}
+            <!-- {{forloop.counter}} -->
             {% if forloop.counter|divisibleby:2 %}
             <div class="row">
                     <div class="col">{{ current_month }}/{{forloop.counter}}</div>
