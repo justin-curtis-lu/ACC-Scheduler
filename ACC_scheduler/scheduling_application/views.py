@@ -1,97 +1,37 @@
-
+# Django imports
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm
 from django.forms import modelformset_factory, formset_factory
-from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 from django.contrib.auth.models import User, auth
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.crypto import get_random_string
-from twilio.rest import Client
-from django.db.models import Q
-from .methods import check_time, check_age, get_day, get_timeframes
 from django.conf import settings
-import requests
+from django.db.models import Q
 from django.forms.models import model_to_dict
-from requests.auth import HTTPBasicAuth
 from django.core.paginator import Paginator
+# App imports
+from .utils import sync_galaxy, find_matches, send_emails, notify_senior, send_monthly_surveys
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, DayForm
+from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
+from .methods import check_time, check_age, get_day, get_timeframes
+# External imports
+import requests
+from twilio.rest import Client
 from datetime import datetime
+from requests.auth import HTTPBasicAuth
 
 
 def home(response):
-    """View for the home page"""
+    """View for the general home page"""
     return render(response, "scheduling_application/home.html", {})
 
 
 def console(request):
-    """View for console page (home page when logged in)"""
+    """View for console page (home page when logged in).
+    Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
-        # Pass Flash message ( You must be authenticated to access this page )
         return render(request, 'scheduling_application/home.html', {})
-    #check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-    #if 4032242 in check_list:
-    #    print("yes")
-    #print("CHECK_LIST", check_list)
-
-    # volunteer = Volunteer.objects.get(last_name="tong")
-    # volunteer2 = Volunteer.objects.get(last_name="vol")
-    # Day.objects.create(_9_10=True, day_of_month=1, volunteer=volunteer)
-    # Day.objects.create(_9_10=True, _10_11=True, _11_12=True, _12_1=True, _1_2=True, day_of_month=1, volunteer=volunteer2)
-
-    #volunteers_list[0].availability = test
-    #print(volunteers_list[0].availability)
     return render(request, 'scheduling_application/console.html', {})
-
-# need to place code in console view to automate
-def galaxy_update_volunteers(request):
-    if request.GET.get("galaxy_update_volunteers"):
-        print("UPDATING VOLUNTEERS")
-        url = 'https://api2.galaxydigital.com/volunteer/user/list/'
-        headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
-        response = requests.get(url, headers=headers, params=params)
-        voldata = response.json()
-        print(voldata)
-
-        check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        #print(check_list)
-
-        for i in voldata['data']:
-            galaxy_id = int(i['id'])
-            if galaxy_id in check_list:
-                # update
-                volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-                try:
-                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'], additional_notes=i['extras']['availability-context'])
-                    if 'Email' in i['extras']['preferred-contact-method']:
-                        volunteer.update(notify_email=True)
-                    if 'Text Message' in i['extras']['preferred-contact-method']:
-                        volunteer.update(notify_text=True)
-                    if 'Phone Call' in i['extras']['preferred-contact-method']:
-                        volunteer.update(notify_call=True)
-                    print("try updating", volunteer)
-                except KeyError:
-                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'])
-                    print("except updating", volunteer)
-            else:
-                # create
-                try:
-                    Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'], phone=i['phone'], email=i['email'], dob=i['birthdate'], additional_notes=i['extras']['availability-context'])
-                    if 'Email' in i['extras']['preferred-contact-method']:
-                        volunteer.update(notify_email=True)
-                    if 'Text Message' in i['extras']['preferred-contact-method']:
-                        volunteer.update(notify_text=True)
-                    if 'Phone Call' in i['extras']['preferred-contact-method']:
-                        volunteer.update(notify_call=True)
-                    print("try creating", i['firstName'], i['lastName'])
-                except KeyError:
-                    Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                             phone=i['phone'], email=i['email'], dob=i['birthdate'])
-                    print("except creating", i['firstName'], i['lastName'])
-
-
-    return redirect('console')
 
 
 def login(request):
@@ -105,20 +45,19 @@ def login(request):
             return redirect('console')
         else:
             messages.info(request, 'invalid credentials')
-            return redirect('login')                 # TEMPORARY
+            return redirect('login')
     return render(request, 'scheduling_application/login.html', {})
 
 
-
-# uses Django's built-in UserRegisterForm
 def register(request):
-    """View for the registration page"""
+    """View for the registration page
+    (uses Django's built-in UserRegisterForm)"""
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}.')         # resume tutorial for message display on main page
+            messages.success(request, f'Account created for {username}.')
             return redirect('login')
     else:
         form = UserRegisterForm()
@@ -126,6 +65,8 @@ def register(request):
 
 
 def keys(request):
+    """View which requires valid keys in order
+    to create a middle man account (keys stored in .env)"""
     if request.method == 'POST':
         key1 = request.POST['key1']
         key2 = request.POST['key2']
@@ -139,216 +80,101 @@ def keys(request):
         return render(request, 'scheduling_application/keys.html', {})
 
 
+def galaxy_update_volunteers(request):
+    """View which pulls volunteer data from Galaxy Digital
+    API and updates on app side"""
+    if request.GET.get("galaxy_update_volunteers"):
+        url = 'https://api2.galaxydigital.com/volunteer/user/list/'
+        headers = {'Accept': 'scheduling_application/json'}
+        params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
+        response = requests.get(url, headers=headers, params=params)
+        vol_data = response.json()
+        check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+        sync_galaxy(vol_data, check_list)
+    return redirect('console')
+
+
 def make_appointment(request):
     """View for the page where users can schedule an appointment.
        Shows current seniors, volunteers, and appointments.
        Allows users to choose a senior and day then continue."""
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
-
     context = {
         'seniors_list': seniors_list[:5],
         'volunteers_list': volunteers_list[:5]
     }
-    # Handle scheduling appointment
     if request.method == 'POST':
         senior = request.POST['senior']
         start_address = request.POST['start_address']
         end_address = request.POST['end_address']
         purpose_of_trip = request.POST['purpose_of_trip']
         additional_notes = request.POST['notes']
-        senior_id = Senior.objects.get(id=senior)
         day_time = request.POST['day_time'].split()
+        senior_id = Senior.objects.get(id=senior)
         day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
-        potential_list = []
-        for volunteer in check_list:
-            volunteer_object = Volunteer.objects.filter(id=volunteer)
-            availability = volunteer_object[0].Days.filter(day_of_month=day_of_month)[0]
-            if availability.all:
-                check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
-                schedule_conflict = False
-                for appointment in check_conflict:
-                    if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
-                        schedule_conflict = True
-                        break
-                if not schedule_conflict:
-                   potential_list.append(volunteer_object.values()[0])
-                # potential_list.append(volunteer_object.values()[0])
-            else:
-                time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
-                for time in time_frames:
-                    if check_time(day_time[1], time):
-                        check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
-                        break_check = False
-                        for appointment in check_conflict:
-                            if check_time(day_time[1], appointment.date_and_time.split(' ')[1]):
-                                break_check = True
-                                break
-                        if break_check:
-                            break
-                        volunteer_object[0].Appointments.filter()
-                        potential_list.append(volunteer_object.values()[0])
-                        break
-
-        if len(potential_list) == 0:
+        potential_list = find_matches(check_list, day_of_month, day_time)
+        if not potential_list:
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
-
-        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address, end_address=end_address, date_and_time=day_time[0] + " " + day_time[1], purpose_of_trip=purpose_of_trip, notes=additional_notes)
-        context = {
-            'seniors_list': seniors_list,
-            'volunteers_list': volunteers_list,
-            'potential_list': potential_list
-        }
+        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
+                                                 , end_address=end_address
+                                                 , date_and_time=day_time[0] + " " + day_time[1]
+                                                 , purpose_of_trip=purpose_of_trip, notes=additional_notes)
         request.session['appointment'] = appointment.id
         request.session['potential_list'] = list(potential_list)
-        return redirect('confirm_v')
+        return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment.html', context)
 
 
-def confirm_v(request):
-    """View for page to confirm which volunteers to send emails to."""
+def confirm_volunteers(request):
+    """View for page to confirm which volunteers to send emails to. (Follows make_appointment)"""
     potential_list = request.session['potential_list']
-    print(potential_list)
-    emails_sent = False
-
     context = {
         'potential_list': potential_list
     }
-
     if request.method == 'POST':
         selected_volunteers = request.POST
-        # print("selected_volunteers", selected_volunteers)
-        # print("selected_volunteers volunteer", selected_volunteers.getlist('volunteer'))
-
         domain = get_current_site(request).domain
         appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).values()
-        print(appointment)
-        print(appointment[0]['senior_id'])
         senior = Senior.objects.filter(id=appointment[0]['senior_id']).values()
-        print(senior)
-        callers = []
-        for i in potential_list:
-            # print("i", i)
-            if str(i['id']) in selected_volunteers.getlist('volunteer'):
-                # print("id in selected volunteers", str(i['id']))
-                if i['notify_email'] == True:
-                    # print("i[notify-email=true]", i)
-                    token = get_random_string(length=32)
-                    activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token
-                    email_subject = 'Volunteer Appointment Confirmation'
-                    email_message = f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests a buddy! Based on your availability, you would be a perfect match!\n' + \
-                                    f'\tWho: {senior[0]["first_name"]} {senior[0]["last_name"]}\n' \
-                                    f'\tWhat: {appointment[0]["purpose_of_trip"]}\n' \
-                                    f'\tWhen: {appointment[0]["date_and_time"]}\n' \
-                                    f'\tWhere: {appointment[0]["start_address"]} to {appointment[0]["end_address"]}\n' + \
-                                    'Please click the link below to accept this request.\n' + activate_url + \
-                                    '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
-                    from_email = 'acc.scheduler.care@gmail.com'
-                    to_email = [i['email']]
-                    send_mail(email_subject, email_message, from_email, to_email)
-                    print("to email", to_email)
-                    emails_sent = True
-                if i['notify_text'] == True:
-                    token = get_random_string(length=32)
-                    activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i['email'] + "&token=" + token        # MAYBE CAN REMOVE EMAIL QUERY
-
-                    account_sid = settings.TWILIO_ACCOUNT_SID
-                    auth_token = settings.TWILIO_AUTH
-                    client = Client(account_sid, auth_token)
-
-                    message = client.messages.create(body=f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests a buddy! Based on your availability, you would be a perfect match!\n' + \
-                                                          f'\tWho: {senior[0]["first_name"]} {senior[0]["last_name"]}\n' \
-                                                          f'\tWhat: {appointment[0]["purpose_of_trip"]}\n' \
-                                                          f'\tWhen: {appointment[0]["date_and_time"]}\n' \
-                                                          f'\tWhere: {appointment[0]["start_address"]} to {appointment[0]["end_address"]}\n' + \
-                                                          'Please click the link below to accept this request.\n' + activate_url + \
-                                                          '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
-                                                          from_='+19569486977', to=i['phone'])
-                    print("to phone", i['phone'])
-                    emails_sent = True
-                if i['notify_call'] == True:
-                    first = i['first_name']
-                    last = i['last_name']
-                    phone = i['phone']
-                    callers.append(f'{first} {last} {phone} ')
-                    emails_sent = True
-
-        if emails_sent == True:
+        callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain)
+        if sent_flag:
             if callers:
-                messages.success(request, f'Emails/texts sent successfully! Please manually call the following volunteers{callers}')
+                messages.success(request, f'Emails/texts sent successfully! '
+                                          f'Please manually call the following volunteers{callers}')
             else:
                 messages.success(request,
                                  f'Emails/texts sent successfully!')
-            return redirect('confirm_v')
-
-        # request.session['selected_volunteers'] = request.POST.getlist('volunteer')
-        # print("session selected volunteers", request.session['selected_volunteers'])
-        # messages.success(request, 'Emails successfully sent')
+            return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/confirm_v.html', context)
 
 
-# Currently not using email and token queries
 def success(request):
-    """View for the email sending success page"""
+    """View for the email sending success page
+    (This is when a volunteer clicks a confirmation link)"""
     if request.method == 'GET':
         vol_id = request.GET.get('id')
-        vol_email = request.GET.get('email')
-        vol_token = request.GET.get('token')
-
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
             empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
             if not empty_appointment:
                 return redirect('vol_already_selected')
-            # empty_appointment.update(volunteer=volunteer)
             empty_appointment[0].volunteer.add(volunteer)
             appointment = Appointment.objects.get(id=request.session['appointment'])
-            print(appointment)
-
-            # SEND EMAIL TO SENIORS
-            senior = appointment.senior
-            if senior.notify_email == True:
-                email_subject = 'Participant Appointment Confirmation'
-                email_message = f'Hello Participant!\n\nWe have a Senior Escort Program Volunteer who has accepted your request! Here are the details of the appointment!\n' + \
-                                f'\tVolunteer: {volunteer.first_name} {volunteer.last_name}\n' \
-                                f'\tWhat: {appointment.purpose_of_trip}\n' \
-                                f'\tWhen: {appointment.date_and_time}\n' \
-                                f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
-                                '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
-                from_email = 'acc.scheduler.care@gmail.com'
-                to_email = [senior.email]
-                send_mail(email_subject, email_message, from_email, to_email)
-                print("to email", to_email)
-                # emails_sent = True
-            if senior.notify_text == True:
-                account_sid = settings.TWILIO_ACCOUNT_SID
-                auth_token = settings.TWILIO_AUTH
-                client = Client(account_sid, auth_token)
-
-                message = client.messages.create(
-                    body=f'Hello Participant!\n\nWe have a Senior Escort Program Volunteer who has accepted your request! Here are the details of the appointment!\n' + \
-                         f'\tVolunteer: {volunteer.first_name} {volunteer.last_name}\n' \
-                         f'\tWhat: {appointment.purpose_of_trip}\n' \
-                         f'\tWhen: {appointment.date_and_time}\n' \
-                         f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
-                         '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
-                    from_='+19569486977', to=senior.phone)
-                print("to phone", senior.phone)
-                # emails_sent = True
-
-            # print("appointment", appointment)
+            notify_senior(appointment, volunteer)
         except (KeyError, Appointment.DoesNotExist):
-            # print("APPOINTMENT DOES NOT EXIST")
             appointment = None
         context = {
             'appointment': appointment
         }
-        # print(appointment)
         return render(request, "scheduling_application/success.html", context)
 
+
 def vol_already_selected(request):
+    """View for the email when a volunteer has already matched with a participant
+    (This is when a volunteer clicks a confirmation link)"""
     return render(request, "scheduling_application/vol_already_selected.html", {})
 
 
@@ -368,7 +194,7 @@ def view_seniors(request):
 
 
 def add_senior(request):
-    """View for adding senior"""
+    """View for manually adding a senior (the middleman)"""
     form = SeniorForm()
     if request.method == 'POST':
         form = SeniorForm(request.POST)
@@ -385,7 +211,6 @@ def update_senior(request):
     """View for updating senior"""
     form = SeniorForm()
     if request.POST.get("update_senior"):
-        print("HERE")
         form = SeniorForm(request.POST)
         if form.is_valid():
             form.save()
@@ -397,15 +222,13 @@ def update_senior(request):
 
 
 def senior_page(request, pk):
-    """View for senior profile page"""
+    """View for a single participant profile page"""
     senior = Senior.objects.get(id=pk)
     if request.method == 'POST':
-        print(request.POST)
         if request.POST.get("remove_senior"):
             senior.delete()
             return redirect('view_seniors')
         elif request.POST.get("update_senior"):
-            print("AYAY")
             return redirect('update_senior')
     context = {
         'senior': senior,
@@ -454,47 +277,12 @@ def pre_send_survey(request):
 
 def send_survey(request):
     if request.GET.get('send_survey'):
-        dt = datetime.today()
-        curr_month = dt.month
-        if SurveyStatus.objects.count() == 0:
-            survey = SurveyStatus.objects.create(month=curr_month, sent=False, survey_id=1)
-        else:
-            survey = SurveyStatus.objects.get(survey_id=1)
-        if survey.sent is False or survey.month is not curr_month:
-            domain = get_current_site(request).domain
-            for i in Volunteer.objects.all():
-                token = get_random_string(length=32)
-                i.survey_token = token
-                activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email \
-                               + "&token=" + token
-                if i.notify_email:
-                    email_subject = 'Volunteer Availability Survey'
-                    email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                                    "Your time is so appreciated and we could not provide seniors with free programs without you!\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
-                    from_email = 'acc.scheduler.care@gmail.com'
-                    to_email = [i.email]
-                    send_mail(email_subject, email_message, from_email, to_email)
-                    print("to email", to_email)
-                    emails_sent = True
-                if i.notify_text:
-                    account_sid = settings.TWILIO_ACCOUNT_SID
-                    auth_token = settings.TWILIO_AUTH
-                    client = Client(account_sid, auth_token)
-                    message = client.messages.create(
-                        body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                             f"Your time is so appreciated and we could not provide seniors with free programs without you!\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
-                        from_='+19569486977', to=i.phone)
-                    print("to phone", i.phone)
-                i.survey_token = token
-                i.save()
-                survey.month = curr_month
-            survey.sent = True
-            survey.save()
+        sent_status, curr_month = send_monthly_surveys(request)
+        if sent_status:
             messages.success(request, f'Successfully sent surveys for the month of {curr_month}.')
         else:
             messages.warning(request, f'You have already sent surveys for the month of {curr_month}.')
     return redirect('pre_send_survey')
-
 
 
 def survey_page(request):
@@ -571,6 +359,7 @@ def survey_page(request):
                     Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
                                        day_of_month=date[0], volunteer=volunteer)
         return render(request, "scheduling_application/survey_complete.html", {})
+
 
 def view_availability(request, pk):
     volunteer = Volunteer.objects.get(id=pk)
@@ -699,10 +488,12 @@ def view_availability(request, pk):
     }
     return render(request, "scheduling_application/view_availability.html", context)
 
+
 def logout(request):
     """View for logging out"""
     auth.logout(request)
     return redirect('home')
+
 
 def view_appointments(request):
     appointments = Appointment.objects.all()
@@ -711,6 +502,7 @@ def view_appointments(request):
     }
     return render(request, 'scheduling_application/view_appointments.html', context)
 
+
 def view_seniors(request):
     """View for the seniors page (table of all the seniors in the database)"""
     seniors = Senior.objects.all()
@@ -718,6 +510,7 @@ def view_seniors(request):
         'seniors': seniors,
     }
     return render(request, 'scheduling_application/view_seniors.html', context)
+
 
 def add_senior(request):
     """View for adding senior"""
@@ -731,6 +524,7 @@ def add_senior(request):
         'form': form
     }
     return render(request, 'scheduling_application/add_senior.html', context)
+
 
 def edit_senior(request, pk):
     """View for editing senior"""
@@ -749,6 +543,7 @@ def edit_senior(request, pk):
     }
     return render(request, 'scheduling_application/edit_senior.html', context)
 
+
 def senior_page(request, pk):
     """View for senior profile page"""
     senior = Senior.objects.get(id=pk)
@@ -765,6 +560,7 @@ def senior_page(request, pk):
     #print(senior.id)
     return render(request, 'scheduling_application/senior_page.html', context)
 
+
 def view_volunteers(request):
     """View for the volunteers page (table of all the volunteers in the database)"""
     volunteers = Volunteer.objects.all()
@@ -772,6 +568,7 @@ def view_volunteers(request):
         'volunteers': volunteers,
     }
     return render(request, 'scheduling_application/view_volunteers.html', context)
+
 
 def add_volunteer(request):
     """View for adding volunteer page"""
@@ -785,6 +582,7 @@ def add_volunteer(request):
         'form': form
     }
     return render(request, 'scheduling_application/add_volunteer.html', context)
+
 
 def volunteer_page(request, pk):
     """View for volunteer profile page"""
@@ -800,6 +598,7 @@ def volunteer_page(request, pk):
         'volunteer': volunteer,
     }
     return render(request, 'scheduling_application/volunteer_page.html', context)
+
 
 def edit_volunteer(request, pk):
     """View for editing volunteer"""
