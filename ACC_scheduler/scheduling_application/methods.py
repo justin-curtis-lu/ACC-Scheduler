@@ -60,3 +60,23 @@ def check_time(appointment_time, volunteer_time):
         return True
     else:
         return False
+
+
+# Function to check if the appointment time conflicts with an appointment already assigned to the volunteer
+# returns false if theres no conflict true if there is a conflict
+def appointment_conflict(appointment_time, conflict_time):
+    a_times = appointment_time.split("-")
+    format_num = a_times[0].split(":")
+    a_time_start = float(format_num[0]) + float(format_num[1]) / 100
+    format_num = a_times[1].split(":")
+    a_time_end = float(format_num[0]) + float(format_num[1]) / 100
+
+    c_times = conflict_time.split("-")
+    format_num = c_times[0].split(":")
+    c_time_start = float(format_num[0]) + float(format_num[1]) / 100
+    format_num = c_times[1].split(":")
+    c_time_end = float(format_num[0]) + float(format_num[1]) / 100
+    if a_time_start < a_time_end <= c_time_start < c_time_end or c_time_start < c_time_end <= a_time_start < a_time_end:
+        return False
+    else:
+        return True
