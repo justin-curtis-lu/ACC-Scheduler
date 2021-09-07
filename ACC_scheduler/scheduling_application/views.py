@@ -40,7 +40,7 @@ def login(request):
         else:
             messages.info(request, 'invalid credentials')
             return redirect('login')
-    return render(request, 'scheduling_application/login.html', {})
+    return render(request, 'scheduling_application/authentication_general/login.html', {})
 
 
 def logout(request):
@@ -61,7 +61,7 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegisterForm()
-    return render(request, 'scheduling_application/register.html', {'form': form})
+    return render(request, 'scheduling_application/authentication_general/register.html', {'form': form})
 
 
 def keys(request):
@@ -75,9 +75,9 @@ def keys(request):
             return redirect('register')
         else:
             messages.info(request, 'invalid credentials')
-            return render(request, 'scheduling_application/keys.html', {})
+            return render(request, 'scheduling_application/authentication_general/keys.html', {})
     else:
-        return render(request, 'scheduling_application/keys.html', {})
+        return render(request, 'scheduling_application/authentication_general/keys.html', {})
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
@@ -297,7 +297,7 @@ def make_appointment(request):
         request.session['appointment'] = appointment.id
         request.session['potential_list'] = list(potential_list)
         return redirect('confirm_volunteers')
-    return render(request, 'scheduling_application/make_appointment.html', context)
+    return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
 
 
 def confirm_volunteers(request):
@@ -321,7 +321,7 @@ def confirm_volunteers(request):
                 messages.success(request,
                                  f'Emails/texts sent successfully!')
             return redirect('confirm_volunteers')
-    return render(request, 'scheduling_application/confirm_v.html', context)
+    return render(request, 'scheduling_application/make_appointment/confirm_v.html', context)
 
 
 def success(request):
@@ -342,13 +342,13 @@ def success(request):
         context = {
             'appointment': appointment
         }
-        return render(request, "scheduling_application/success.html", context)
+        return render(request, "scheduling_application/make_appointment/success.html", context)
 
 
 def vol_already_selected(request):
     """View for the email when a volunteer has already matched with a participant
     (This is when a volunteer clicks a confirmation link)"""
-    return render(request, "scheduling_application/vol_already_selected.html", {})
+    return render(request, "scheduling_application/make_appointment/vol_already_selected.html", {})
 
 
 def send_survey(request):
@@ -364,7 +364,7 @@ def send_survey(request):
 
 def pre_send_survey(request):
     """Extra view which helps prevent mis-clicks of monthly survey sending"""
-    return render(request, 'scheduling_application/survey_confirmation.html')
+    return render(request, 'scheduling_application/survey_sending/survey_confirmation.html')
 
 
 def survey_page(request):
@@ -383,7 +383,7 @@ def survey_page(request):
         if vol_token != volunteer.survey_token:
             return render(request, "scheduling_application/bad_link.html", {})
         else:
-            return render(request, "scheduling_application/survey_page.html", context=date)
+            return render(request, "scheduling_application/survey_sending/survey_page.html", context=date)
     # Should likely be moved to entirely separate view (Unsubscribe functionality)
     if request.method == 'POST' and 'unsubscribe' in request.POST:
         vol_id = request.session['vol_id']
@@ -395,4 +395,4 @@ def survey_page(request):
         volunteer = Volunteer.objects.get(id=vol_id)
         volunteer.Days.filter(volunteer=volunteer).delete()
         read_survey_data(option_list, volunteer)
-        return render(request, "scheduling_application/survey_complete.html", {})
+        return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
