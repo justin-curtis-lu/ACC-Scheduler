@@ -1,17 +1,20 @@
-from .models import Volunteer, SurveyStatus, Day
-from .methods import check_time,  get_timeframes
+# Django imports
 from django.utils.crypto import get_random_string
-from django.core.mail import send_mail
-from django.conf import settings
-from twilio.rest import Client
-from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
 from django.forms import modelformset_factory
+from django.core.mail import send_mail
+from django.conf import settings
+# External imports
+from twilio.rest import Client
+from datetime import datetime
+# App imports
+from .models import Volunteer, SurveyStatus, Day
+from .methods import check_time,  get_timeframes
 from .forms import DayForm
 
 
-def sync_galaxy(voldata, check_list):
-    for i in voldata['data']:
+def sync_galaxy(vol_data, check_list):
+    for i in vol_data['data']:
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
             volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
