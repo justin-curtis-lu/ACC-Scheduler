@@ -180,7 +180,9 @@ def send_monthly_surveys(request):
             if i.notify_email:
                 email_subject = 'Volunteer Availability Survey'
                 email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                                "Your time is so appreciated and we could not provide seniors with free programs without you!\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
+                                "If you do not fill out the survey, your previous times will be carried over for the next month. " \
+                                "Your time is so appreciated and we could not provide seniors with free programs without you!" \
+                                "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
                 from_email = 'acc.scheduler.care@gmail.com'
                 to_email = [i.email]
                 send_mail(email_subject, email_message, from_email, to_email)
@@ -192,7 +194,9 @@ def send_monthly_surveys(request):
                 client = Client(account_sid, auth_token)
                 message = client.messages.create(
                     body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                         f"Your time is so appreciated and we could not provide seniors with free programs without you!\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
+                         f"If you do not fill out the survey, your previous times will be carried over for the next month. "
+                         f"Your time is so appreciated and we could not provide seniors with free programs without you!"
+                         f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
                     from_='+19569486977', to=i.phone)
                 print("to phone", i.phone)
             i.survey_token = token
@@ -204,56 +208,35 @@ def send_monthly_surveys(request):
 
 
 def read_survey_data(option_list, volunteer):
+    for i in range(1, 32):
+        Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+                           day_of_month=i, volunteer=volunteer)
     for i in option_list:
         date = i[6:].split("-")
         if date[1] == "0":
-            try:
-                day = volunteer.Days.get(day_of_month=date[0])
-                day._9_10 = True
-                day.save()
-            except:
-                Day.objects.create(_9_10=True, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                                   day_of_month=date[0], volunteer=volunteer)
+            day = volunteer.Days.get(day_of_month=date[0])
+            day._9_10 = True
+            day.save()
         elif date[1] == "1":
-            try:
-                day = volunteer.Days.get(day_of_month=date[0])
-                day._10_11 = True
-                day.save()
-            except:
-                Day.objects.create(_9_10=False, _10_11=True, _11_12=False, _12_1=False, _1_2=False, all=False,
-                                   day_of_month=date[0], volunteer=volunteer)
+            day = volunteer.Days.get(day_of_month=date[0])
+            day._10_11 = True
+            day.save()
         elif date[1] == "2":
-            try:
-                day = volunteer.Days.get(day_of_month=date[0])
-                day._11_12 = True
-                day.save()
-            except:
-                Day.objects.create(_9_10=False, _10_11=False, _11_12=True, _12_1=False, _1_2=False, all=False,
-                                   day_of_month=date[0], volunteer=volunteer)
+            day = volunteer.Days.get(day_of_month=date[0])
+            day._11_12 = True
+            day.save()
         elif date[1] == "3":
-            try:
-                day = volunteer.Days.get(day_of_month=date[0])
-                day._12_1 = True
-                day.save()
-            except:
-                Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=True, _1_2=False, all=False,
-                                   day_of_month=date[0], volunteer=volunteer)
+            day = volunteer.Days.get(day_of_month=date[0])
+            day._12_1 = True
+            day.save()
         elif date[1] == "4":
-            try:
-                day = volunteer.Days.get(day_of_month=date[0])
-                day._1_2 = True
-                day.save()
-            except:
-                Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=True, all=False,
-                                   day_of_month=date[0], volunteer=volunteer)
+            day = volunteer.Days.get(day_of_month=date[0])
+            day._1_2 = True
+            day.save()
         elif date[1] == "5":
-            try:
-                day = volunteer.Days.get(day_of_month=date[0])
-                day.all = True
-                day.save()
-            except:
-                Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=True,
-                                   day_of_month=date[0], volunteer=volunteer)
+            day = volunteer.Days.get(day_of_month=date[0])
+            day.all = True
+            day.save()
 
 
 def generate_v_days(pk):
