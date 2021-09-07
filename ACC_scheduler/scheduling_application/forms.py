@@ -2,9 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
-from .models import Senior
-from .models import Volunteer
-from .models import Day
+from .models import Senior, Volunteer, Day, Appointment
+
 
 
 class UserRegisterForm(UserCreationForm):
@@ -32,3 +31,9 @@ class DayForm(ModelForm):
         model = Day
         fields = '__all__'
         exclude = ['volunteer', 'day_of_month']
+
+class AppointmentForm(ModelForm):
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+        exclude = ['id']
