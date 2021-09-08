@@ -15,17 +15,36 @@
     {% if potential_list %}
         <p><b> Confirm Volunteers </b> </p>
     <form method='POST' action=''>
-        {% csrf_token %}
-            {% for volunteer in potential_list %}
-                <input type="checkbox" id=volunteer.id name=volunteer value={{volunteer.id}} checked="True">
-                <label for={{volunteer.id}}>{{volunteer.first_name}} {{volunteer.last_name}} {% if volunteer.minor %} (minor) {% endif %}</label>
-            {% endfor %}
-        <br>
-            <input type="Submit" name="select_volunteers">
-    {% endif %}
-        <br>
-        <br>
+    {% csrf_token %}
+    <table id="volunteerTable" class="table table-striped table-bordered table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Select</th>
+            <th scope="col">Volunteer</th>
+            <th scope="col">Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for volunteer in potential_list %}
+        <tr>
+            <td>
+                <input type="checkbox" name=volunteer value={{volunteer.id}} checked="True">
+            </td>
+            <td>
+                {{volunteer.first_name}} {{volunteer.last_name}} {% if volunteer.minor %} (minor) {% endif %}
+            </td>
+            <td>
+                {{volunteer.additional_notes}}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    <input type="Submit" name="select_volunteers">
+    <br>
+    <br>
     </form>
+    {% endif %}
     <a href="{% url 'console' %}"><button>Return to main page</button></a>
 </div>
 {% endblock %}
