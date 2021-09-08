@@ -5,9 +5,9 @@ from django.contrib.auth.models import auth
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 # App imports
-from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys, send_emails, read_survey_data,\
-    generate_v_days
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm
+from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
+    send_emails, read_survey_data, generate_v_days
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, LoginForm, KeyForm
 from .models import Senior, Volunteer, Appointment, Day
 # External imports
 import requests
@@ -31,16 +31,22 @@ def console(request):
 def login(request):
     """View for the login page"""
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = auth.authenticate(username=username, password=password)
-        if user is not None:
-            auth.login(request, user)
-            return redirect('console')
-        else:
-            messages.info(request, 'invalid credentials')
-            return redirect('login')
-    return render(request, 'scheduling_application/authentication_general/login.html', {})
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = auth.authenticate(username=username, password=password)
+            if user is not None:
+                # If user exists in database
+                auth.login(request, user)
+                return redirect('console')
+            else:
+                # Else user does not exist in database
+                messages.info(request, 'invalid credentials')
+                return redirect('login')
+    else:
+        form = LoginForm()
+    return render(request, 'scheduling_application/authentication_general/login.html', {'form': form})
 
 
 def logout(request):
@@ -68,16 +74,19 @@ def keys(request):
     """View which requires valid keys in order
     to create a middle man account (keys stored in .env)"""
     if request.method == 'POST':
-        key1 = request.POST['key1']
-        key2 = request.POST['key2']
-        key3 = request.POST['key3']
-        if key1 == settings.KEY1 and key2 == settings.KEY2 and key3 == settings.KEY3:
-            return redirect('register')
-        else:
-            messages.info(request, 'invalid credentials')
-            return render(request, 'scheduling_application/authentication_general/keys.html', {})
+        form = KeyForm(request.POST)
+        if form.is_valid():
+            key1 = form.cleaned_data['key1']
+            key2 = form.cleaned_data['key2']
+            key3 = form.cleaned_data['key3']
+            if key1 == settings.KEY1 and key2 == settings.KEY2 and key3 == settings.KEY3:
+                return redirect('register')
+            else:
+                messages.info(request, 'invalid credentials')
+                return redirect('keys')
     else:
-        return render(request, 'scheduling_application/authentication_general/keys.html', {})
+        form = KeyForm()
+    return render(request, 'scheduling_application/authentication_general/keys.html', {'form': form})
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
@@ -290,12 +299,18 @@ def make_appointment(request):
         if not potential_list:
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
-        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
-                                                 , end_address=end_address
-                                                 , date_and_time=day_time[0] + " " + day_time[1]
-                                                 , purpose_of_trip=purpose_of_trip, notes=additional_notes)
-        request.session['appointment'] = appointment.id
-        request.session['potential_list'] = list(potential_list)
+        # appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
+        #                                          , end_address=end_address
+        #                                          , date_and_time=day_time[0] + " " + day_time[1]
+        #                                          , purpose_of_trip=purpose_of_trip, notes=additional_notes)
+        # request.session['appointment'] = appointment.id
+        # request.session['potential_list'] = list(potential_list)
+        request.session['senior'] = senior
+        request.session['start_address'] = start_address
+        request.session['end_address'] = end_address
+        request.session['purpose_of_trip'] = purpose_of_trip
+        request.session['additional_notes'] = additional_notes
+        request.session['day_time'] = day_time
         return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
 
@@ -303,14 +318,19 @@ def make_appointment(request):
 def confirm_volunteers(request):
     """View for page to confirm which volunteers to send emails to. (Follows make_appointment)"""
     potential_list = request.session['potential_list']
+    senior_id = Senior.objects.get(id=request.session['senior'])
     context = {
         'potential_list': potential_list
     }
     update_minors(potential_list)
     if request.method == 'POST':
+        appointment = Appointment.objects.create(senior=senior_id, start_address=request.session['start_address']
+                                                 , end_address=request.session['end_address']
+                                                 , date_and_time=request.session['day_time'][0] + " " + request.session['day_time'][1]
+                                                 , purpose_of_trip=request.session['purpose_of_trip'], notes=request.session['additional_notes'])
         selected_volunteers = request.POST
         domain = get_current_site(request).domain
-        appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).values()
+        appointment = Appointment.objects.filter(id=appointment.id, volunteer=None).values()
         senior = Senior.objects.filter(id=appointment[0]['senior_id']).values()
         callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain)
         if sent_flag:
