@@ -5,10 +5,10 @@ from django.contrib.auth.models import auth
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 # App imports
-from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys, send_emails, read_survey_data,\
-    generate_v_days
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm
-from .models import Senior, Volunteer, Appointment, Day
+from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
+    send_emails, read_survey_data, generate_v_days
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, LoginForm, KeyForm
+from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
 import requests
 from datetime import datetime
@@ -25,22 +25,36 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    return render(request, 'scheduling_application/authentication_general/console.html', {})
+    month_integer = SurveyStatus.objects.get(survey_id=1).month
+    datetime_object = datetime.strptime(str(month_integer), "%m")
+    full_month_name = datetime_object.strftime("%B")
+    context = {
+        'vol_count': Volunteer.objects.count(),
+        'sen_count': Senior.objects.count(),
+        'month': full_month_name
+    }
+    return render(request, 'scheduling_application/authentication_general/console.html', context)
 
 
 def login(request):
     """View for the login page"""
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = auth.authenticate(username=username, password=password)
-        if user is not None:
-            auth.login(request, user)
-            return redirect('console')
-        else:
-            messages.info(request, 'invalid credentials')
-            return redirect('login')
-    return render(request, 'scheduling_application/authentication_general/login.html', {})
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = auth.authenticate(username=username, password=password)
+            if user is not None:
+                # If user exists in database
+                auth.login(request, user)
+                return redirect('console')
+            else:
+                # Else user does not exist in database
+                messages.info(request, 'invalid credentials')
+                return redirect('login')
+    else:
+        form = LoginForm()
+    return render(request, 'scheduling_application/authentication_general/login.html', {'form': form})
 
 
 def logout(request):
@@ -65,19 +79,13 @@ def register(request):
 
 
 def keys(request):
-    """View which requires valid keys in order
-    to create a middle man account (keys stored in .env)"""
-    if request.method == 'POST':
-        key1 = request.POST['key1']
-        key2 = request.POST['key2']
-        key3 = request.POST['key3']
-        if key1 == settings.KEY1 and key2 == settings.KEY2 and key3 == settings.KEY3:
+    """View which reads for a valid link that allows
+    creation of a middle man account (keys stored in .env)"""
+    if request.method == 'GET':
+        if request.GET.get('token') == settings.KEY1:
             return redirect('register')
         else:
-            messages.info(request, 'invalid credentials')
-            return render(request, 'scheduling_application/authentication_general/keys.html', {})
-    else:
-        return render(request, 'scheduling_application/authentication_general/keys.html', {})
+            return render(request, 'scheduling_application/bad_link.html')
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
@@ -262,7 +270,11 @@ def galaxy_update_volunteers(request):
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        sync_galaxy(vol_data, check_list)
+        try:
+            sync_galaxy(vol_data, check_list)
+            messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
+        except:
+            messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return redirect('console')
 
 
@@ -277,25 +289,17 @@ def make_appointment(request):
         'volunteers_list': volunteers_list[:5]
     }
     if request.method == 'POST':
-        senior = request.POST['senior']
-        start_address = request.POST['start_address']
-        end_address = request.POST['end_address']
-        purpose_of_trip = request.POST['purpose_of_trip']
-        additional_notes = request.POST['notes']
+        senior_id = request.POST['senior_id']
         day_time = request.POST['day_time'].split()
-        senior_id = Senior.objects.get(id=senior)
         day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
         potential_list = find_matches(check_list, day_of_month, day_time)
         if not potential_list:
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
-        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
-                                                 , end_address=end_address
-                                                 , date_and_time=day_time[0] + " " + day_time[1]
-                                                 , purpose_of_trip=purpose_of_trip, notes=additional_notes)
-        request.session['appointment'] = appointment.id
         request.session['potential_list'] = list(potential_list)
+        request.session['senior'] = senior_id
+        request.session['day_time'] = day_time
         return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
 
@@ -303,23 +307,34 @@ def make_appointment(request):
 def confirm_volunteers(request):
     """View for page to confirm which volunteers to send emails to. (Follows make_appointment)"""
     potential_list = request.session['potential_list']
+    senior = Senior.objects.get(id=request.session['senior'])
     context = {
-        'potential_list': potential_list
+        'potential_list': potential_list,
+        'date_time': request.session['day_time'][0],
+        'senior': senior
     }
     update_minors(potential_list)
     if request.method == 'POST':
+        start_address = request.POST['start_address']
+        end_address = request.POST['end_address']
+        purpose_of_trip = request.POST['purpose_of_trip']
+        additional_notes = request.POST['notes']
+        appointment = Appointment.objects.create(senior=senior, start_address=start_address
+                                                 , end_address=end_address
+                                                 , date_and_time=request.session['day_time'][0] + " " + request.session['day_time'][1]
+                                                 , purpose_of_trip=purpose_of_trip, notes=additional_notes)
         selected_volunteers = request.POST
         domain = get_current_site(request).domain
-        appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None).values()
+        appointment = Appointment.objects.filter(id=appointment.id, volunteer=None).values()
         senior = Senior.objects.filter(id=appointment[0]['senior_id']).values()
-        callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain)
+        callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain, appointment[0]['id'])
         if sent_flag:
             if callers:
                 messages.success(request, f'Emails/texts sent successfully! '
                                           f'Please manually call the following volunteers{callers}')
             else:
                 messages.success(request,
-                                 f'Emails/texts sent successfully!')
+                                 f'Emails/texts successfully sent to volunteers!')
             return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/confirm_v.html', context)
 
@@ -329,13 +344,14 @@ def success(request):
     (This is when a volunteer clicks a confirmation link)"""
     if request.method == 'GET':
         vol_id = request.GET.get('id')
+        app_id = int(request.GET.get('appointment_id'))
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
-            empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
+            empty_appointment = Appointment.objects.filter(id=app_id, volunteer=None)
             if not empty_appointment:
                 return redirect('vol_already_selected')
             empty_appointment.update(volunteer=volunteer)
-            appointment = Appointment.objects.get(id=request.session['appointment'])
+            appointment = Appointment.objects.get(id=app_id)
             notify_senior(appointment, volunteer)
         except (KeyError, Appointment.DoesNotExist):
             appointment = None

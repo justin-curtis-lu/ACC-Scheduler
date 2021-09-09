@@ -12,7 +12,7 @@
 {% endfor %}
 {% endif %}
 
-{% if id %}
+{% if seniors_list %}
     <p><b>Participants currently in the database  </b> </p>
     {% for senior in seniors_list %}
         <p>{{ senior }}</p>
@@ -37,19 +37,15 @@
 <form method='POST' action=''>
     {% csrf_token %}
     <div class="col col-lg-2 center">
-        <select class="form-control" id="senior" name='senior'>
+        <select class="form-control" id="senior" name='senior_id'>
             {% for senior in seniors_list %}
                 <option value='{{ senior.id }}'>{{ senior.full_name }}</option>
             {% endfor %}
         </select>
     </div>
     <br>
-    <p><b>Starting Address</b></p><input type="text" name="start_address"><br>
-    <p><b>Destination</b></p><input type="text" name="end_address"><br>
     <p><b>Date and Time</b></p><input type="text" name="day_time"><br>
-    <p><b>Purpose of Trip</b></p><input type="text" name="purpose_of_trip"><br>
-    <p><b>Additional Notes</b></p><input type="text" name="notes"><br><br>
-
+    <br>
     <input type="Submit" name="select_senior">
 </form>
 

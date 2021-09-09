@@ -1,43 +1,60 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
+
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            {% if message.tags %}
+                <div class="alert alert-{{ message.tags }} center" role="alert">
+            {% endif %}
+                <p class="{{ message.tags }}">{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
 <div class="container">
     <div class="center">
         {% if user.is_authenticated %}
-            <p class="space ">Hello, {{user}}</p>
+            <p class="space">Welcome back {{user}}</p>
+            <p class="special">There are currently {{vol_count}} volunteer(s).</p>
+            <p class="special">There are currently {{sen_count}} participant(s).</p>
+            <p class="special">The most recent surveys were sent for the month of {{month}}.</p>
+
         {% endif %}
     </div>
     <div class="row">
         <div class="col-sm">
             <form class="space" action="{% url 'view_appointments' %}">
-                <input type="submit" value="View Appointments" />
+                <input type="submit" value="View all Appointments" />
             </form>
         </div>
         <div class="col-sm">
             <form class="space" action="{% url 'view_seniors' %}">
-                <input type="submit" value="View Participants" />
+                <input type="submit" value="View all Participants" />
             </form>
         </div>
         <div class="col-sm">
             <form class="space" action="{% url 'view_volunteers' %}">
-                <input type="submit" value="View Volunteers" />
+                <input type="submit" value="View all Volunteers" />
             </form>
         </div>
     </div>
     <div class="row">
-
-            <div class="col-sm">
+        <div class="col-sm">
             <form class="space" action="{% url 'make_appointment' %}">
                 <input type="submit" value="Schedule an Appointment" />
             </form>
         </div>
         <div class="col-sm">
             <form class="space" action="{% url 'galaxy_update_volunteers' %}">
-                <input type="submit" name="sync_GalaxyDigital" value="Sync GalaxyDigital" />
+                <input type="submit" name="galaxy_update_volunteers" value="galaxy_update_volunteers" />
             </form>
             </div>
         <div class="col-sm">
             <form class="space" action="{% url 'pre_send_survey' %}">
-                <input type="submit" name="send_survey" value="Send Surveys" />
+                <input type="submit" name="send_survey" value="Send Monthly Surveys" />
             </form>
         </div>
     </div>
