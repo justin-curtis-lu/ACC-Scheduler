@@ -50,8 +50,3 @@ class AppointmentForm(ModelForm):
         fields = '__all__'
         exclude = ['id']
 
-
-class KeyForm(forms.Form):
-    key1 = forms.CharField(required=True)
-    key2 = forms.CharField(required=True)
-    key3 = forms.CharField(required=True)

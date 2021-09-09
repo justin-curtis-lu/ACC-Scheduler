@@ -6,7 +6,6 @@
             {% if message.tags %}
                 <div class="alert alert-{{ message.tags }}" role="alert">
             {% endif %}
-                <p class="{{ message.tags }} center">{{ message }}</p>
             </div>
         {% endfor %}
     </div>
@@ -26,7 +25,6 @@
                     {{ form.password }}
                     <br>
                     <br>
-<<<<<<< HEAD
                     {% if messages %}
                         {% for message in messages %}
                             {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
@@ -41,11 +39,13 @@
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-=======
->>>>>>> dev
                     <input class="special" type="Submit">
             </form>
         </div>
     </div>
+</div>
+<br>
+<div class="center">
+    <p class="special text-center">Forgot your password? Click <a href="{% url 'password_reset' %}"><button>here</button></a></p>
 </div>
 {% endblock %}

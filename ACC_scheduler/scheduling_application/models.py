@@ -80,11 +80,11 @@ class Appointment(models.Model):
     senior = models.ForeignKey(Senior, default=0, on_delete=models.CASCADE)
     # volunteer = models.ManyToManyField(Volunteer, related_name="Appointments")
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, null=True, related_name="Appointments")
-    start_address = models.CharField(max_length=50, null=True)
-    end_address = models.CharField(max_length=50, null=True)
+    start_address = models.CharField(max_length=50, null=True, blank=True)
+    end_address = models.CharField(max_length=50, null=True, blank=True)
     date_and_time = models.CharField(max_length=50)
-    purpose_of_trip = models.TextField(default="N/A")
-    notes = models.TextField(default="N/A")
+    purpose_of_trip = models.TextField(default="N/A", blank=True)
+    notes = models.TextField(default="N/A", blank=True)
     # Add a Status field (Waiting for confirmation, Confirmed <- should be triggered by the clicked link)
 
     @property

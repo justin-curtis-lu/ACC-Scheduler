@@ -4,10 +4,19 @@ from django.contrib import messages
 from django.contrib.auth.models import auth
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
+from django.contrib.auth.forms import PasswordResetForm
+from django.template.loader import render_to_string
+from django.core.mail import send_mail, BadHeaderError
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.db.models.query_utils import Q
 # App imports
 from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
     send_emails, read_survey_data, generate_v_days
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, AuthenticationForm, KeyForm
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, AuthenticationForm
 from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
 import requests
@@ -51,11 +60,10 @@ def login(request):
             params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}  # will need to include tags
             response = requests.get(url, headers=headers, params=params)
             vol_data = response.json()
-            print(vol_data)
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
             try:
                 sync_galaxy(vol_data, check_list)
-            except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT -> GIVES CSRF TOKEN ERROR
+            except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
                 pass
             return redirect('console')
         else:
@@ -99,6 +107,36 @@ def keys(request):
             return redirect('register')
         else:
             return render(request, 'scheduling_application/bad_link.html')
+
+
+def password_reset_request(request):
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = User.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "scheduling_application/password_reset/password_reset_email"
+                    from_email = 'acc.scheduler.care@gmail.com'
+                    c = {
+                        "email": user.email,
+                        'domain': '127.0.0.1:8000',         # CHANGE FOR DEPLOYMENT
+                        'site_name': 'ACC Scheduler',       # CHANGE FOR DEPLOYMENT
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        'token': default_token_generator.make_token(user),
+                        'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_mail(subject, email, from_email, [user.email], fail_silently=False)
+                    except BadHeaderError:
+                        return HttpResponse('Invalid header found.')
+                    return redirect("/password_reset/done/")
+    password_reset_form = PasswordResetForm()
+    return render(request=request, template_name="scheduling_application/password_reset/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
