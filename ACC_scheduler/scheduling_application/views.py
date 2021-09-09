@@ -25,7 +25,11 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    return render(request, 'scheduling_application/authentication_general/console.html', {})
+    context = {
+        'vol_count': Volunteer.objects.count(),
+        'sen_count': Senior.objects.count(),
+    }
+    return render(request, 'scheduling_application/authentication_general/console.html', context)
 
 
 def login(request):
@@ -316,14 +320,14 @@ def confirm_volunteers(request):
         domain = get_current_site(request).domain
         appointment = Appointment.objects.filter(id=appointment.id, volunteer=None).values()
         senior = Senior.objects.filter(id=appointment[0]['senior_id']).values()
-        callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain)
+        callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain, appointment[0]['id'])
         if sent_flag:
             if callers:
                 messages.success(request, f'Emails/texts sent successfully! '
                                           f'Please manually call the following volunteers{callers}')
             else:
                 messages.success(request,
-                                 f'Emails/texts sent successfully!')
+                                 f'Emails/texts successfully sent to volunteers!')
             return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/confirm_v.html', context)
 
@@ -333,13 +337,14 @@ def success(request):
     (This is when a volunteer clicks a confirmation link)"""
     if request.method == 'GET':
         vol_id = request.GET.get('id')
+        app_id = int(request.GET.get('appointment_id'))
         try:
             volunteer = Volunteer.objects.get(id=vol_id)
-            empty_appointment = Appointment.objects.filter(id=request.session['appointment'], volunteer=None)
+            empty_appointment = Appointment.objects.filter(id=app_id, volunteer=None)
             if not empty_appointment:
                 return redirect('vol_already_selected')
             empty_appointment.update(volunteer=volunteer)
-            appointment = Appointment.objects.get(id=request.session['appointment'])
+            appointment = Appointment.objects.get(id=app_id)
             notify_senior(appointment, volunteer)
         except (KeyError, Appointment.DoesNotExist):
             appointment = None
