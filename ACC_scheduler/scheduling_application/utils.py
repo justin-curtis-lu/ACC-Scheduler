@@ -18,8 +18,9 @@ def sync_galaxy(vol_data, check_list):
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
             volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
+            print(volunteer)
             # Flag to skip updating if unsubscribed is true
-            if not volunteer.unsubscribed:
+            if not volunteer[0].unsubscribed:
                 try:
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                      phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'],

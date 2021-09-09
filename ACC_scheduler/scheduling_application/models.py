@@ -33,7 +33,7 @@ class Volunteer(models.Model):
     first_name = models.CharField(max_length=30)
     phone = models.CharField(default=None, max_length=30, null=True)
     email = models.CharField(max_length=40, default='None')
-    address = models.CharField(default='N/A', max_length=100)
+    address = models.CharField(default='N/A', max_length=100, null=True, blank=True)
     dob = models.CharField(max_length=10, default=None, null=True)
     minor = models.BooleanField(default=False, editable=False)
     vaccinated = models.BooleanField(default=False)

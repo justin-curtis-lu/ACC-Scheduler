@@ -19,7 +19,11 @@
                     <br>
                     <br>
                     {% for message in messages %}
-                        <p class="error"> {{message}} </p>
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endif %}
                     {% endfor %}
                     <input class="special" type="Submit">
             </form>

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.forms import ModelForm
 from .models import Senior, Volunteer, Day, Appointment
 
@@ -38,3 +38,9 @@ class AppointmentForm(ModelForm):
         model = Appointment
         fields = '__all__'
         exclude = ['id']
+
+
+class KeyForm(forms.Form):
+    key1 = forms.CharField(required=True)
+    key2 = forms.CharField(required=True)
+    key3 = forms.CharField(required=True)

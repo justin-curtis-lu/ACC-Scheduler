@@ -15,9 +15,20 @@
                     <input class="special" type="password" name="password" placeholder="Password">
                     <br>
                     <br>
-                    {% for message in messages %}
-                        <p class="error"> {{message}} </p>
-                    {% endfor %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                                <div class="alert alert-success" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                     <input class="special" type="Submit">
             </form>
         </div>

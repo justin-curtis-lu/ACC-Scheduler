@@ -7,7 +7,7 @@ from django.conf import settings
 # App imports
 from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys, send_emails, read_survey_data,\
     generate_v_days
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, AuthenticationForm, KeyForm
 from .models import Senior, Volunteer, Appointment, Day
 # External imports
 import requests
@@ -29,18 +29,34 @@ def console(request):
 
 
 def login(request):
-    """View for the login page"""
+    """View for the login page
+    (uses Django's built-in AuthenticationForm)"""
+    form = AuthenticationForm()
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = auth.authenticate(username=username, password=password)
-        if user is not None:
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             auth.login(request, user)
+            # Syncing with Galaxy
+            url = 'https://api2.galaxydigital.com/volunteer/user/list/'
+            headers = {'Accept': 'scheduling_application/json'}
+            params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}  # will need to include tags
+            response = requests.get(url, headers=headers, params=params)
+            vol_data = response.json()
+            print(vol_data)
+            check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+            try:
+                sync_galaxy(vol_data, check_list)
+            except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT -> GIVES CSRF TOKEN ERROR
+                pass
             return redirect('console')
         else:
-            messages.info(request, 'invalid credentials')
+            messages.error(request, 'invalid credentials')
             return redirect('login')
-    return render(request, 'scheduling_application/authentication_general/login.html', {})
+    context = {
+        'form': form,
+    }
+    return render(request, 'scheduling_application/authentication_general/login.html', context)
 
 
 def logout(request):
@@ -61,23 +77,29 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegisterForm()
-    return render(request, 'scheduling_application/authentication_general/register.html', {'form': form})
+    context = {
+        'form': form,
+    }
+    return render(request, 'scheduling_application/authentication_general/register.html', context)
 
 
 def keys(request):
     """View which requires valid keys in order
     to create a middle man account (keys stored in .env)"""
+    form = KeyForm()
     if request.method == 'POST':
-        key1 = request.POST['key1']
-        key2 = request.POST['key2']
-        key3 = request.POST['key3']
+        form = KeyForm(request.POST)
+        if form.is_valid():
+            key1 = form.cleaned_data.get('key1')
+            key2 = form.cleaned_data.get('key2')
+            key3 = form.cleaned_data.get('key3')
         if key1 == settings.KEY1 and key2 == settings.KEY2 and key3 == settings.KEY3:
             return redirect('register')
         else:
-            messages.info(request, 'invalid credentials')
-            return render(request, 'scheduling_application/authentication_general/keys.html', {})
+            messages.error(request, 'invalid keys')
+            return render(request, 'scheduling_application/authentication_general/keys.html', {'form': form})
     else:
-        return render(request, 'scheduling_application/authentication_general/keys.html', {})
+        return render(request, 'scheduling_application/authentication_general/keys.html', {'form': form})
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
@@ -255,7 +277,7 @@ def volunteer_page(request, pk):
 def galaxy_update_volunteers(request):
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
-    if request.GET.get("galaxy_update_volunteers"):
+    if request.GET.get("sync_GalaxyDigital"):     # CHANGE TO NAME TO SYNC_GALAXY
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
         params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
@@ -264,7 +286,6 @@ def galaxy_update_volunteers(request):
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
         sync_galaxy(vol_data, check_list)
     return redirect('console')
-
 
 def make_appointment(request):
     """View for the page where users can schedule an appointment.
