@@ -7,6 +7,7 @@ def get_day(date):
     born = datetime.date(year, month, day)
     return born.strftime("%A").lower()
 
+
 # Function to check if minor or not if minor return true else return false
 def check_age(dob):
     dob_list = dob.split("/")

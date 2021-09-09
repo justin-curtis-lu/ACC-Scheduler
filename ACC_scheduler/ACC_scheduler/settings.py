@@ -23,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-fq$j=d(9qb+r4pj_c#+tt4h&u$$p(@97ql-9ggt43umto240k4'
+# MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

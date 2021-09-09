@@ -102,7 +102,7 @@ def update_minors(potential_list):
             set_minor.save()
 
 
-def send_emails(potential_list, selected_volunteers, senior, appointment, domain):
+def send_emails(potential_list, selected_volunteers, senior, appointment, domain, appointment_id):
     callers = []
     flag = False
     for i in potential_list:
@@ -111,7 +111,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
             if i['notify_email']:
                 token = get_random_string(length=32)
                 activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
-                    'email'] + "&token=" + token
+                    'email'] + "&token=" + token + "&appointment_id=" + str(appointment_id)
                 email_subject = 'Volunteer Appointment Confirmation'
                 email_message = f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests ' \
                                 f'a buddy! Based on your availability, you would be a perfect match!\n' + \
