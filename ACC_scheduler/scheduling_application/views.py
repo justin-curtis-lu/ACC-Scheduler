@@ -287,29 +287,15 @@ def make_appointment(request):
     }
     if request.method == 'POST':
         senior = request.POST['senior']
-        start_address = request.POST['start_address']
-        end_address = request.POST['end_address']
-        purpose_of_trip = request.POST['purpose_of_trip']
-        additional_notes = request.POST['notes']
         day_time = request.POST['day_time'].split()
-        senior_id = Senior.objects.get(id=senior)
         day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
         potential_list = find_matches(check_list, day_of_month, day_time)
         if not potential_list:
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
-        # appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
-        #                                          , end_address=end_address
-        #                                          , date_and_time=day_time[0] + " " + day_time[1]
-        #                                          , purpose_of_trip=purpose_of_trip, notes=additional_notes)
-        # request.session['appointment'] = appointment.id
-        # request.session['potential_list'] = list(potential_list)
+        request.session['potential_list'] = list(potential_list)
         request.session['senior'] = senior
-        request.session['start_address'] = start_address
-        request.session['end_address'] = end_address
-        request.session['purpose_of_trip'] = purpose_of_trip
-        request.session['additional_notes'] = additional_notes
         request.session['day_time'] = day_time
         return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
@@ -320,14 +306,20 @@ def confirm_volunteers(request):
     potential_list = request.session['potential_list']
     senior_id = Senior.objects.get(id=request.session['senior'])
     context = {
-        'potential_list': potential_list
+        'potential_list': potential_list,
+        'date_time': request.session['day_time'][0],
+        'senior': request.session['senior'][0]
     }
     update_minors(potential_list)
     if request.method == 'POST':
-        appointment = Appointment.objects.create(senior=senior_id, start_address=request.session['start_address']
-                                                 , end_address=request.session['end_address']
+        start_address = request.POST['start_address']
+        end_address = request.POST['end_address']
+        purpose_of_trip = request.POST['purpose_of_trip']
+        additional_notes = request.POST['notes']
+        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
+                                                 , end_address=end_address
                                                  , date_and_time=request.session['day_time'][0] + " " + request.session['day_time'][1]
-                                                 , purpose_of_trip=request.session['purpose_of_trip'], notes=request.session['additional_notes'])
+                                                 , purpose_of_trip=purpose_of_trip, notes=additional_notes)
         selected_volunteers = request.POST
         domain = get_current_site(request).domain
         appointment = Appointment.objects.filter(id=appointment.id, volunteer=None).values()

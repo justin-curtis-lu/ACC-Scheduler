@@ -14,6 +14,7 @@
 
     {% if potential_list %}
         <p><b> Confirm Volunteers </b> </p>
+    <p> for {{senior}} at {{date_time}} </p>
     <form method='POST' action=''>
         {% csrf_token %}
             {% for volunteer in potential_list %}
@@ -21,6 +22,10 @@
                 <label for={{volunteer.id}}>{{volunteer.first_name}} {{volunteer.last_name}} {% if volunteer.minor %} (minor) {% endif %}</label>
             {% endfor %}
         <br>
+            <p><b>Starting Address</b></p><input type="text" name="start_address"><br>
+            <p><b>Destination</b></p><input type="text" name="end_address"><br>
+            <p><b>Purpose of Trip</b></p><input type="text" name="purpose_of_trip"><br>
+            <p><b>Additional Notes</b></p><input type="text" name="notes"><br><br>
             <input type="Submit" name="select_volunteers">
     {% endif %}
         <br>
