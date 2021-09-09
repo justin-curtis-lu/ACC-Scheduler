@@ -270,7 +270,11 @@ def galaxy_update_volunteers(request):
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        sync_galaxy(vol_data, check_list)
+        try:
+            sync_galaxy(vol_data, check_list)
+            messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
+        except:
+            messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return redirect('console')
 
 
