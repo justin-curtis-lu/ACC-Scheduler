@@ -8,7 +8,7 @@ from django.conf import settings
 from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
     send_emails, read_survey_data, generate_v_days
 from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, LoginForm, KeyForm
-from .models import Senior, Volunteer, Appointment, Day
+from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
 import requests
 from datetime import datetime
@@ -25,9 +25,13 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
+    month_integer = SurveyStatus.objects.get(survey_id=1).month
+    datetime_object = datetime.strptime(str(month_integer), "%m")
+    full_month_name = datetime_object.strftime("%B")
     context = {
         'vol_count': Volunteer.objects.count(),
         'sen_count': Senior.objects.count(),
+        'month': full_month_name
     }
     return render(request, 'scheduling_application/authentication_general/console.html', context)
 
@@ -79,7 +83,6 @@ def keys(request):
     creation of a middle man account (keys stored in .env)"""
     if request.method == 'GET':
         if request.GET.get('token') == settings.KEY1:
-            # http://127.0.0.1:8000/keys/?token=key
             return redirect('register')
         else:
             return render(request, 'scheduling_application/bad_link.html')
@@ -282,7 +285,7 @@ def make_appointment(request):
         'volunteers_list': volunteers_list[:5]
     }
     if request.method == 'POST':
-        senior = request.POST['senior']
+        senior_id = request.POST['senior_id']
         day_time = request.POST['day_time'].split()
         day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
@@ -291,7 +294,7 @@ def make_appointment(request):
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
         request.session['potential_list'] = list(potential_list)
-        request.session['senior'] = senior
+        request.session['senior'] = senior_id
         request.session['day_time'] = day_time
         return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
@@ -300,11 +303,11 @@ def make_appointment(request):
 def confirm_volunteers(request):
     """View for page to confirm which volunteers to send emails to. (Follows make_appointment)"""
     potential_list = request.session['potential_list']
-    senior_id = Senior.objects.get(id=request.session['senior'])
+    senior = Senior.objects.get(id=request.session['senior'])
     context = {
         'potential_list': potential_list,
         'date_time': request.session['day_time'][0],
-        'senior': request.session['senior'][0]
+        'senior': senior
     }
     update_minors(potential_list)
     if request.method == 'POST':
@@ -312,7 +315,7 @@ def confirm_volunteers(request):
         end_address = request.POST['end_address']
         purpose_of_trip = request.POST['purpose_of_trip']
         additional_notes = request.POST['notes']
-        appointment = Appointment.objects.create(senior=senior_id, start_address=start_address
+        appointment = Appointment.objects.create(senior=senior, start_address=start_address
                                                  , end_address=end_address
                                                  , date_and_time=request.session['day_time'][0] + " " + request.session['day_time'][1]
                                                  , purpose_of_trip=purpose_of_trip, notes=additional_notes)

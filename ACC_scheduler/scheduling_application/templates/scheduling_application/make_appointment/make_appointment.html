@@ -37,7 +37,7 @@
 <form method='POST' action=''>
     {% csrf_token %}
     <div class="col col-lg-2 center">
-        <select class="form-control" id="senior" name='senior'>
+        <select class="form-control" id="senior" name='senior_id'>
             {% for senior in seniors_list %}
                 <option value='{{ senior.id }}'>{{ senior.full_name }}</option>
             {% endfor %}
