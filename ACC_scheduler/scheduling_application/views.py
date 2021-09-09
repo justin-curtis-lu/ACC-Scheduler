@@ -71,22 +71,14 @@ def register(request):
 
 
 def keys(request):
-    """View which requires valid keys in order
-    to create a middle man account (keys stored in .env)"""
-    if request.method == 'POST':
-        form = KeyForm(request.POST)
-        if form.is_valid():
-            key1 = form.cleaned_data['key1']
-            key2 = form.cleaned_data['key2']
-            key3 = form.cleaned_data['key3']
-            if key1 == settings.KEY1 and key2 == settings.KEY2 and key3 == settings.KEY3:
-                return redirect('register')
-            else:
-                messages.info(request, 'invalid credentials')
-                return redirect('keys')
-    else:
-        form = KeyForm()
-    return render(request, 'scheduling_application/authentication_general/keys.html', {'form': form})
+    """View which reads for a valid link that allows
+    creation of a middle man account (keys stored in .env)"""
+    if request.method == 'GET':
+        if request.GET.get('token') == settings.KEY1:
+            # http://127.0.0.1:8000/keys/?token=key
+            return redirect('register')
+        else:
+            return render(request, 'scheduling_application/bad_link.html')
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
