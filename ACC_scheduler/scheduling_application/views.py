@@ -35,13 +35,13 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    month_integer = SurveyStatus.objects.get(survey_id=1).month
-    datetime_object = datetime.strptime(str(month_integer), "%m")
-    full_month_name = datetime_object.strftime("%B")
+    # month_integer = SurveyStatus.objects.get(survey_id=1).month
+    # datetime_object = datetime.strptime(str(month_integer), "%m")
+    # full_month_name = datetime_object.strftime("%B")
     context = {
         'vol_count': Volunteer.objects.count(),
         'sen_count': Senior.objects.count(),
-        'month': full_month_name
+        # 'month': full_month_name
     }
     return render(request, 'scheduling_application/authentication_general/console.html', context)
 
@@ -265,7 +265,7 @@ def edit_volunteer(request, pk):
     volunteer = Volunteer.objects.get(id=pk)
     data = {'galaxy_id': volunteer.galaxy_id, 'last_name': volunteer.last_name, 'first_name': volunteer.first_name, 'phone': volunteer.phone, 'email': volunteer.email, 'dob': volunteer.dob,
             'vaccinated': volunteer.vaccinated,'notify_email': volunteer.notify_email, 'notify_text': volunteer.notify_text, 'notify_call': volunteer.notify_call,
-            'current_appointments': volunteer.current_appointments, 'additional_notes': volunteer.additional_notes, 'unsubscribed': volunteer.unsubscribed}
+            'current_appointments': volunteer.Appointments.all(), 'additional_notes': volunteer.additional_notes, 'unsubscribed': volunteer.unsubscribed}
     form = VolunteerForm(initial=data)
     if request.method == 'POST':
         form = VolunteerForm(request.POST, instance=volunteer)
@@ -279,7 +279,10 @@ def edit_volunteer(request, pk):
 
 
 def view_availability(request, pk):
-    DayFormSet, volunteer, formset, current_month = generate_v_days(pk)
+    dt = datetime.today()
+    curr_month = dt.month
+    curr_year = dt.year
+    DayFormSet, volunteer, formset, current_month = generate_v_days(pk, curr_month, curr_year)
     if request.method == "POST":
         formset = DayFormSet(request.POST)
         if formset.is_valid():
@@ -337,20 +340,18 @@ def make_appointment(request):
     volunteers_list = Volunteer.objects.all()
     if request.method == 'POST':
         senior_id = request.POST['senior_id']
-        try:
-            day_time = request.POST['day_time'].split()
-            day_of_month = int(day_time[0].split('/')[1])
-        except IndexError:
-            messages.error(request, "Please input date and time in the format 'MM/DD/YYYY XX:XX-YY:YY'.")
-            return redirect('make_appointment')
-        check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
-        potential_list = find_matches(check_list, day_of_month, day_time)
+        date = request.POST['date']
+        time_period = request.POST['start_time'] + '-' + request.POST['end_time']
+        # day_of_month = int(day_time[0].split('/')[1])
+        check_list = Day.objects.filter(date=date).values_list("volunteer", flat=True)
+        potential_list = find_matches(check_list, date, time_period)
         if not potential_list:
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
         request.session['potential_list'] = list(potential_list)
         request.session['senior'] = senior_id
-        request.session['day_time'] = day_time
+        request.session['date'] = date
+        request.session['time_period'] = time_period
         return redirect('confirm_volunteers')
     context = {
         'seniors_list': seniors_list[:5],
@@ -365,7 +366,7 @@ def confirm_volunteers(request):
     senior = Senior.objects.get(id=request.session['senior'])
     context = {
         'potential_list': potential_list,
-        'date_time': request.session['day_time'][0],
+        'date': request.session['date'],
         'senior': senior
     }
     update_minors(potential_list)
@@ -376,7 +377,7 @@ def confirm_volunteers(request):
         additional_notes = request.POST['notes']
         appointment = Appointment.objects.create(senior=senior, start_address=start_address
                                                  , end_address=end_address
-                                                 , date_and_time=request.session['day_time'][0] + " " + request.session['day_time'][1]
+                                                 , date_and_time=request.session['date'] + " " + request.session['time_period']
                                                  , purpose_of_trip=purpose_of_trip, notes=additional_notes)
         selected_volunteers = request.POST
         domain = get_current_site(request).domain
@@ -425,11 +426,11 @@ def vol_already_selected(request):
 def send_survey(request):
     """View for middle man to send the monthly surveys"""
     if request.GET.get('send_survey'):
-        sent_status, curr_month = send_monthly_surveys(request)
+        sent_status, survey_month = send_monthly_surveys(request)
         if sent_status:
-            messages.success(request, f'Successfully sent surveys for the month of {curr_month}.')
+            messages.success(request, f'Successfully sent surveys for the month of {survey_month}.')
         else:
-            messages.warning(request, f'You have already sent surveys for the month of {curr_month}.')
+            messages.warning(request, f'You have already sent surveys for the month of {survey_month}.')
     return redirect('pre_send_survey')
 
 
@@ -445,11 +446,13 @@ def survey_page(request):
         request.session['vol_id'] = request.GET.get('id')
         request.session['vol_email'] = request.GET.get('email')
         request.session['vol_token'] = request.GET.get('token')
+        request.session['survey_month'] = request.GET.get('month')
+        request.session['survey_year'] = request.GET.get('year')
         vol_id = request.session['vol_id']
         vol_token = request.session['vol_token']
         volunteer = Volunteer.objects.get(id=vol_id)
-        current_month = datetime.now().strftime('%m')
-        date = {'month': current_month}
+        month = request.session['survey_month']
+        date = {'month': month}
         # Validate the token inside of the URL
         if vol_token != volunteer.survey_token:
             return render(request, "scheduling_application/bad_link.html", {})
@@ -482,6 +485,18 @@ def survey_page(request):
         vol_id = request.session['vol_id']
         option_list = request.POST.getlist('survey-value')
         volunteer = Volunteer.objects.get(id=vol_id)
-        volunteer.Days.filter(volunteer=volunteer).delete()
-        read_survey_data(option_list, volunteer)
+        for i in range(1, 32):
+            if int(request.session['survey_month']) < 10:
+                month_string = "0" + request.session['survey_month']
+            else:
+                month_string = request.session['survey_month']
+            if i < 10:
+                day = "0" + str(i)
+            else:
+                day = str(i)
+            date = month_string + "/" + day + "/" + request.session['survey_year']
+            print("DAY")
+            print(volunteer.Days.filter(volunteer=volunteer).filter(date=date))
+            volunteer.Days.filter(volunteer=volunteer).filter(date=date).delete()
+        read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})

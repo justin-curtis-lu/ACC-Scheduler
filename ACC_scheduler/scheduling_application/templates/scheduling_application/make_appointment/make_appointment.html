@@ -44,7 +44,32 @@
         </select>
     </div>
     <br>
-    <p><b>Date and Time</b></p><input type="text" name="day_time" required><br>
+    <script src="../../static/jquery.datetimepicker.full.min.js"></script>
+    <p><b>Date</b></p><input type="text" id="date_picker" name="date" required><br>
+    <p><b>Start Time</b></p><input type="text" id="start_picker" name="start_time" required><br>
+    <p><b>End Time</b></p><input type="text" id="end_picker" name="end_time" required><br>
+    <script>
+        $('#date_picker').datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+        })
+        $('#start_picker').datetimepicker({
+            datepicker: false,
+            format: 'H:i',
+            allowTimes:[
+            '9:00', '9:30', '10:00', '10:30', '11:00',
+            '11:30', '12:00', '12:30', '13:00', '13:30', '14:00'
+            ]
+        })
+        $('#end_picker').datetimepicker({
+            datepicker: false,
+            format: 'H:i',
+            allowTimes:[
+            '9:00', '9:30', '10:00', '10:30', '11:00',
+            '11:30', '12:00', '12:30', '13:00', '13:30', '14:00'
+            ]
+        })
+    </script>
     <br>
     <input type="Submit" name="select_senior">
 </form>

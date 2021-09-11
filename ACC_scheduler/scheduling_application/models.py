@@ -40,7 +40,6 @@ class Volunteer(models.Model):
     notify_email = models.BooleanField(default=False)
     notify_text = models.BooleanField(default=False)
     notify_call = models.BooleanField(default=False)
-    current_appointments = models.JSONField(default=dict, editable=False)
     additional_notes = models.TextField(default=None, null=True, blank=True)
     survey_token = models.CharField(default=None, max_length=32, null=True, blank=True)
     unsubscribed = models.BooleanField(default=False)
@@ -60,7 +59,7 @@ class Volunteer(models.Model):
 
 class Day(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="Days", blank=True, null=True)
-    day_of_month = models.IntegerField(default=None, null=True)
+    date = models.CharField(default=None, max_length=10, null=True)
     _9_10 = models.BooleanField(default=False)
     _10_11 = models.BooleanField(default=False)
     _11_12 = models.BooleanField(default=False)
@@ -71,6 +70,7 @@ class Day(models.Model):
 
 class SurveyStatus(models.Model):
     month = models.IntegerField(null=True)
+    year = models.IntegerField(null=True)
     sent = models.BooleanField(default=False)
     survey_id = models.IntegerField(null=True)
 
