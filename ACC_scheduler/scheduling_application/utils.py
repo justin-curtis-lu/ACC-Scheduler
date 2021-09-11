@@ -286,18 +286,20 @@ def read_survey_data(option_list, volunteer, month, year):
             day.save()
 
 
-def generate_v_days(pk, curr_month, curr_year):
+def generate_v_days(pk, month, curr_year):
     volunteer = Volunteer.objects.get(id=pk)
     print(volunteer)
     print(volunteer.Days.all().count())
-    if curr_month < 10:
-        curr_month = '0' + str(curr_month)
+    if month < 10:
+        month = '0' + str(month)
     else:
-        curr_month = str(curr_month)
+        month = str(month)
     curr_year = str(curr_year)
+    print(month)
+    print(curr_year)
+    print()
     try:
-        day1 = volunteer.Days.get(date=curr_month + '/' + '01' + '/' + curr_year)
-        print("COORECT")
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
     except Day.DoesNotExist:
         for i in range(1, 32):
             if i < 10:
@@ -306,39 +308,39 @@ def generate_v_days(pk, curr_month, curr_year):
                 day = str(i)
             print(day)
             Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                               date=curr_month + '/' + day + '/' + curr_year, volunteer=volunteer)
-        day1 = volunteer.Days.get(date=curr_month + '/' + '01' + '/' + curr_year)
-    day1 = volunteer.Days.get(date=curr_month + '/' + '01' + '/' + curr_year)
-    day2 = volunteer.Days.get(date=curr_month + '/' + '02' + '/' + curr_year)
-    day3 = volunteer.Days.get(date=curr_month + '/' + '03' + '/' + curr_year)
-    day4 = volunteer.Days.get(date=curr_month + '/' + '04' + '/' + curr_year)
-    day5 = volunteer.Days.get(date=curr_month + '/' + '05' + '/' + curr_year)
-    day6 = volunteer.Days.get(date=curr_month + '/' + '06' + '/' + curr_year)
-    day7 = volunteer.Days.get(date=curr_month + '/' + '07' + '/' + curr_year)
-    day8 = volunteer.Days.get(date=curr_month + '/' + '08' + '/' + curr_year)
-    day9 = volunteer.Days.get(date=curr_month + '/' + '09' + '/' + curr_year)
-    day10 = volunteer.Days.get(date=curr_month + '/' + '10' + '/' + curr_year)
-    day11 = volunteer.Days.get(date=curr_month + '/' + '11' + '/' + curr_year)
-    day12 = volunteer.Days.get(date=curr_month + '/' + '12' + '/' + curr_year)
-    day13 = volunteer.Days.get(date=curr_month + '/' + '13' + '/' + curr_year)
-    day14 = volunteer.Days.get(date=curr_month + '/' + '14' + '/' + curr_year)
-    day15 = volunteer.Days.get(date=curr_month + '/' + '15' + '/' + curr_year)
-    day16 = volunteer.Days.get(date=curr_month + '/' + '16' + '/' + curr_year)
-    day17 = volunteer.Days.get(date=curr_month + '/' + '17' + '/' + curr_year)
-    day18 = volunteer.Days.get(date=curr_month + '/' + '18' + '/' + curr_year)
-    day19 = volunteer.Days.get(date=curr_month + '/' + '19' + '/' + curr_year)
-    day20 = volunteer.Days.get(date=curr_month + '/' + '20' + '/' + curr_year)
-    day21 = volunteer.Days.get(date=curr_month + '/' + '21' + '/' + curr_year)
-    day22 = volunteer.Days.get(date=curr_month + '/' + '22' + '/' + curr_year)
-    day23 = volunteer.Days.get(date=curr_month + '/' + '23' + '/' + curr_year)
-    day24 = volunteer.Days.get(date=curr_month + '/' + '24' + '/' + curr_year)
-    day25 = volunteer.Days.get(date=curr_month + '/' + '25' + '/' + curr_year)
-    day26 = volunteer.Days.get(date=curr_month + '/' + '26' + '/' + curr_year)
-    day27 = volunteer.Days.get(date=curr_month + '/' + '27' + '/' + curr_year)
-    day28 = volunteer.Days.get(date=curr_month + '/' + '28' + '/' + curr_year)
-    day29 = volunteer.Days.get(date=curr_month + '/' + '29' + '/' + curr_year)
-    day30 = volunteer.Days.get(date=curr_month + '/' + '30' + '/' + curr_year)
-    day31 = volunteer.Days.get(date=curr_month + '/' + '31' + '/' + curr_year)
+                               date=month + '/' + day + '/' + curr_year, volunteer=volunteer)
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
+    day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
+    day2 = volunteer.Days.get(date=month + '/' + '02' + '/' + curr_year)
+    day3 = volunteer.Days.get(date=month + '/' + '03' + '/' + curr_year)
+    day4 = volunteer.Days.get(date=month + '/' + '04' + '/' + curr_year)
+    day5 = volunteer.Days.get(date=month + '/' + '05' + '/' + curr_year)
+    day6 = volunteer.Days.get(date=month + '/' + '06' + '/' + curr_year)
+    day7 = volunteer.Days.get(date=month + '/' + '07' + '/' + curr_year)
+    day8 = volunteer.Days.get(date=month + '/' + '08' + '/' + curr_year)
+    day9 = volunteer.Days.get(date=month + '/' + '09' + '/' + curr_year)
+    day10 = volunteer.Days.get(date=month + '/' + '10' + '/' + curr_year)
+    day11 = volunteer.Days.get(date=month + '/' + '11' + '/' + curr_year)
+    day12 = volunteer.Days.get(date=month + '/' + '12' + '/' + curr_year)
+    day13 = volunteer.Days.get(date=month + '/' + '13' + '/' + curr_year)
+    day14 = volunteer.Days.get(date=month + '/' + '14' + '/' + curr_year)
+    day15 = volunteer.Days.get(date=month + '/' + '15' + '/' + curr_year)
+    day16 = volunteer.Days.get(date=month + '/' + '16' + '/' + curr_year)
+    day17 = volunteer.Days.get(date=month + '/' + '17' + '/' + curr_year)
+    day18 = volunteer.Days.get(date=month + '/' + '18' + '/' + curr_year)
+    day19 = volunteer.Days.get(date=month + '/' + '19' + '/' + curr_year)
+    day20 = volunteer.Days.get(date=month + '/' + '20' + '/' + curr_year)
+    day21 = volunteer.Days.get(date=month + '/' + '21' + '/' + curr_year)
+    day22 = volunteer.Days.get(date=month + '/' + '22' + '/' + curr_year)
+    day23 = volunteer.Days.get(date=month + '/' + '23' + '/' + curr_year)
+    day24 = volunteer.Days.get(date=month + '/' + '24' + '/' + curr_year)
+    day25 = volunteer.Days.get(date=month + '/' + '25' + '/' + curr_year)
+    day26 = volunteer.Days.get(date=month + '/' + '26' + '/' + curr_year)
+    day27 = volunteer.Days.get(date=month + '/' + '27' + '/' + curr_year)
+    day28 = volunteer.Days.get(date=month + '/' + '28' + '/' + curr_year)
+    day29 = volunteer.Days.get(date=month + '/' + '29' + '/' + curr_year)
+    day30 = volunteer.Days.get(date=month + '/' + '30' + '/' + curr_year)
+    day31 = volunteer.Days.get(date=month + '/' + '31' + '/' + curr_year)
 
     data1 = {'_9_10': day1._9_10, '_10_11': day1._10_11, '_11_12': day1._11_12, '_12_1': day1._12_1, '_1_2': day1._1_2,
              'all': day1.all}
@@ -425,13 +427,13 @@ def generate_v_days(pk, curr_month, curr_year):
               '_1_2': day31._1_2,
               'all': day31.all}
 
-    current_month = datetime.now().strftime('%m')
+    # current_month = datetime.now().strftime('%m')
     DayFormSet = modelformset_factory(Day, DayForm, fields=('_9_10', '_10_11', '_11_12', '_12_1', '_1_2', 'all'),
                                       extra=31, max_num=31)
-    regex = r'((' + curr_month + r')[/]\d\d[/](' + curr_year + r'))'
+    regex = r'((' + month + r')[/]\d\d[/](' + curr_year + r'))'
     formset = DayFormSet(initial=[data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12,
                                   data13, data14, data15, data16, data17, data18, data19, data20, data21, data22,
                                   data23,
                                   data24, data25, data26, data27, data28, data29, data30, data31],
                          queryset=volunteer.Days.all().filter(date__regex=regex))
-    return DayFormSet, volunteer, formset, current_month
+    return DayFormSet, volunteer, formset, month

@@ -298,6 +298,30 @@ def view_availability(request, pk):
     }
     return render(request, "scheduling_application/volunteers/view_availability.html", context)
 
+def view_next_availability(request, pk):
+    dt = datetime.today()
+    next_month = dt.month + 1
+    curr_year = dt.year
+    if next_month == 13:
+        next_month = 1
+        curr_year = dt.year + 1
+    DayFormSet, volunteer, formset, next_month = generate_v_days(pk, next_month, curr_year)
+    if request.method == 'POST':
+        formset = DayFormSet(request.POST)
+        if formset.is_valid():
+            formset.save()
+        else:
+            print(formset.errors)
+        return redirect('volunteer_page', pk)
+
+    context = {
+        'volunteer': volunteer,
+        'formset': formset,
+        'current_month': next_month,
+    }
+    return render(request, "scheduling_application/volunteers/view_next_availability.html", context)
+
+
 
 def volunteer_page(request, pk):
     """View for volunteer profile page"""
