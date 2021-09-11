@@ -5,17 +5,6 @@ from django.forms import ModelForm
 from .models import Senior, Volunteer, Day, Appointment
 
 
-class LoginForm(forms.Form):
-    username = forms.CharField(label='username', max_length=100)
-    password = forms.CharField(label='password', max_length=100)
-
-
-class KeyForm(forms.Form):
-    key1 = forms.CharField(label='key1', max_length=100)
-    key2 = forms.CharField(label='key2', max_length=100)
-    key3 = forms.CharField(label='key3', max_length=100)
-
-
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=False)
 

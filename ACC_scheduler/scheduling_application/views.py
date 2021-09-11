@@ -13,6 +13,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.db.models.query_utils import Q
+from django.utils.datastructures import MultiValueDictKeyError
 # App imports
 from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
     send_emails, read_survey_data, generate_v_days
@@ -334,14 +335,14 @@ def make_appointment(request):
        Allows users to choose a senior and day then continue."""
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
-    context = {
-        'seniors_list': seniors_list[:5],
-        'volunteers_list': volunteers_list[:5]
-    }
     if request.method == 'POST':
         senior_id = request.POST['senior_id']
-        day_time = request.POST['day_time'].split()
-        day_of_month = int(day_time[0].split('/')[1])
+        try:
+            day_time = request.POST['day_time'].split()
+            day_of_month = int(day_time[0].split('/')[1])
+        except IndexError:
+            messages.error(request, "Please input date and time in the format 'MM/DD/YYYY XX:XX-YY:YY'.")
+            return redirect('make_appointment')
         check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
         potential_list = find_matches(check_list, day_of_month, day_time)
         if not potential_list:
@@ -351,6 +352,10 @@ def make_appointment(request):
         request.session['senior'] = senior_id
         request.session['day_time'] = day_time
         return redirect('confirm_volunteers')
+    context = {
+        'seniors_list': seniors_list[:5],
+        'volunteers_list': volunteers_list[:5]
+    }
     return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
 
 

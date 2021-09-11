@@ -37,18 +37,17 @@
 <form method='POST' action=''>
     {% csrf_token %}
     <div class="col col-lg-2 center">
-        <select class="form-control" id="senior" name='senior_id'>
+        <select class="form-control" id="senior" name='senior_id' required>
             {% for senior in seniors_list %}
                 <option value='{{ senior.id }}'>{{ senior.full_name }}</option>
             {% endfor %}
         </select>
     </div>
     <br>
-    <p><b>Date and Time</b></p><input type="text" name="day_time"><br>
+    <p><b>Date and Time</b></p><input type="text" name="day_time" required><br>
     <br>
     <input type="Submit" name="select_senior">
 </form>
-
     <br>
     <br>
 <a href="{% url 'console' %}"><button>Return to main page</button></a>
