@@ -59,7 +59,7 @@ class Volunteer(models.Model):
 
 class Day(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="Days", blank=True, null=True)
-    day_of_month = models.IntegerField(default=None, null=True)
+    date = models.CharField(default=None, max_length=10, null=True)
     _9_10 = models.BooleanField(default=False)
     _10_11 = models.BooleanField(default=False)
     _11_12 = models.BooleanField(default=False)
@@ -70,6 +70,7 @@ class Day(models.Model):
 
 class SurveyStatus(models.Model):
     month = models.IntegerField(null=True)
+    year = models.IntegerField(null=True)
     sent = models.BooleanField(default=False)
     survey_id = models.IntegerField(null=True)
 
