@@ -288,16 +288,11 @@ def read_survey_data(option_list, volunteer, month, year):
 
 def generate_v_days(pk, month, curr_year):
     volunteer = Volunteer.objects.get(id=pk)
-    print(volunteer)
-    print(volunteer.Days.all().count())
     if month < 10:
         month = '0' + str(month)
     else:
         month = str(month)
     curr_year = str(curr_year)
-    print(month)
-    print(curr_year)
-    print()
     try:
         day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
     except Day.DoesNotExist:
@@ -306,7 +301,6 @@ def generate_v_days(pk, month, curr_year):
                 day = '0' + str(i)
             else:
                 day = str(i)
-            print(day)
             Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
                                date=month + '/' + day + '/' + curr_year, volunteer=volunteer)
         day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
