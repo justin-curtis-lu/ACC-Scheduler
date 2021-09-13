@@ -407,14 +407,18 @@ def confirm_volunteers(request):
         domain = get_current_site(request).domain
         appointment = Appointment.objects.filter(id=appointment.id, volunteer=None).values()
         senior = Senior.objects.filter(id=appointment[0]['senior_id']).values()
-        callers, sent_flag = send_emails(potential_list, selected_volunteers, senior, appointment, domain, appointment[0]['id'])
+        callers, sent_flag, invalid_emails, invalid_phone = send_emails(potential_list, selected_volunteers, senior, appointment, domain, appointment[0]['id'])
         if sent_flag:
             if callers:
                 messages.success(request, f'Emails/texts sent successfully! '
-                                          f'Please manually call the following volunteers{callers}')
+                                          f'Please manually call the following volunteers {callers}')
             else:
                 messages.success(request,
                                  f'Emails/texts successfully sent to volunteers!')
+            if len(invalid_emails) != 0:
+                messages.error(request, f'Emails have not been sent to the following volunteers as their emails are invalid {invalid_emails}')
+            if len(invalid_phone) != 0:
+                messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
             return redirect('confirm_volunteers')
     return render(request, 'scheduling_application/make_appointment/confirm_v.html', context)
 
@@ -450,9 +454,13 @@ def vol_already_selected(request):
 def send_survey(request):
     """View for middle man to send the monthly surveys"""
     if request.GET.get('send_survey'):
-        sent_status, survey_month = send_monthly_surveys(request)
+        sent_status, survey_month, invalid_emails, invalid_phone = send_monthly_surveys(request)
         if sent_status:
             messages.success(request, f'Successfully sent surveys for the month of {survey_month}.')
+            if len(invalid_emails) != 0:
+                messages.error(request, f'Emails have not been sent to the following volunteers as their emails are invalid {invalid_emails}')
+            if len(invalid_phone) != 0:
+                messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
         else:
             messages.warning(request, f'You have already sent surveys for the month of {survey_month}.')
     return redirect('pre_send_survey')

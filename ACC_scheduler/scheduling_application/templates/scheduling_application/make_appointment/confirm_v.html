@@ -3,18 +3,22 @@
 <div class="center">
 
     {% if messages %}
-    {% for message in messages %}
-    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-    <div class="alert alert-success" role="alert">
-        {{ message }}
-    </div>
-    {% endif %}
-    {% endfor %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
     {% endif %}
 
     {% if potential_list %}
-        <p><b> Confirm Volunteers </b> </p>
-    <p> for {{senior}} at {{date}} </p>
+        <p>Confirm Volunteers for <b>{{senior}} at {{date}}</b></p>
         <form method='POST' action=''>
         {% csrf_token %}
         <table id="volunteerTable" class="table table-striped table-bordered table-sm">
@@ -55,11 +59,6 @@
     <br>
     </form>
     {% endif %}
-    <br>
-    <br>
-    <a href="{% url 'make_appointment' %}"><button>back</button></a>
-    <br>
-    <br>
-    <a href="{% url 'console' %}"><button>Return to main page</button></a>
+    <a href="{% url 'make_appointment' %}"><button>Back</button></a>
 </div>
 {% endblock %}

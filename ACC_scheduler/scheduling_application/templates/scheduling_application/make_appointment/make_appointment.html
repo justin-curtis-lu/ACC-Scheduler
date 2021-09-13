@@ -33,22 +33,56 @@
 {% endif %}
 <br>
 
-<p><b> Schedule an Appointment </b> </p>
+<p><b> Schedule an Appointment </b></p>
 <form method='POST' action=''>
     {% csrf_token %}
-    <div class="col col-lg-2 center">
-        <select class="form-control" id="senior" name='senior_id' required>
-            {% for senior in seniors_list %}
-                <option value='{{ senior.id }}'>{{ senior.full_name }}</option>
+    <table id="seniorTable" class="table table-striped table-bordered table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Email</th>
+                <th scope="col">Additional Notes</th>
+                <th scope="col">Notify by Email</th>
+                <th scope="col">Notify by Text</th>
+                <th scope="col">Notify by Call</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in seniors_list %}
+            <tr>
+                <td>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="senior_id" value="{{ item.id }}" />
+                        <a href="#" class="special_field_link">{{ item.full_name }}</a>
+                    </form>
+                </td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.additional_notes }}</td>
+                <td>{{ item.notify_email }}</td>
+                <td>{{ item.notify_call }}</td>
+                <td>{{ item.notify_text }}</td>
+            </tr>
             {% endfor %}
-        </select>
-    </div>
+        </tbody>
+    </table>
     <br>
     <script src="../../static/jquery.datetimepicker.full.min.js"></script>
-    <p><b>Date</b></p><input type="text" id="date_picker" name="date" required><br>
-    <p><b>Start Time</b></p><input type="text" id="start_picker" name="start_time" required><br>
-    <p><b>End Time</b></p><input type="text" id="end_picker" name="end_time" required><br>
+    <p><b>Participant</b></p><input id="senior_name" type="text" name="senior_name" autocomplete="off" required><br>
+    <p><b>Date</b></p><input type="text" id="date_picker" name="date" autocomplete="off" required><br>
+    <p><b>Start Time</b></p><input type="text" id="start_picker" name="start_time" autocomplete="off" required><br>
+    <p><b>End Time</b></p><input type="text" id="end_picker" name="end_time" autocomplete="off" required><br>
     <script>
+        $(document).ready( function () {
+            $('#seniorTable').DataTable();
+        } );
+        $(".special_field_link").click(function(){
+            $("#senior_name").val($(this).text());
+        });
         $('#date_picker').datetimepicker({
             timepicker: false,
             format: 'm/d/Y',
@@ -73,8 +107,10 @@
     <br>
     <input type="Submit" name="select_senior">
 </form>
-    <br>
-    <br>
-<a href="{% url 'console' %}"><button>Return to main page</button></a>
-    </div>
+<br>
+<br>
+</div>
+<div class="center">
+    <a href="{% url 'console' %}"><button>Return to Dashboard</button></a>
+</div>
 {% endblock %}

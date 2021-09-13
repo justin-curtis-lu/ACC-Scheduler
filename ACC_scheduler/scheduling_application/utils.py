@@ -5,8 +5,9 @@ from django.forms import modelformset_factory
 from django.core.mail import send_mail
 from django.conf import settings
 # External imports
-from twilio.rest import Client
+from twilio.rest import Client, TwilioRestClient, TwilioException
 from datetime import datetime
+from smtplib import SMTPRecipientsRefused
 # App imports
 from .models import Volunteer, SurveyStatus, Day
 from .methods import check_time,  get_timeframes, check_age, appointment_conflict
@@ -88,13 +89,13 @@ def find_matches(check_list, date, time_period):
 
 def update_minors(potential_list):
     for volunteer in potential_list:
-        if volunteer['dob'] != 'N/A' and check_age(volunteer['dob']):
+        if volunteer['dob'] != None and check_age(volunteer['dob']):
             volunteer['minor'] = True
         else:
             volunteer['minor'] = False
     for volunteer in potential_list:
         set_minor = Volunteer.objects.get(id=volunteer['id'])
-        if set_minor.dob != 'N/A' and check_age(set_minor.dob):
+        if set_minor.dob != None and check_age(set_minor.dob):
             set_minor.minor = True
             set_minor.save()
         else:
@@ -105,7 +106,10 @@ def update_minors(potential_list):
 def send_emails(potential_list, selected_volunteers, senior, appointment, domain, appointment_id):
     callers = []
     flag = False
+    invalid_emails = []
+    invalid_phone = []
     for i in potential_list:
+        print(i)
         if str(i['id']) in selected_volunteers.getlist('volunteer'):
             flag = True
             if i['notify_email']:
@@ -124,7 +128,11 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                                 '\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
                 from_email = 'acc.scheduler.care@gmail.com'
                 to_email = [i['email']]
-                send_mail(email_subject, email_message, from_email, to_email)
+                try:
+                    send_mail(email_subject, email_message, from_email, to_email)
+                except SMTPRecipientsRefused:
+                    print(f"{to_email} is not a valid email.")
+                    invalid_emails.append(i['first_name'] + " " + i['last_name'])
             if i['notify_text']:
                 token = get_random_string(length=32)
                 activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
@@ -132,23 +140,27 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                 account_sid = settings.TWILIO_ACCOUNT_SID
                 auth_token = settings.TWILIO_AUTH
                 client = Client(account_sid, auth_token)
-                message = client.messages.create(
-                    body=f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests '
-                         f'a buddy! Based on your availability, you would be a perfect match!\n' + \
-                         f'\tWho: {senior[0]["first_name"]} {senior[0]["last_name"]}\n' \
-                         f'\tWhat: {appointment[0]["purpose_of_trip"]}\n' \
-                         f'\tWhen: {appointment[0]["date_and_time"]}\n' \
-                         f'\tWhere: {appointment[0]["start_address"]} to {appointment[0]["end_address"]}\n' + \
-                         'Please click the link below to accept this request.\n' + activate_url + \
-                         '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,'
-                         '\nSacramento Senior Saftey Collaborative Staff',
-                    from_='+19569486977', to=i['phone'])
+                try:
+                    message = client.messages.create(
+                        body=f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests '
+                             f'a buddy! Based on your availability, you would be a perfect match!\n' + \
+                             f'\tWho: {senior[0]["first_name"]} {senior[0]["last_name"]}\n' \
+                             f'\tWhat: {appointment[0]["purpose_of_trip"]}\n' \
+                             f'\tWhen: {appointment[0]["date_and_time"]}\n' \
+                             f'\tWhere: {appointment[0]["start_address"]} to {appointment[0]["end_address"]}\n' + \
+                             'Please click the link below to accept this request.\n' + activate_url + \
+                             '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,'
+                             '\nSacramento Senior Saftey Collaborative Staff',
+                        from_='+19569486977', to=i['phone'])
+                except TwilioException:
+                    print(f"{i['phone']} is not a valid phone number.")
+                    invalid_phone.append(i['first_name'] + " " + i['last_name'])
             if i['notify_call']:
                 first = i['first_name']
                 last = i['last_name']
                 phone = i['phone']
                 callers.append(f'{first} {last} {phone} ')
-    return callers, flag
+    return callers, flag, invalid_emails, invalid_phone
 
 
 def notify_senior(appointment, volunteer):
@@ -163,19 +175,25 @@ def notify_senior(appointment, volunteer):
                         '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
         from_email = 'acc.scheduler.care@gmail.com'
         to_email = [senior.email]
-        send_mail(email_subject, email_message, from_email, to_email)
+        try:
+            send_mail(email_subject, email_message, from_email, to_email)
+        except SMTPRecipientsRefused:
+            print(f"{to_email} is not a valid email.")
     if senior.notify_text:
         account_sid = settings.TWILIO_ACCOUNT_SID
         auth_token = settings.TWILIO_AUTH
         client = Client(account_sid, auth_token)
-        message = client.messages.create(
-            body=f'Hello Participant!\n\nWe have a Senior Escort Program Volunteer who has accepted your request! Here are the details of the appointment!\n' + \
-                 f'\tVolunteer: {volunteer.first_name} {volunteer.last_name}\n' \
-                 f'\tWhat: {appointment.purpose_of_trip}\n' \
-                 f'\tWhen: {appointment.date_and_time}\n' \
-                 f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
-                 '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
-            from_='+19569486977', to=senior.phone)
+        try:
+            message = client.messages.create(
+                body=f'Hello Participant!\n\nWe have a Senior Escort Program Volunteer who has accepted your request! Here are the details of the appointment!\n' + \
+                     f'\tVolunteer: {volunteer.first_name} {volunteer.last_name}\n' \
+                     f'\tWhat: {appointment.purpose_of_trip}\n' \
+                     f'\tWhen: {appointment.date_and_time}\n' \
+                     f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
+                     '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
+                from_='+19569486977', to=senior.phone)
+        except TwilioException:
+            print(f"{senior.phone} is not a valid phone number.")
 
 
 def send_monthly_surveys(request):
@@ -203,6 +221,8 @@ def send_monthly_surveys(request):
 
     sent_status = True
     domain = get_current_site(request).domain
+    invalid_emails = []
+    invalid_phone = []
 
     for i in Volunteer.objects.all():
         token = get_random_string(length=32)
@@ -217,26 +237,34 @@ def send_monthly_surveys(request):
                             "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
             from_email = 'acc.scheduler.care@gmail.com'
             to_email = [i.email]
-            send_mail(email_subject, email_message, from_email, to_email)
-            print("to email", to_email)
+            try:
+                send_mail(email_subject, email_message, from_email, to_email)
+            except SMTPRecipientsRefused:
+                print(f"{to_email} is not a valid email.")
+                invalid_emails.append(i.first_name + " " + i.last_name)
             emails_sent = True
         if i.notify_text:
             account_sid = settings.TWILIO_ACCOUNT_SID
             auth_token = settings.TWILIO_AUTH
             client = Client(account_sid, auth_token)
-            message = client.messages.create(
-                body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                     f"If you do not fill out the survey, your previous times will be carried over for the next month. "
-                     f"Your time is so appreciated and we could not provide seniors with free programs without you!"
-                     f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
-                from_='+19569486977', to=i.phone)
+            try:
+                message = client.messages.create(
+                    body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                         f"If you do not fill out the survey, your previous times will be carried over for the next month. "
+                         f"Your time is so appreciated and we could not provide seniors with free programs without you!"
+                         f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
+                    from_='+19569486977', to=i.phone)
+            except TwilioException:
+                print(f"{i.phone} is not a valid phone number.")
+                invalid_phone.append(i.first_name + " " + i.last_name)
+
             print("to phone", i.phone)
         i.survey_token = token
         i.save()
         # survey.month = curr_month
     survey.sent = True
     survey.save()
-    return sent_status, survey_month
+    return sent_status, survey_month, invalid_emails, invalid_phone
 
 
 def read_survey_data(option_list, volunteer, month, year):
