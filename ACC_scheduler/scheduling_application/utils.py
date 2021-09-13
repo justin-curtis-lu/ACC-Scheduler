@@ -18,8 +18,9 @@ def sync_galaxy(vol_data, check_list):
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
             volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
+            print(volunteer)
             # Flag to skip updating if unsubscribed is true
-            if not volunteer.unsubscribed:
+            if not volunteer[0].unsubscribed:
                 try:
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                      phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'],
@@ -53,16 +54,16 @@ def sync_galaxy(vol_data, check_list):
                 print("except creating", i['firstName'], i['lastName'])
 
 
-def find_matches(check_list, day_of_month, day_time):
+def find_matches(check_list, date, time_period):
     potential_list = []
     for volunteer in check_list:
         volunteer_object = Volunteer.objects.filter(id=volunteer)
-        availability = volunteer_object[0].Days.filter(day_of_month=day_of_month)[0]
+        availability = volunteer_object[0].Days.filter(date=date)[0]
         if availability.all:
-            check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
+            check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=date)
             schedule_conflict = False
             for appointment in check_conflict:
-                if appointment_conflict(day_time[1], appointment.date_and_time.split(' ')[1]):
+                if appointment_conflict(time_period, appointment.date_and_time.split(' ')[1]):
                     schedule_conflict = True
                     break
             if not schedule_conflict:
@@ -70,11 +71,11 @@ def find_matches(check_list, day_of_month, day_time):
         else:
             time_frames = get_timeframes([availability._9_10, availability._10_11, availability._11_12, availability._12_1, availability._1_2])
             for time in time_frames:
-                if check_time(day_time[1], time):
-                    check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=day_time[0])
+                if check_time(time_period, time):
+                    check_conflict = volunteer_object[0].Appointments.filter(date_and_time__contains=date)
                     break_check = False
                     for appointment in check_conflict:
-                        if appointment_conflict(day_time[1], appointment.date_and_time.split(' ')[1]):
+                        if appointment_conflict(time_period, appointment.date_and_time.split(' ')[1]):
                             break_check = True
                             break
                     if break_check:
@@ -181,120 +182,159 @@ def send_monthly_surveys(request):
     sent_status = False
     dt = datetime.today()
     curr_month = dt.month
-    if SurveyStatus.objects.count() == 0:
-        survey = SurveyStatus.objects.create(month=curr_month, sent=False, survey_id=1)
+    curr_year = dt.year
+    survey_month = curr_month + 1
+    if survey_month == 13:
+        survey_year = curr_year + 1
+        survey_month = 1
     else:
-        survey = SurveyStatus.objects.get(survey_id=1)
-    if survey.sent is False or survey.month is not curr_month:
-        sent_status = True
-        domain = get_current_site(request).domain
-        for i in Volunteer.objects.all():
-            token = get_random_string(length=32)
-            i.survey_token = token
-            activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&email=" + i.email \
-                           + "&token=" + token
-            if i.notify_email:
-                email_subject = 'Volunteer Availability Survey'
-                email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                                "If you do not fill out the survey, your previous times will be carried over for the next month. " \
-                                "Your time is so appreciated and we could not provide seniors with free programs without you!" \
-                                "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
-                from_email = 'acc.scheduler.care@gmail.com'
-                to_email = [i.email]
-                send_mail(email_subject, email_message, from_email, to_email)
-                print("to email", to_email)
-                emails_sent = True
-            if i.notify_text:
-                account_sid = settings.TWILIO_ACCOUNT_SID
-                auth_token = settings.TWILIO_AUTH
-                client = Client(account_sid, auth_token)
-                message = client.messages.create(
-                    body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                         f"If you do not fill out the survey, your previous times will be carried over for the next month. "
-                         f"Your time is so appreciated and we could not provide seniors with free programs without you!"
-                         f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
-                    from_='+19569486977', to=i.phone)
-                print("to phone", i.phone)
-            i.survey_token = token
-            i.save()
-            survey.month = curr_month
-        survey.sent = True
-        survey.save()
-    return sent_status, curr_month
+        survey_year = curr_year
+        survey_month = curr_month + 1
+
+    if SurveyStatus.objects.filter(month=curr_month).filter(year=curr_year).count() == 0:
+        survey_month = curr_month
+        survey_year = curr_year
+        survey = SurveyStatus.objects.create(month=curr_month, year=curr_year, sent=False)
+    elif SurveyStatus.objects.filter(month=survey_month).filter(year=survey_year).count() == 0:
+        survey = SurveyStatus.objects.create(month=survey_month, year=survey_year, sent=False)
+        # survey = SurveyStatus.objects.get(survey_id=1)
+    else:
+        return sent_status, survey_month
+
+    sent_status = True
+    domain = get_current_site(request).domain
+
+    for i in Volunteer.objects.all():
+        token = get_random_string(length=32)
+        i.survey_token = token
+        activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + str(survey_month) + "&year=" + str(survey_year) +  "&email=" + i.email \
+                       + "&token=" + token
+        if i.notify_email:
+            email_subject = 'Volunteer Availability Survey'
+            email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                            "If you do not fill out the survey, your previous times will be carried over for the next month. " \
+                            "Your time is so appreciated and we could not provide seniors with free programs without you!" \
+                            "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
+            from_email = 'acc.scheduler.care@gmail.com'
+            to_email = [i.email]
+            send_mail(email_subject, email_message, from_email, to_email)
+            print("to email", to_email)
+            emails_sent = True
+        if i.notify_text:
+            account_sid = settings.TWILIO_ACCOUNT_SID
+            auth_token = settings.TWILIO_AUTH
+            client = Client(account_sid, auth_token)
+            message = client.messages.create(
+                body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
+                     f"If you do not fill out the survey, your previous times will be carried over for the next month. "
+                     f"Your time is so appreciated and we could not provide seniors with free programs without you!"
+                     f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
+                from_='+19569486977', to=i.phone)
+            print("to phone", i.phone)
+        i.survey_token = token
+        i.save()
+        # survey.month = curr_month
+    survey.sent = True
+    survey.save()
+    return sent_status, survey_month
 
 
-def read_survey_data(option_list, volunteer):
+def read_survey_data(option_list, volunteer, month, year):
     for i in range(1, 32):
+        if int(month) < 10:
+            if i < 10:
+                day_string = "0" + str(i)
+            else:
+                day_string = str(i)
+            date_string = "0" + str(month) + "/" + day_string + "/" + str(year)
+        else:
+            if i < 10:
+                day_string = "0" + str(i)
+            else:
+                day_string = str(i)
+            date_string = str(month) + "/" + day_string + "/" + str(year)
         Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                           day_of_month=i, volunteer=volunteer)
+                           date=date_string, volunteer=volunteer)
     for i in option_list:
         date = i[6:].split("-")
+        if int(date[0]) < 10:
+            day_string = "0" + date[0]
+        else:
+            day_string = date[0]
+        if int(month) < 10:
+            date_string = "0" + str(month) + "/" + day_string + "/" + str(year)
+        else:
+            date_string = str(month) + "/" + day_string + "/" + str(year)
+        day = volunteer.Days.get(date=date_string)
         if date[1] == "0":
-            day = volunteer.Days.get(day_of_month=date[0])
             day._9_10 = True
             day.save()
         elif date[1] == "1":
-            day = volunteer.Days.get(day_of_month=date[0])
             day._10_11 = True
             day.save()
         elif date[1] == "2":
-            day = volunteer.Days.get(day_of_month=date[0])
             day._11_12 = True
             day.save()
         elif date[1] == "3":
-            day = volunteer.Days.get(day_of_month=date[0])
             day._12_1 = True
             day.save()
         elif date[1] == "4":
-            day = volunteer.Days.get(day_of_month=date[0])
             day._1_2 = True
             day.save()
         elif date[1] == "5":
-            day = volunteer.Days.get(day_of_month=date[0])
             day.all = True
             day.save()
 
 
-def generate_v_days(pk):
+def generate_v_days(pk, month, curr_year):
     volunteer = Volunteer.objects.get(id=pk)
+    if month < 10:
+        month = '0' + str(month)
+    else:
+        month = str(month)
+    curr_year = str(curr_year)
     try:
-        day1 = volunteer.Days.get(day_of_month=1)
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
     except Day.DoesNotExist:
         for i in range(1, 32):
+            if i < 10:
+                day = '0' + str(i)
+            else:
+                day = str(i)
             Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                               day_of_month=i, volunteer=volunteer)
-        day1 = volunteer.Days.get(day_of_month=1)
-    day1 = volunteer.Days.get(day_of_month=1)
-    day2 = volunteer.Days.get(day_of_month=2)
-    day3 = volunteer.Days.get(day_of_month=3)
-    day4 = volunteer.Days.get(day_of_month=4)
-    day5 = volunteer.Days.get(day_of_month=5)
-    day6 = volunteer.Days.get(day_of_month=6)
-    day7 = volunteer.Days.get(day_of_month=7)
-    day8 = volunteer.Days.get(day_of_month=8)
-    day9 = volunteer.Days.get(day_of_month=9)
-    day10 = volunteer.Days.get(day_of_month=10)
-    day11 = volunteer.Days.get(day_of_month=11)
-    day12 = volunteer.Days.get(day_of_month=12)
-    day13 = volunteer.Days.get(day_of_month=13)
-    day14 = volunteer.Days.get(day_of_month=14)
-    day15 = volunteer.Days.get(day_of_month=15)
-    day16 = volunteer.Days.get(day_of_month=16)
-    day17 = volunteer.Days.get(day_of_month=17)
-    day18 = volunteer.Days.get(day_of_month=18)
-    day19 = volunteer.Days.get(day_of_month=19)
-    day20 = volunteer.Days.get(day_of_month=20)
-    day21 = volunteer.Days.get(day_of_month=21)
-    day22 = volunteer.Days.get(day_of_month=22)
-    day23 = volunteer.Days.get(day_of_month=23)
-    day24 = volunteer.Days.get(day_of_month=24)
-    day25 = volunteer.Days.get(day_of_month=25)
-    day26 = volunteer.Days.get(day_of_month=26)
-    day27 = volunteer.Days.get(day_of_month=27)
-    day28 = volunteer.Days.get(day_of_month=28)
-    day29 = volunteer.Days.get(day_of_month=29)
-    day30 = volunteer.Days.get(day_of_month=30)
-    day31 = volunteer.Days.get(day_of_month=31)
+                               date=month + '/' + day + '/' + curr_year, volunteer=volunteer)
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
+    day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
+    day2 = volunteer.Days.get(date=month + '/' + '02' + '/' + curr_year)
+    day3 = volunteer.Days.get(date=month + '/' + '03' + '/' + curr_year)
+    day4 = volunteer.Days.get(date=month + '/' + '04' + '/' + curr_year)
+    day5 = volunteer.Days.get(date=month + '/' + '05' + '/' + curr_year)
+    day6 = volunteer.Days.get(date=month + '/' + '06' + '/' + curr_year)
+    day7 = volunteer.Days.get(date=month + '/' + '07' + '/' + curr_year)
+    day8 = volunteer.Days.get(date=month + '/' + '08' + '/' + curr_year)
+    day9 = volunteer.Days.get(date=month + '/' + '09' + '/' + curr_year)
+    day10 = volunteer.Days.get(date=month + '/' + '10' + '/' + curr_year)
+    day11 = volunteer.Days.get(date=month + '/' + '11' + '/' + curr_year)
+    day12 = volunteer.Days.get(date=month + '/' + '12' + '/' + curr_year)
+    day13 = volunteer.Days.get(date=month + '/' + '13' + '/' + curr_year)
+    day14 = volunteer.Days.get(date=month + '/' + '14' + '/' + curr_year)
+    day15 = volunteer.Days.get(date=month + '/' + '15' + '/' + curr_year)
+    day16 = volunteer.Days.get(date=month + '/' + '16' + '/' + curr_year)
+    day17 = volunteer.Days.get(date=month + '/' + '17' + '/' + curr_year)
+    day18 = volunteer.Days.get(date=month + '/' + '18' + '/' + curr_year)
+    day19 = volunteer.Days.get(date=month + '/' + '19' + '/' + curr_year)
+    day20 = volunteer.Days.get(date=month + '/' + '20' + '/' + curr_year)
+    day21 = volunteer.Days.get(date=month + '/' + '21' + '/' + curr_year)
+    day22 = volunteer.Days.get(date=month + '/' + '22' + '/' + curr_year)
+    day23 = volunteer.Days.get(date=month + '/' + '23' + '/' + curr_year)
+    day24 = volunteer.Days.get(date=month + '/' + '24' + '/' + curr_year)
+    day25 = volunteer.Days.get(date=month + '/' + '25' + '/' + curr_year)
+    day26 = volunteer.Days.get(date=month + '/' + '26' + '/' + curr_year)
+    day27 = volunteer.Days.get(date=month + '/' + '27' + '/' + curr_year)
+    day28 = volunteer.Days.get(date=month + '/' + '28' + '/' + curr_year)
+    day29 = volunteer.Days.get(date=month + '/' + '29' + '/' + curr_year)
+    day30 = volunteer.Days.get(date=month + '/' + '30' + '/' + curr_year)
+    day31 = volunteer.Days.get(date=month + '/' + '31' + '/' + curr_year)
 
     data1 = {'_9_10': day1._9_10, '_10_11': day1._10_11, '_11_12': day1._11_12, '_12_1': day1._12_1, '_1_2': day1._1_2,
              'all': day1.all}
@@ -381,12 +421,13 @@ def generate_v_days(pk):
               '_1_2': day31._1_2,
               'all': day31.all}
 
-    current_month = datetime.now().strftime('%m')
+    # current_month = datetime.now().strftime('%m')
     DayFormSet = modelformset_factory(Day, DayForm, fields=('_9_10', '_10_11', '_11_12', '_12_1', '_1_2', 'all'),
                                       extra=31, max_num=31)
+    regex = r'((' + month + r')[/]\d\d[/](' + curr_year + r'))'
     formset = DayFormSet(initial=[data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12,
                                   data13, data14, data15, data16, data17, data18, data19, data20, data21, data22,
                                   data23,
                                   data24, data25, data26, data27, data28, data29, data30, data31],
-                         queryset=volunteer.Days.all())
-    return DayFormSet, volunteer, formset, current_month
+                         queryset=volunteer.Days.all().filter(date__regex=regex))
+    return DayFormSet, volunteer, formset, month

@@ -20,6 +20,7 @@
             <tr><td><b>Current Appointments:</b> {{volunteer.current_appointments}}</td></tr>
             <tr><td><b>Availability:</b> <a href="{% url 'view_availability' volunteer.id %}"><button>View/Edit Availability</button></a></td></tr>
             <tr><td><b>Additional Notes:</b> {{volunteer.additional_notes}}</td></tr>
+            <tr><td><b>Unsubscribed:</b> {{volunteer.unsubscribed}}</td></tr>
         </tbody>
     </table>
     <form action="" method="POST">

@@ -4,10 +4,20 @@ from django.contrib import messages
 from django.contrib.auth.models import auth
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
+from django.contrib.auth.forms import PasswordResetForm
+from django.template.loader import render_to_string
+from django.core.mail import send_mail, BadHeaderError
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.db.models.query_utils import Q
+from django.utils.datastructures import MultiValueDictKeyError
 # App imports
 from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
     send_emails, read_survey_data, generate_v_days
-from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, LoginForm, KeyForm
+from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, AuthenticationForm
 from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
 import requests
@@ -25,36 +35,45 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    month_integer = SurveyStatus.objects.get(survey_id=1).month
-    datetime_object = datetime.strptime(str(month_integer), "%m")
-    full_month_name = datetime_object.strftime("%B")
+    # month_integer = SurveyStatus.objects.get(survey_id=1).month
+    # datetime_object = datetime.strptime(str(month_integer), "%m")
+    # full_month_name = datetime_object.strftime("%B")
     context = {
         'vol_count': Volunteer.objects.count(),
         'sen_count': Senior.objects.count(),
-        'month': full_month_name
+        # 'month': full_month_name
     }
     return render(request, 'scheduling_application/authentication_general/console.html', context)
 
 
 def login(request):
-    """View for the login page"""
+    """View for the login page
+    (uses Django's built-in AuthenticationForm)"""
+    form = AuthenticationForm()
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = auth.authenticate(username=username, password=password)
-            if user is not None:
-                # If user exists in database
-                auth.login(request, user)
-                return redirect('console')
-            else:
-                # Else user does not exist in database
-                messages.info(request, 'invalid credentials')
-                return redirect('login')
-    else:
-        form = LoginForm()
-    return render(request, 'scheduling_application/authentication_general/login.html', {'form': form})
+            user = form.get_user()
+            auth.login(request, user)
+            # Syncing with Galaxy
+            url = 'https://api2.galaxydigital.com/volunteer/user/list/'
+            headers = {'Accept': 'scheduling_application/json'}
+            params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}  # will need to include tags
+            response = requests.get(url, headers=headers, params=params)
+            vol_data = response.json()
+            check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+            try:
+                sync_galaxy(vol_data, check_list)
+            except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
+                pass
+            return redirect('console')
+        else:
+            messages.error(request, 'invalid credentials')
+            return redirect('login')
+    context = {
+        'form': form,
+    }
+    return render(request, 'scheduling_application/authentication_general/login.html', context)
 
 
 def logout(request):
@@ -75,7 +94,10 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegisterForm()
-    return render(request, 'scheduling_application/authentication_general/register.html', {'form': form})
+    context = {
+        'form': form,
+    }
+    return render(request, 'scheduling_application/authentication_general/register.html', context)
 
 
 def keys(request):
@@ -86,6 +108,36 @@ def keys(request):
             return redirect('register')
         else:
             return render(request, 'scheduling_application/bad_link.html')
+
+
+def password_reset_request(request):
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = User.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "scheduling_application/password_reset/password_reset_email"
+                    from_email = 'acc.scheduler.care@gmail.com'
+                    c = {
+                        "email": user.email,
+                        'domain': '127.0.0.1:8000',         # CHANGE FOR DEPLOYMENT
+                        'site_name': 'ACC Scheduler',       # CHANGE FOR DEPLOYMENT
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        'token': default_token_generator.make_token(user),
+                        'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_mail(subject, email, from_email, [user.email], fail_silently=False)
+                    except BadHeaderError:
+                        return HttpResponse('Invalid header found.')
+                    return redirect("/password_reset/done/")
+    password_reset_form = PasswordResetForm()
+    return render(request=request, template_name="scheduling_application/password_reset/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
 # Collection of views for View Appointments, View Participants, View Volunteers
@@ -213,7 +265,7 @@ def edit_volunteer(request, pk):
     volunteer = Volunteer.objects.get(id=pk)
     data = {'galaxy_id': volunteer.galaxy_id, 'last_name': volunteer.last_name, 'first_name': volunteer.first_name, 'phone': volunteer.phone, 'email': volunteer.email, 'dob': volunteer.dob,
             'vaccinated': volunteer.vaccinated,'notify_email': volunteer.notify_email, 'notify_text': volunteer.notify_text, 'notify_call': volunteer.notify_call,
-            'current_appointments': volunteer.current_appointments, 'additional_notes': volunteer.additional_notes, 'unsubscribed': volunteer.unsubscribed}
+            'current_appointments': volunteer.Appointments.all(), 'additional_notes': volunteer.additional_notes, 'unsubscribed': volunteer.unsubscribed}
     form = VolunteerForm(initial=data)
     if request.method == 'POST':
         form = VolunteerForm(request.POST, instance=volunteer)
@@ -227,7 +279,10 @@ def edit_volunteer(request, pk):
 
 
 def view_availability(request, pk):
-    DayFormSet, volunteer, formset, current_month = generate_v_days(pk)
+    dt = datetime.today()
+    curr_month = dt.month
+    curr_year = dt.year
+    DayFormSet, volunteer, formset, current_month = generate_v_days(pk, curr_month, curr_year)
     if request.method == "POST":
         formset = DayFormSet(request.POST)
         if formset.is_valid():
@@ -242,6 +297,30 @@ def view_availability(request, pk):
         'current_month': current_month,
     }
     return render(request, "scheduling_application/volunteers/view_availability.html", context)
+
+def view_next_availability(request, pk):
+    dt = datetime.today()
+    next_month = dt.month + 1
+    curr_year = dt.year
+    if next_month == 13:
+        next_month = 1
+        curr_year = dt.year + 1
+    DayFormSet, volunteer, formset, next_month = generate_v_days(pk, next_month, curr_year)
+    if request.method == 'POST':
+        formset = DayFormSet(request.POST)
+        if formset.is_valid():
+            formset.save()
+        else:
+            print(formset.errors)
+        return redirect('volunteer_page', pk)
+
+    context = {
+        'volunteer': volunteer,
+        'formset': formset,
+        'current_month': next_month,
+    }
+    return render(request, "scheduling_application/volunteers/view_next_availability.html", context)
+
 
 
 def volunteer_page(request, pk):
@@ -263,7 +342,7 @@ def volunteer_page(request, pk):
 def galaxy_update_volunteers(request):
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
-    if request.GET.get("galaxy_update_volunteers"):
+    if request.GET.get("sync_GalaxyDigital"):     # CHANGE TO NAME TO SYNC_GALAXY
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
         params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
@@ -277,30 +356,31 @@ def galaxy_update_volunteers(request):
             messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return redirect('console')
 
-
 def make_appointment(request):
     """View for the page where users can schedule an appointment.
        Shows current seniors, volunteers, and appointments.
        Allows users to choose a senior and day then continue."""
     seniors_list = Senior.objects.all()
     volunteers_list = Volunteer.objects.all()
-    context = {
-        'seniors_list': seniors_list[:5],
-        'volunteers_list': volunteers_list[:5]
-    }
     if request.method == 'POST':
         senior_id = request.POST['senior_id']
-        day_time = request.POST['day_time'].split()
-        day_of_month = int(day_time[0].split('/')[1])
-        check_list = Day.objects.filter(day_of_month=day_of_month).values_list("volunteer", flat=True)
-        potential_list = find_matches(check_list, day_of_month, day_time)
+        date = request.POST['date']
+        time_period = request.POST['start_time'] + '-' + request.POST['end_time']
+        # day_of_month = int(day_time[0].split('/')[1])
+        check_list = Day.objects.filter(date=date).values_list("volunteer", flat=True)
+        potential_list = find_matches(check_list, date, time_period)
         if not potential_list:
             messages.error(request, "No volunteers are available at this time.")
             return redirect('make_appointment')
         request.session['potential_list'] = list(potential_list)
         request.session['senior'] = senior_id
-        request.session['day_time'] = day_time
+        request.session['date'] = date
+        request.session['time_period'] = time_period
         return redirect('confirm_volunteers')
+    context = {
+        'seniors_list': seniors_list[:5],
+        'volunteers_list': volunteers_list[:5]
+    }
     return render(request, 'scheduling_application/make_appointment/make_appointment.html', context)
 
 
@@ -310,7 +390,7 @@ def confirm_volunteers(request):
     senior = Senior.objects.get(id=request.session['senior'])
     context = {
         'potential_list': potential_list,
-        'date_time': request.session['day_time'][0],
+        'date': request.session['date'],
         'senior': senior
     }
     update_minors(potential_list)
@@ -321,7 +401,7 @@ def confirm_volunteers(request):
         additional_notes = request.POST['notes']
         appointment = Appointment.objects.create(senior=senior, start_address=start_address
                                                  , end_address=end_address
-                                                 , date_and_time=request.session['day_time'][0] + " " + request.session['day_time'][1]
+                                                 , date_and_time=request.session['date'] + " " + request.session['time_period']
                                                  , purpose_of_trip=purpose_of_trip, notes=additional_notes)
         selected_volunteers = request.POST
         domain = get_current_site(request).domain
@@ -370,11 +450,11 @@ def vol_already_selected(request):
 def send_survey(request):
     """View for middle man to send the monthly surveys"""
     if request.GET.get('send_survey'):
-        sent_status, curr_month = send_monthly_surveys(request)
+        sent_status, survey_month = send_monthly_surveys(request)
         if sent_status:
-            messages.success(request, f'Successfully sent surveys for the month of {curr_month}.')
+            messages.success(request, f'Successfully sent surveys for the month of {survey_month}.')
         else:
-            messages.warning(request, f'You have already sent surveys for the month of {curr_month}.')
+            messages.warning(request, f'You have already sent surveys for the month of {survey_month}.')
     return redirect('pre_send_survey')
 
 
@@ -390,11 +470,13 @@ def survey_page(request):
         request.session['vol_id'] = request.GET.get('id')
         request.session['vol_email'] = request.GET.get('email')
         request.session['vol_token'] = request.GET.get('token')
+        request.session['survey_month'] = request.GET.get('month')
+        request.session['survey_year'] = request.GET.get('year')
         vol_id = request.session['vol_id']
         vol_token = request.session['vol_token']
         volunteer = Volunteer.objects.get(id=vol_id)
-        current_month = datetime.now().strftime('%m')
-        date = {'month': current_month}
+        month = request.session['survey_month']
+        date = {'month': month}
         # Validate the token inside of the URL
         if vol_token != volunteer.survey_token:
             return render(request, "scheduling_application/bad_link.html", {})
@@ -427,6 +509,11 @@ def survey_page(request):
         vol_id = request.session['vol_id']
         option_list = request.POST.getlist('survey-value')
         volunteer = Volunteer.objects.get(id=vol_id)
-        volunteer.Days.filter(volunteer=volunteer).delete()
-        read_survey_data(option_list, volunteer)
+        if int(request.session['survey_month']) < 10:
+            month_string = "0" + request.session['survey_month']
+        else:
+            month_string = request.session['survey_month']
+        regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
+        volunteer.Days.filter(date__regex=regex).delete()
+        read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})

@@ -29,6 +29,16 @@
                     {{ form.key3 }}
                     <br>
                     <br>
+<<<<<<< HEAD
+                    {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+=======
+>>>>>>> dev
                     <input class="special" type="Submit">
             </form>
         </div>

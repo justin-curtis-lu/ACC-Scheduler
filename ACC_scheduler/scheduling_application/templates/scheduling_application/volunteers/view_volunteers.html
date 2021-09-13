@@ -21,7 +21,7 @@
              <td>{{ item.phone }}</td>
              <td>{{ item.email }}</td>
              <td>{{ item.vaccinated }}</td>
-             <td>{{ item.current_appointments }}</td>
+             <td>{% for appointment in item.Appointments.all %} {{ appointment.date_and_time }} {% endfor %}</td>
              <td>{{ item.additional_notes }}</td>
         </tr>
         {% endfor %}

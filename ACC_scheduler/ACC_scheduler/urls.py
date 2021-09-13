@@ -15,10 +15,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth import views as auth_views
 from scheduling_application import views as sa_views
 
 urlpatterns = [
     path('', sa_views.home, name='home'),
+    # path('accounts/', include('django.contrib.auth.urls')),
+    path('password_reset/done/',
+         auth_views.PasswordResetDoneView.as_view(template_name='scheduling_application/password_reset/password_reset_done.html'),
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(template_name="scheduling_application/password_reset/password_reset_confirm.html"),
+         name='password_reset_confirm'),
+    path('reset/complete/',
+         auth_views.PasswordResetCompleteView.as_view(template_name='scheduling_application/password_reset/password_reset_complete.html'),
+         name='password_reset_complete'),
+    path("password_reset/", sa_views.password_reset_request, name="password_reset"),
     path('console/', sa_views.console, name='console'),
     path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
@@ -45,4 +57,5 @@ urlpatterns = [
     path('view_appointments/', sa_views.view_appointments, name='view_appointments'),
     path('appointment_page/<str:pk>', sa_views.appointment_page, name='appointment_page'),
     path('edit_appointment/<str:pk>', sa_views.edit_appointment, name='edit_appointment'),
+    path('view_next_availability/<str:pk>', sa_views.view_next_availability, name='view_next_availability'),
 ]
