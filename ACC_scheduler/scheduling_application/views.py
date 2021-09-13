@@ -509,18 +509,11 @@ def survey_page(request):
         vol_id = request.session['vol_id']
         option_list = request.POST.getlist('survey-value')
         volunteer = Volunteer.objects.get(id=vol_id)
-        for i in range(1, 32):
-            if int(request.session['survey_month']) < 10:
-                month_string = "0" + request.session['survey_month']
-            else:
-                month_string = request.session['survey_month']
-            if i < 10:
-                day = "0" + str(i)
-            else:
-                day = str(i)
-            date = month_string + "/" + day + "/" + request.session['survey_year']
-            print("DAY")
-            print(volunteer.Days.filter(volunteer=volunteer).filter(date=date))
-            volunteer.Days.filter(volunteer=volunteer).filter(date=date).delete()
+        if int(request.session['survey_month']) < 10:
+            month_string = "0" + request.session['survey_month']
+        else:
+            month_string = request.session['survey_month']
+        regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
+        volunteer.Days.filter(date__regex=regex).delete()
         read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
