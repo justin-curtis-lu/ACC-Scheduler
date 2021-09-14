@@ -22,6 +22,7 @@ from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
 import requests
 from datetime import datetime
+from calendar import monthrange
 
 
 # Collection of views for boiler views / authentication_general
@@ -472,16 +473,20 @@ def survey_page(request):
         request.session['vol_token'] = request.GET.get('token')
         request.session['survey_month'] = request.GET.get('month')
         request.session['survey_year'] = request.GET.get('year')
+        days = monthrange(int(request.session['survey_year']), int(request.session['survey_month']))[1]
         vol_id = request.session['vol_id']
         vol_token = request.session['vol_token']
         volunteer = Volunteer.objects.get(id=vol_id)
         month = request.session['survey_month']
-        date = {'month': month}
+        context = {
+            'month': month,
+            'num_days': range(days)
+        }
         # Validate the token inside of the URL
         if vol_token != volunteer.survey_token:
             return render(request, "scheduling_application/bad_link.html", {})
         else:
-            return render(request, "scheduling_application/survey_sending/survey_page.html", context=date)
+            return render(request, "scheduling_application/survey_sending/survey_page.html", context=context)
     if request.method == 'POST' and 'unsubscribe' in request.POST:
         vol_id = request.session['vol_id']
         return render(request, "scheduling_application/unsubscribe.html", context={})
@@ -514,6 +519,6 @@ def survey_page(request):
         else:
             month_string = request.session['survey_month']
         regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
-        volunteer.Days.filter(date__regex=regex).delete()
+        volunteer.Days.all().filter(date__regex=regex).delete()
         read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
