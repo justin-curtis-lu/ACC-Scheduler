@@ -18,48 +18,40 @@
 {% endif %}
 
 <div class="container">
-    <div class="center">
-        {% if user.is_authenticated %}
-            <p class="space">Welcome back {{user}}</p>
-            <p class="special">There are currently {{vol_count}} volunteer(s).</p>
-            <p class="special">There are currently {{sen_count}} participant(s).</p>
-            <p class="special">The most recent surveys were sent for the month of {{month}}.</p>
-
-        {% endif %}
-    </div>
     <div class="row">
         <div class="col-sm">
             <form class="space" action="{% url 'view_appointments' %}">
-                <input type="submit" value="View all Appointments" />
+                <input type="submit" class="btn btn-light" value="View all Appointments" />
             </form>
-        </div>
-        <div class="col-sm">
             <form class="space" action="{% url 'view_seniors' %}">
-                <input type="submit" value="View all Participants" />
+                <input type="submit" class="btn btn-light" value="View all Participants" />
             </form>
-        </div>
-        <div class="col-sm">
             <form class="space" action="{% url 'view_volunteers' %}">
-                <input type="submit" value="View all Volunteers" />
+                <input type="submit" class="btn btn-light" value="View all Volunteers" />
             </form>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm">
             <form class="space" action="{% url 'make_appointment' %}">
-                <input type="submit" value="Schedule an Appointment" />
+                <input type="submit" class="btn btn-light" value="Schedule an Appointment" />
             </form>
-        </div>
-        <div class="col-sm">
             <form class="space" action="{% url 'galaxy_update_volunteers' %}">
-                <input type="submit" name="sync_GalaxyDigital" value="Update User Information From GalaxyDigital" />
+                <input type="submit" name="sync_GalaxyDigital" class="btn btn-light" value="Update User Information From GalaxyDigital" />
+            </form>
+            <form class="space" action="{% url 'pre_send_survey' %}">
+                <input type="submit" name="send_survey" class="btn btn-light" value="Send Monthly Surveys" />
             </form>
         </div>
-        <div class="col-sm">
-            <form class="space" action="{% url 'pre_send_survey' %}">
-                <input type="submit" name="send_survey" value="Send Monthly Surveys" />
-            </form>
+        <div class="col">
+            <div class="center">
+            {% if user.is_authenticated %}
+                <h2 class="space"><big>Welcome back, {{user}}</big></h2>
+                <br>
+                <p class="special"><big>There are currently {{vol_count}} volunteer(s).</big></p>
+                <p class="special"><big>There are currently {{sen_count}} participant(s).</big></p>
+                <p class="special"><big>The most recent surveys were sent for the month of {{month}}.</big></p>
+            {% endif %}
+            </div>
         </div>
     </div>
+</div>
+
 </div>
 {% endblock %}

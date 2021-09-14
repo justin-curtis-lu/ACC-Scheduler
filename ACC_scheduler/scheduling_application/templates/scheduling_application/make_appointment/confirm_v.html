@@ -18,7 +18,8 @@
     {% endif %}
 
     {% if potential_list %}
-        <p>Confirm Volunteers for <b>{{senior}} at {{date}}</b></p>
+        <h4>Confirm Volunteers for <b>{{senior}} at {{date}}</b></h4>
+        <br><br>
         <form method='POST' action=''>
         {% csrf_token %}
         <table id="volunteerTable" class="table table-striped table-bordered table-sm">
@@ -50,10 +51,20 @@
         $('#volunteerTable').DataTable();
         } );
     </script>
-    <p><b>Starting Address</b></p><input type="text" name="start_address"><br>
-    <p><b>Destination</b></p><input type="text" name="end_address"><br>
-    <p><b>Purpose of Trip</b></p><input type="text" name="purpose_of_trip"><br>
-    <p><b>Additional Notes</b></p><input type="text" name="notes"><br><br>
+    <br><br>
+    <div class="row">
+        <div class="col"><p><b>Starting Address</b></p></div>
+        <div class="col"><p><b>Destination</b></p></div>
+        <div class="col"><p><b>Purpose of Trip</b></p></div>
+        <div class="col"><p><b>Additional Notes</b></p></div>
+    </div>
+    <div class="row">
+        <div class="col"><input type="text" name="start_address"><br></div>
+        <div class="col"><input type="text" name="end_address"><br></div>
+        <div class="col"><input type="text" name="purpose_of_trip"><br></div>
+        <div class="col"><input type="text" name="notes"><br><br></div>
+    </div>
+    <br>
     <input type="Submit" name="select_volunteers">
     <br>
     <br>

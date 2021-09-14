@@ -8,6 +8,7 @@ from django.conf import settings
 from twilio.rest import Client, TwilioRestClient, TwilioException
 from datetime import datetime
 from smtplib import SMTPRecipientsRefused
+from calendar import monthrange
 # App imports
 from .models import Volunteer, SurveyStatus, Day
 from .methods import check_time,  get_timeframes, check_age, appointment_conflict
@@ -268,7 +269,7 @@ def send_monthly_surveys(request):
 
 
 def read_survey_data(option_list, volunteer, month, year):
-    for i in range(1, 32):
+    for i in range(1, monthrange(int(year), int(month))[1] + 1):
         if int(month) < 10:
             if i < 10:
                 day_string = "0" + str(i)
@@ -314,148 +315,43 @@ def read_survey_data(option_list, volunteer, month, year):
             day.save()
 
 
-def generate_v_days(pk, month, curr_year):
+def generate_v_days(pk, month, year):
     volunteer = Volunteer.objects.get(id=pk)
+    days_in_month = monthrange(year, month)[1]
     if month < 10:
         month = '0' + str(month)
+        year = str(year)
     else:
         month = str(month)
-    curr_year = str(curr_year)
+        year = str(year)
     try:
-        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + year)
     except Day.DoesNotExist:
-        for i in range(1, 32):
+        for i in range(1, days_in_month+1):
             if i < 10:
                 day = '0' + str(i)
             else:
                 day = str(i)
             Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                               date=month + '/' + day + '/' + curr_year, volunteer=volunteer)
-        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
-    day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + curr_year)
-    day2 = volunteer.Days.get(date=month + '/' + '02' + '/' + curr_year)
-    day3 = volunteer.Days.get(date=month + '/' + '03' + '/' + curr_year)
-    day4 = volunteer.Days.get(date=month + '/' + '04' + '/' + curr_year)
-    day5 = volunteer.Days.get(date=month + '/' + '05' + '/' + curr_year)
-    day6 = volunteer.Days.get(date=month + '/' + '06' + '/' + curr_year)
-    day7 = volunteer.Days.get(date=month + '/' + '07' + '/' + curr_year)
-    day8 = volunteer.Days.get(date=month + '/' + '08' + '/' + curr_year)
-    day9 = volunteer.Days.get(date=month + '/' + '09' + '/' + curr_year)
-    day10 = volunteer.Days.get(date=month + '/' + '10' + '/' + curr_year)
-    day11 = volunteer.Days.get(date=month + '/' + '11' + '/' + curr_year)
-    day12 = volunteer.Days.get(date=month + '/' + '12' + '/' + curr_year)
-    day13 = volunteer.Days.get(date=month + '/' + '13' + '/' + curr_year)
-    day14 = volunteer.Days.get(date=month + '/' + '14' + '/' + curr_year)
-    day15 = volunteer.Days.get(date=month + '/' + '15' + '/' + curr_year)
-    day16 = volunteer.Days.get(date=month + '/' + '16' + '/' + curr_year)
-    day17 = volunteer.Days.get(date=month + '/' + '17' + '/' + curr_year)
-    day18 = volunteer.Days.get(date=month + '/' + '18' + '/' + curr_year)
-    day19 = volunteer.Days.get(date=month + '/' + '19' + '/' + curr_year)
-    day20 = volunteer.Days.get(date=month + '/' + '20' + '/' + curr_year)
-    day21 = volunteer.Days.get(date=month + '/' + '21' + '/' + curr_year)
-    day22 = volunteer.Days.get(date=month + '/' + '22' + '/' + curr_year)
-    day23 = volunteer.Days.get(date=month + '/' + '23' + '/' + curr_year)
-    day24 = volunteer.Days.get(date=month + '/' + '24' + '/' + curr_year)
-    day25 = volunteer.Days.get(date=month + '/' + '25' + '/' + curr_year)
-    day26 = volunteer.Days.get(date=month + '/' + '26' + '/' + curr_year)
-    day27 = volunteer.Days.get(date=month + '/' + '27' + '/' + curr_year)
-    day28 = volunteer.Days.get(date=month + '/' + '28' + '/' + curr_year)
-    day29 = volunteer.Days.get(date=month + '/' + '29' + '/' + curr_year)
-    day30 = volunteer.Days.get(date=month + '/' + '30' + '/' + curr_year)
-    day31 = volunteer.Days.get(date=month + '/' + '31' + '/' + curr_year)
-
-    data1 = {'_9_10': day1._9_10, '_10_11': day1._10_11, '_11_12': day1._11_12, '_12_1': day1._12_1, '_1_2': day1._1_2,
-             'all': day1.all}
-    data2 = {'_9_10': day2._9_10, '_10_11': day2._10_11, '_11_12': day2._11_12, '_12_1': day2._12_1, '_1_2': day2._1_2,
-             'all': day2.all}
-    data3 = {'_9_10': day3._9_10, '_10_11': day3._10_11, '_11_12': day3._11_12, '_12_1': day3._12_1, '_1_2': day3._1_2,
-             'all': day3.all}
-    data4 = {'_9_10': day4._9_10, '_10_11': day4._10_11, '_11_12': day4._11_12, '_12_1': day4._12_1, '_1_2': day4._1_2,
-             'all': day4.all}
-    data5 = {'_9_10': day5._9_10, '_10_11': day5._10_11, '_11_12': day5._11_12, '_12_1': day5._12_1, '_1_2': day5._1_2,
-             'all': day5.all}
-    data6 = {'_9_10': day6._9_10, '_10_11': day6._10_11, '_11_12': day6._11_12, '_12_1': day6._12_1, '_1_2': day6._1_2,
-             'all': day6.all}
-    data7 = {'_9_10': day7._9_10, '_10_11': day7._10_11, '_11_12': day7._11_12, '_12_1': day7._12_1, '_1_2': day7._1_2,
-             'all': day7.all}
-    data8 = {'_9_10': day8._9_10, '_10_11': day8._10_11, '_11_12': day8._11_12, '_12_1': day8._12_1, '_1_2': day8._1_2,
-             'all': day8.all}
-    data9 = {'_9_10': day9._9_10, '_10_11': day9._10_11, '_11_12': day9._11_12, '_12_1': day9._12_1, '_1_2': day9._1_2,
-             'all': day9.all}
-    data10 = {'_9_10': day10._9_10, '_10_11': day10._10_11, '_11_12': day10._11_12, '_12_1': day10._12_1,
-              '_1_2': day10._1_2,
-              'all': day10.all}
-    data11 = {'_9_10': day11._9_10, '_10_11': day11._10_11, '_11_12': day11._11_12, '_12_1': day11._12_1,
-              '_1_2': day11._1_2,
-              'all': day11.all}
-    data12 = {'_9_10': day12._9_10, '_10_11': day12._10_11, '_11_12': day12._11_12, '_12_1': day12._12_1,
-              '_1_2': day12._1_2,
-              'all': day12.all}
-    data13 = {'_9_10': day13._9_10, '_10_11': day13._10_11, '_11_12': day13._11_12, '_12_1': day13._12_1,
-              '_1_2': day13._1_2,
-              'all': day13.all}
-    data14 = {'_9_10': day14._9_10, '_10_11': day14._10_11, '_11_12': day14._11_12, '_12_1': day14._12_1,
-              '_1_2': day14._1_2,
-              'all': day1.all}
-    data15 = {'_9_10': day15._9_10, '_10_11': day15._10_11, '_11_12': day15._11_12, '_12_1': day15._12_1,
-              '_1_2': day15._1_2,
-              'all': day15.all}
-    data16 = {'_9_10': day16._9_10, '_10_11': day16._10_11, '_11_12': day16._11_12, '_12_1': day16._12_1,
-              '_1_2': day16._1_2,
-              'all': day16.all}
-    data17 = {'_9_10': day17._9_10, '_10_11': day17._10_11, '_11_12': day17._11_12, '_12_1': day17._12_1,
-              '_1_2': day17._1_2,
-              'all': day17.all}
-    data18 = {'_9_10': day18._9_10, '_10_11': day18._10_11, '_11_12': day18._11_12, '_12_1': day18._12_1,
-              '_1_2': day18._1_2,
-              'all': day18.all}
-    data19 = {'_9_10': day19._9_10, '_10_11': day19._10_11, '_11_12': day19._11_12, '_12_1': day19._12_1,
-              '_1_2': day19._1_2,
-              'all': day19.all}
-    data20 = {'_9_10': day20._9_10, '_10_11': day20._10_11, '_11_12': day20._11_12, '_12_1': day20._12_1,
-              '_1_2': day20._1_2,
-              'all': day20.all}
-    data21 = {'_9_10': day21._9_10, '_10_11': day21._10_11, '_11_12': day21._11_12, '_12_1': day21._12_1,
-              '_1_2': day21._1_2,
-              'all': day21.all}
-    data22 = {'_9_10': day22._9_10, '_10_11': day22._10_11, '_11_12': day22._11_12, '_12_1': day22._12_1,
-              '_1_2': day22._1_2,
-              'all': day22.all}
-    data23 = {'_9_10': day23._9_10, '_10_11': day23._10_11, '_11_12': day23._11_12, '_12_1': day23._12_1,
-              '_1_2': day23._1_2,
-              'all': day23.all}
-    data24 = {'_9_10': day24._9_10, '_10_11': day24._10_11, '_11_12': day24._11_12, '_12_1': day24._12_1,
-              '_1_2': day24._1_2,
-              'all': day24.all}
-    data25 = {'_9_10': day25._9_10, '_10_11': day25._10_11, '_11_12': day25._11_12, '_12_1': day25._12_1,
-              '_1_2': day25._1_2,
-              'all': day25.all}
-    data26 = {'_9_10': day26._9_10, '_10_11': day26._10_11, '_11_12': day26._11_12, '_12_1': day26._12_1,
-              '_1_2': day26._1_2,
-              'all': day26.all}
-    data27 = {'_9_10': day27._9_10, '_10_11': day27._10_11, '_11_12': day27._11_12, '_12_1': day27._12_1,
-              '_1_2': day27._1_2,
-              'all': day27.all}
-    data28 = {'_9_10': day28._9_10, '_10_11': day28._10_11, '_11_12': day28._11_12, '_12_1': day28._12_1,
-              '_1_2': day28._1_2,
-              'all': day28.all}
-    data29 = {'_9_10': day29._9_10, '_10_11': day29._10_11, '_11_12': day29._11_12, '_12_1': day29._12_1,
-              '_1_2': day29._1_2,
-              'all': day29.all}
-    data30 = {'_9_10': day30._9_10, '_10_11': day30._10_11, '_11_12': day30._11_12, '_12_1': day30._12_1,
-              '_1_2': day30._1_2,
-              'all': day30.all}
-    data31 = {'_9_10': day31._9_10, '_10_11': day31._10_11, '_11_12': day31._11_12, '_12_1': day31._12_1,
-              '_1_2': day31._1_2,
-              'all': day31.all}
-
+                               date=month + '/' + day + '/' + year, volunteer=volunteer)
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + year)
+    day_dict = {}
+    for i in range(1, days_in_month+1):
+        if i < 10:
+            day = '0' + str(i)
+        else:
+            day = str(i)
+        day_dict[i] = volunteer.Days.get(date=month + '/' + day + '/' + year)
+    data_dict = {}
+    for i in range(1, days_in_month+1):
+        data_dict[i] = {'_9_10': day_dict[i]._9_10, '_10_11': day_dict[i]._10_11, '_11_12': day_dict[i]._11_12, '_12_1': day_dict[i]._12_1, '_1_2': day_dict[i]._1_2, 'all': day_dict[i].all}
     # current_month = datetime.now().strftime('%m')
     DayFormSet = modelformset_factory(Day, DayForm, fields=('_9_10', '_10_11', '_11_12', '_12_1', '_1_2', 'all'),
-                                      extra=31, max_num=31)
-    regex = r'((' + month + r')[/]\d\d[/](' + curr_year + r'))'
-    formset = DayFormSet(initial=[data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12,
-                                  data13, data14, data15, data16, data17, data18, data19, data20, data21, data22,
-                                  data23,
-                                  data24, data25, data26, data27, data28, data29, data30, data31],
+                                      extra=days_in_month, max_num=days_in_month)
+    regex = r'((' + month + r')[/]\d\d[/](' + year + r'))'
+    initial_list = []
+    for i in range(1, days_in_month):
+        initial_list.append(data_dict[i])
+    formset = DayFormSet(initial=initial_list,
                          queryset=volunteer.Days.all().filter(date__regex=regex))
     return DayFormSet, volunteer, formset, month
