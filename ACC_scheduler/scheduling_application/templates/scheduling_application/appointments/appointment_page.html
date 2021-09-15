@@ -19,14 +19,14 @@
     </table>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit" name="edit_appointment" value="edit_appointment">Edit Appointment</button>
+        <button type="submit" class="btn btn-light" name="edit_appointment" value="edit_appointment">Edit Appointment</button>
     </form>
     <br>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit" name="remove_appointment" value="remove_appointment">Remove Appointment</button>
+        <button type="submit" class="btn btn-light" name="remove_appointment" value="remove_appointment">Remove Appointment</button>
     </form>
     <br>
-    <a href="{% url 'view_appointments' %}"><button>back</button></a>
+    <a href="{% url 'view_appointments' %}"><button class="btn btn-light">back</button></a>
 </div>
 {% endblock %}

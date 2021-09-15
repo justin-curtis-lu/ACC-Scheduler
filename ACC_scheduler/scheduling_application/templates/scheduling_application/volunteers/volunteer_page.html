@@ -18,21 +18,21 @@
             <tr><td><b>Notify by Text:</b> {{volunteer.notify_text}}</td></tr>
             <tr><td><b>Notify by Call:</b> {{volunteer.notify_call}}</td></tr>
             <tr><td><b>Current Appointments:</b> {{volunteer.current_appointments}}</td></tr>
-            <tr><td><b>Availability:</b> <a href="{% url 'view_availability' volunteer.id %}"><button>View/Edit Availability</button></a></td></tr>
+            <tr><td><b>Availability:</b> <a href="{% url 'view_availability' volunteer.id %}"><button class="btn btn-light">View/Edit Availability</button></a></td></tr>
             <tr><td><b>Additional Notes:</b> {{volunteer.additional_notes}}</td></tr>
             <tr><td><b>Unsubscribed:</b> {{volunteer.unsubscribed}}</td></tr>
         </tbody>
     </table>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit" name="edit_volunteer", value="edit_volunteer">Edit Volunteer</button>
+        <button type="submit" name="edit_volunteer", value="edit_volunteer" class="btn btn-light">Edit Volunteer</button>
     </form>
     <br>
     <form action="" method="POST">
         {% csrf_token %}
-        <button type="submit" name="remove_volunteer", value="remove_volunteer">Remove Volunteer</button>
+        <button type="submit" name="remove_volunteer", value="remove_volunteer" class="btn btn-light">Remove Volunteer</button>
     </form>
     <br>
-    <a href="{% url 'view_volunteers' %}"><button>back</button></a>
+    <a href="{% url 'view_volunteers' %}"><button class="btn btn-light">back</button></a>
 </div>
 {% endblock %}
