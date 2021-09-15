@@ -27,6 +27,7 @@
                 <tr>
                     <th scope="col">Select</th>
                     <th scope="col">Volunteer</th>
+                    <th scope="col">Phone Number</th>
                     <th scope="col">Notes</th>
                 </tr>
             </thead>
@@ -38,6 +39,9 @@
                     </td>
                     <td>
                         {{volunteer.first_name}} {{volunteer.last_name}} {% if volunteer.minor %} (minor) {% endif %}
+                    </td>
+                    <td>
+                        {{volunteer.phone}}
                     </td>
                     <td>
                         {{volunteer.additional_notes}}

@@ -463,7 +463,7 @@ def send_survey(request):
             if len(invalid_phone) != 0:
                 messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
         else:
-            messages.warning(request, f'You have already sent surveys for the month of {survey_month}.')
+            messages.error(request, f'You have already sent surveys for the month of {survey_month}.')
     return redirect('pre_send_survey')
 
 
@@ -527,6 +527,7 @@ def survey_page(request):
         else:
             month_string = request.session['survey_month']
         regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
+        print(volunteer.Days.all().filter(date__regex=regex))
         volunteer.Days.all().filter(date__regex=regex).delete()
         read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})

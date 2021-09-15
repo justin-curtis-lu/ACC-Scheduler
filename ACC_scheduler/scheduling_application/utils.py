@@ -127,7 +127,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                                 'Please click the link below to accept this request.\n' + activate_url + \
                                 '\n\nIf you have any questions or concerns, please call (916) 476-3192.' \
                                 '\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
-                from_email = 'acc.scheduler.care@gmail.com'
+                from_email = settings.EMAIL_HOST_USER
                 to_email = [i['email']]
                 try:
                     send_mail(email_subject, email_message, from_email, to_email)
@@ -174,7 +174,7 @@ def notify_senior(appointment, volunteer):
                         f'\tWhen: {appointment.date_and_time}\n' \
                         f'\tWhere: {appointment.start_address} to {appointment.end_address}\n' + \
                         '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff'
-        from_email = 'acc.scheduler.care@gmail.com'
+        from_email = settings.EMAIL_HOST_USER
         to_email = [senior.email]
         try:
             send_mail(email_subject, email_message, from_email, to_email)
@@ -202,6 +202,8 @@ def send_monthly_surveys(request):
     dt = datetime.today()
     curr_month = dt.month
     curr_year = dt.year
+    invalid_emails = []
+    invalid_phone = []
     survey_month = curr_month + 1
     if survey_month == 13:
         survey_year = curr_year + 1
@@ -218,12 +220,10 @@ def send_monthly_surveys(request):
         survey = SurveyStatus.objects.create(month=survey_month, year=survey_year, sent=False)
         # survey = SurveyStatus.objects.get(survey_id=1)
     else:
-        return sent_status, survey_month
+        return sent_status, survey_month, invalid_emails, invalid_phone
 
     sent_status = True
     domain = get_current_site(request).domain
-    invalid_emails = []
-    invalid_phone = []
 
     for i in Volunteer.objects.all():
         token = get_random_string(length=32)
@@ -236,7 +236,7 @@ def send_monthly_surveys(request):
                             "If you do not fill out the survey, your previous times will be carried over for the next month. " \
                             "Your time is so appreciated and we could not provide seniors with free programs without you!" \
                             "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
-            from_email = 'acc.scheduler.care@gmail.com'
+            from_email = settings.EMAIL_HOST_USER
             to_email = [i.email]
             try:
                 send_mail(email_subject, email_message, from_email, to_email)
@@ -258,13 +258,56 @@ def send_monthly_surveys(request):
             except TwilioException:
                 print(f"{i.phone} is not a valid phone number.")
                 invalid_phone.append(i.first_name + " " + i.last_name)
+        # availability creation
+        try:                # creates new month objects w/ last month's info if user has availability from last month
+            most_recent_day = i.Days.last().date
+            prev_month = most_recent_day[0:2]
+            num_prev_days = int(most_recent_day[3:5])
+            prev_days = i.Days.all()[:num_prev_days]
+            if survey_month < 10:
+                month = "0" + str(survey_month)
+            else:
+                month = str(survey_month)
+            print(len(prev_days))
+            print("MONTHRANGE", monthrange(int(survey_year), int(survey_month))[1])
+            print("prev_month", prev_month)
+            print("month", month)
+            if prev_month != month:
+                for j in range(0, monthrange(survey_year, survey_month)[1]):
+                    if j < 9:
+                        day = "0" + str(j + 1)
+                    else:
+                        day = str(j + 1)
+                    try:
+                        Day.objects.create(_9_10=prev_days[j]._9_10, _10_11=prev_days[j]._10_11, _11_12=prev_days[j]._11_12,
+                                           _12_1=prev_days[j]._12_1, _1_2=prev_days[j]._1_2, all=prev_days[j].all,
+                                           date=month + '/' + day + '/' + str(survey_year), volunteer=i)
+                    except IndexError:
+                        Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+                                           date=month + '/' + day + '/' + str(survey_year), volunteer=i)
+        except AttributeError:      # if volunteer has no data create new day objects
+            if survey_month < 10:
+                month = "0" + str(survey_month)
+            else:
+                month = str(survey_month)
+            for j in range(0, monthrange(survey_year, survey_month)[1]):
+                if j < 9:
+                    day = "0" + str(j + 1)
+                else:
+                    day = str(j + 1)
+                Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+                                   date=month + '/' + day + '/' + str(survey_year), volunteer=i)
+            print("ATTRIBUTE ERROR")
 
-            print("to phone", i.phone)
         i.survey_token = token
         i.save()
         # survey.month = curr_month
     survey.sent = True
     survey.save()
+    print(sent_status)
+    print(survey_month)
+    print(invalid_emails)
+    print(invalid_phone)
     return sent_status, survey_month, invalid_emails, invalid_phone
 
 
@@ -327,6 +370,7 @@ def generate_v_days(pk, month, year):
     try:
         day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + year)
     except Day.DoesNotExist:
+        print("CREATING DAYS")
         for i in range(1, days_in_month+1):
             if i < 10:
                 day = '0' + str(i)
