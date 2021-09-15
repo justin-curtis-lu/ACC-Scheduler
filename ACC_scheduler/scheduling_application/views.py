@@ -366,6 +366,13 @@ def make_appointment(request):
     if request.method == 'POST':
         senior_id = request.POST['senior_id']
         date = request.POST['date']
+        start_time = request.POST['start_time'].split(':')
+        start_time_number = int(start_time[0]) + int(start_time[1])
+        end_time = request.POST['end_time'].split(':')
+        end_time_number = int(end_time[0]) + int(end_time[1])
+        if end_time_number <= start_time_number:
+            messages.error(request, "Invalid appointment time period.")
+            return redirect('make_appointment')
         time_period = request.POST['start_time'] + '-' + request.POST['end_time']
         # day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(date=date).values_list("volunteer", flat=True)
