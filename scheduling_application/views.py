@@ -104,7 +104,7 @@ def keys(request):
     """View which reads for a valid link that allows
     creation of a middle man account (keys stored in .env)"""
     if request.method == 'GET':
-        if request.GET.get('token') == settings.KEY1:
+        if request.GET.get('token') == settings.ACCOUNT_KEY:
             return redirect('register')
         else:
             return render(request, 'scheduling_application/bad_link.html')

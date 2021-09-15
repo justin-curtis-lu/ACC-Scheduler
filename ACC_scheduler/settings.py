@@ -21,6 +21,8 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# print(get_random_secret_key())
+# print(get_random_secret_key())
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -99,8 +101,6 @@ WSGI_APPLICATION = 'ACC_scheduler.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 if DEVELOPMENT_MODE is True:
     DATABASES = {
@@ -159,8 +159,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Email Settings
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'acc.scheduler.care@gmail.com'
-EMAIL_HOST_PASSWORD = 'a2379c90-1659-408f-92a3-8247cdbe2f07'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 
 # Default primary key field type
@@ -169,9 +169,6 @@ EMAIL_USE_TLS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GALAXY_AUTH = os.getenv('GALAXY_AUTH')
-MONKEY_AUTH = os.getenv('MONKEY_AUTH')
-KEY1 = os.getenv('KEY1')
-KEY2 = os.getenv('KEY2')
-KEY3 = os.getenv('KEY3')
+ACCOUNT_KEY = os.getenv('ACCOUNT_KEY')
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')    # Twilio Account SID
 TWILIO_AUTH = os.getenv('TWILIO_AUTH')  # Twilio
