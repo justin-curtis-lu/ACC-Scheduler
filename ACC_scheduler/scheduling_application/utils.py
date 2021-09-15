@@ -7,7 +7,9 @@ from django.conf import settings
 # External imports
 from twilio.rest import Client
 from datetime import datetime
+import calendar
 from calendar import monthrange
+import re
 # App imports
 from .models import Volunteer, SurveyStatus, Day
 from .methods import check_time,  get_timeframes, check_age, appointment_conflict
@@ -15,6 +17,7 @@ from .forms import DayForm
 
 
 def sync_galaxy(vol_data, check_list):
+    pattern = re.compile("(\d\d\d\d)[-](\d\d)[-](\d\d)")
     for i in vol_data['data']:
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
@@ -23,8 +26,13 @@ def sync_galaxy(vol_data, check_list):
             # Flag to skip updating if unsubscribed is true
             if not volunteer[0].unsubscribed:
                 try:
+                    if pattern.match(i['birthdate']) is not None:
+                        date = i['birthdate'].split('-')
+                        formatted_date = date[1] + "/" + date[2] + "/" + date[0]
+                    else:
+                        formatted_date = "N/A"
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                     phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'],
+                                     phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'],
                                      additional_notes=i['extras']['availability-context'])
                     if 'Email' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_email=True)
@@ -33,14 +41,24 @@ def sync_galaxy(vol_data, check_list):
                     if 'Phone Call' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_call=True)
                 except KeyError:
+                    if pattern.match(i['birthdate']) is not None:
+                        date = i['birthdate'].split('-')
+                        formatted_date = date[1] + "/" + date[2] + "/" + date[0]
+                    else:
+                        formatted_date = "N/A"
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                     phone=i['phone'], email=i['email'], dob=i['birthdate'], address=i['address'])
+                                     phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'])
                     print("except updating", volunteer)
         else:
             # create
             try:
+                if pattern.match(i['birthdate']) is not None:
+                    date = i['birthdate'].split('-')
+                    formatted_date = date[1] + "/" + date[2] + "/" + date[0]
+                else:
+                    formatted_date = "N/A"
                 Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                         phone=i['phone'], email=i['email'], dob=i['birthdate'],
+                                         phone=i['phone'], email=i['email'], dob=formatted_date,
                                          additional_notes=i['extras']['availability-context'])
                 if 'Email' in i['extras']['preferred-contact-method']:
                     volunteer.update(notify_email=True)
@@ -50,8 +68,13 @@ def sync_galaxy(vol_data, check_list):
                     volunteer.update(notify_call=True)
                 print("try creating", i['firstName'], i['lastName'])
             except KeyError:
+                if pattern.match(i['birthdate']) is not None:
+                    date = i['birthdate'].split('-')
+                    formatted_date = date[1] + "/" + date[2] + "/" + date[0]
+                else:
+                    formatted_date = "N/A"
                 Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                         phone=i['phone'], email=i['email'], dob=i['birthdate'])
+                                         phone=i['phone'], email=i['email'], dob=formatted_date)
                 print("except creating", i['firstName'], i['lastName'])
 
 
@@ -88,14 +111,15 @@ def find_matches(check_list, date, time_period):
 
 
 def update_minors(potential_list):
+    pattern = re.compile("(\d\d)[/](\d\d)[/](\d\d\d\d)")
     for volunteer in potential_list:
-        if volunteer['dob'] != 'N/A' and check_age(volunteer['dob']):
+        if pattern.match(volunteer['dob']) is not None and check_age(volunteer['dob']):
             volunteer['minor'] = True
         else:
             volunteer['minor'] = False
     for volunteer in potential_list:
         set_minor = Volunteer.objects.get(id=volunteer['id'])
-        if set_minor.dob != 'N/A' and check_age(set_minor.dob):
+        if pattern.match(set_minor.dob) is not None and check_age(set_minor.dob):
             set_minor.minor = True
             set_minor.save()
         else:
@@ -212,8 +236,8 @@ def send_monthly_surveys(request):
                        + "&token=" + token
         if i.notify_email:
             email_subject = 'Volunteer Availability Survey'
-            email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                            "If you do not fill out the survey, your previous times will be carried over for the next month. " \
+            email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the month of " + calendar.month_name[survey_month] + ". " \
+                            "If you do not fill out the survey, your previous times will be carried over for the month of " + calendar.month_name[survey_month] + ". " \
                             "Your time is so appreciated and we could not provide seniors with free programs without you!" \
                             "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
             from_email = 'acc.scheduler.care@gmail.com'
@@ -226,8 +250,8 @@ def send_monthly_surveys(request):
             auth_token = settings.TWILIO_AUTH
             client = Client(account_sid, auth_token)
             message = client.messages.create(
-                body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the next month. " \
-                     f"If you do not fill out the survey, your previous times will be carried over for the next month. "
+                body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the month of " + calendar.month_name[survey_month] + ". " \
+                     f"If you do not fill out the survey, your previous times will be carried over for the month of " + calendar.month_name[survey_month] + ". "
                      f"Your time is so appreciated and we could not provide seniors with free programs without you!"
                      f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
                 from_='+19569486977', to=i.phone)
