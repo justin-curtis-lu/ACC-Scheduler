@@ -35,9 +35,6 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    # month_integer = SurveyStatus.objects.get(survey_id=1).month
-    # datetime_object = datetime.strptime(str(month_integer), "%m")
-    # full_month_name = datetime_object.strftime("%B")
     context = {
         'vol_count': Volunteer.objects.count(),
         'sen_count': Senior.objects.count(),
@@ -142,6 +139,8 @@ def password_reset_request(request):
 
 # Collection of views for View Appointments, View Participants, View Volunteers
 def view_appointments(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     appointments = Appointment.objects.all()
     context = {
         'appointments': appointments,
@@ -150,6 +149,8 @@ def view_appointments(request):
 
 
 def appointment_page(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for appointment profile page"""
     appointment = Appointment.objects.get(id=pk)
     if request.method == 'POST':
@@ -165,6 +166,8 @@ def appointment_page(request, pk):
 
 
 def edit_appointment(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for editing appointment"""
     appointment = Appointment.objects.get(id=pk)
     data = {'senior': appointment.senior, 'volunteer': appointment.volunteer, 'start_address': appointment.start_address, 'end_address': appointment.end_address, 'date_and_time': appointment.date_and_time,
@@ -182,6 +185,8 @@ def edit_appointment(request, pk):
 
 
 def view_seniors(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for the seniors page (table of all the seniors in the database)"""
     seniors = Senior.objects.all()
     context = {
@@ -191,6 +196,8 @@ def view_seniors(request):
 
 
 def add_senior(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for adding senior"""
     form = SeniorForm()
     if request.method == 'POST':
@@ -205,6 +212,8 @@ def add_senior(request):
 
 
 def edit_senior(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for editing senior"""
     senior = Senior.objects.get(id=pk)
     data = {'last_name': senior.last_name, 'first_name': senior.first_name, 'address': senior.address, 'phone': senior.phone, 'email': senior.email, 'emergency_contacts': senior.emergency_contacts,
@@ -223,6 +232,8 @@ def edit_senior(request, pk):
 
 
 def senior_page(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for senior profile page"""
     senior = Senior.objects.get(id=pk)
     if request.method == 'POST':
@@ -238,6 +249,8 @@ def senior_page(request, pk):
 
 
 def view_volunteers(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for the volunteers page (table of all the volunteers in the database)"""
     volunteers = Volunteer.objects.all()
     context = {
@@ -247,6 +260,8 @@ def view_volunteers(request):
 
 
 def add_volunteer(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for adding volunteer page"""
     form = VolunteerForm()
     if request.method == 'POST':
@@ -261,6 +276,8 @@ def add_volunteer(request):
 
 
 def edit_volunteer(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for editing volunteer"""
     volunteer = Volunteer.objects.get(id=pk)
     data = {'galaxy_id': volunteer.galaxy_id, 'last_name': volunteer.last_name, 'first_name': volunteer.first_name, 'phone': volunteer.phone, 'email': volunteer.email, 'dob': volunteer.dob,
@@ -279,6 +296,8 @@ def edit_volunteer(request, pk):
 
 
 def view_availability(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     dt = datetime.today()
     curr_month = dt.month
     curr_year = dt.year
@@ -299,6 +318,8 @@ def view_availability(request, pk):
     return render(request, "scheduling_application/volunteers/view_availability.html", context)
 
 def view_next_availability(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     dt = datetime.today()
     next_month = dt.month + 1
     curr_year = dt.year
@@ -324,6 +345,8 @@ def view_next_availability(request, pk):
 
 
 def volunteer_page(request, pk):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for volunteer profile page"""
     volunteer = Volunteer.objects.get(id=pk)
     if request.method == 'POST':
@@ -340,6 +363,8 @@ def volunteer_page(request, pk):
 
 # Collection of views for Sync GalaxyDigital, SendSurveys, and Schedule an Appointment
 def galaxy_update_volunteers(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
     if request.GET.get("sync_GalaxyDigital"):     # CHANGE TO NAME TO SYNC_GALAXY
@@ -357,6 +382,8 @@ def galaxy_update_volunteers(request):
     return redirect('console')
 
 def make_appointment(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for the page where users can schedule an appointment.
        Shows current seniors, volunteers, and appointments.
        Allows users to choose a senior and day then continue."""
@@ -385,6 +412,8 @@ def make_appointment(request):
 
 
 def confirm_volunteers(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for page to confirm which volunteers to send emails to. (Follows make_appointment)"""
     potential_list = request.session['potential_list']
     senior = Senior.objects.get(id=request.session['senior'])
@@ -452,6 +481,8 @@ def vol_already_selected(request):
 
 
 def send_survey(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for middle man to send the monthly surveys"""
     if request.GET.get('send_survey'):
         sent_status, survey_month, invalid_emails, invalid_phone = send_monthly_surveys(request)
@@ -467,6 +498,8 @@ def send_survey(request):
 
 
 def pre_send_survey(request):
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """Extra view which helps prevent mis-clicks of monthly survey sending"""
     return render(request, 'scheduling_application/survey_sending/survey_confirmation.html')
 
@@ -482,6 +515,8 @@ def survey_page(request):
         request.session['survey_year'] = request.GET.get('year')
         vol_id = request.session['vol_id']
         vol_token = request.session['vol_token']
+        if not (vol_id or vol_token):
+            return render(request, "scheduling_application/bad_link.html", {})
         volunteer = Volunteer.objects.get(id=vol_id)
         month = request.session['survey_month']
         date = {'month': month}
