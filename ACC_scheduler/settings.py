@@ -17,6 +17,7 @@ import sys
 import dj_database_url
 from django.core.management.utils import get_random_secret_key
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +32,12 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
-
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -148,8 +154,6 @@ EMAIL_USE_TLS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# API KEYS
-load_dotenv()
 GALAXY_AUTH = os.getenv('GALAXY_AUTH')
 MONKEY_AUTH = os.getenv('MONKEY_AUTH')
 KEY1 = os.getenv('KEY1')
