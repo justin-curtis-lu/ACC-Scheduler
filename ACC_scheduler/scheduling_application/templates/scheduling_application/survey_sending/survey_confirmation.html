@@ -20,10 +20,10 @@
             <p class="space special">Please send the survey one week before the end of the month to allow for adequate time</p>
             <p class="space">Are you sure you want to send the survey?</p>
             <form class="" action="{% url 'send_survey' %}">
-                <input type="submit" name="send_survey" value="Confirm" />
+                <input type="submit" class="btn btn-light" name="send_survey" value="Confirm" />
             </form>
             <form class="space" action="{% url 'console' %}">
-                <input type="submit" name="send_survey" value="Exit" />
+                <input type="submit" class="btn btn-light" name="send_survey" value="Exit" />
             </form>
         </div>
     </div>

@@ -27,6 +27,7 @@
                 <tr>
                     <th scope="col">Select</th>
                     <th scope="col">Volunteer</th>
+                    <th scope="col">Phone Number</th>
                     <th scope="col">Notes</th>
                 </tr>
             </thead>
@@ -38,6 +39,9 @@
                     </td>
                     <td>
                         {{volunteer.first_name}} {{volunteer.last_name}} {% if volunteer.minor %} (minor) {% endif %}
+                    </td>
+                    <td>
+                        {{volunteer.phone}}
                     </td>
                     <td>
                         {{volunteer.additional_notes}}
@@ -65,11 +69,11 @@
         <div class="col"><input type="text" name="notes"><br><br></div>
     </div>
     <br>
-    <input type="Submit" name="select_volunteers">
+    <input type="Submit" class="btn btn-light" name="select_volunteers">
     <br>
     <br>
     </form>
     {% endif %}
-    <a href="{% url 'make_appointment' %}"><button>Back</button></a>
+    <a href="{% url 'make_appointment' %}"><button class="btn btn-light">Back</button></a>
 </div>
 {% endblock %}

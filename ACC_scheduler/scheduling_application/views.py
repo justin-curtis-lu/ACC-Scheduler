@@ -36,15 +36,23 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    # month_integer = SurveyStatus.objects.get(survey_id=1).month
-    # datetime_object = datetime.strptime(str(month_integer), "%m")
-    # full_month_name = datetime_object.strftime("%B")
-    context = {
-        'vol_count': Volunteer.objects.count(),
-        'sen_count': Senior.objects.count(),
-        # 'month': full_month_name
-    }
+    if len(SurveyStatus.objects.all()) == 0:
+        context = {
+            'vol_count': Volunteer.objects.count(),
+            'sen_count': Senior.objects.count(),
+        }
+    else:
+        month_integer = SurveyStatus.objects.last().month
+        datetime_object = datetime.strptime(str(month_integer), "%m")
+        full_month_name = datetime_object.strftime("%B")
+        context = {
+            'vol_count': Volunteer.objects.count(),
+            'sen_count': Senior.objects.count(),
+            'month': full_month_name
+        }
     return render(request, 'scheduling_application/authentication_general/console.html', context)
+
+
 
 
 def login(request):
@@ -366,6 +374,13 @@ def make_appointment(request):
     if request.method == 'POST':
         senior_id = request.POST['senior_id']
         date = request.POST['date']
+        start_time = request.POST['start_time'].split(':')
+        start_time_number = int(start_time[0]) + int(start_time[1])
+        end_time = request.POST['end_time'].split(':')
+        end_time_number = int(end_time[0]) + int(end_time[1])
+        if end_time_number <= start_time_number:
+            messages.error(request, "Invalid appointment time period.")
+            return redirect('make_appointment')
         time_period = request.POST['start_time'] + '-' + request.POST['end_time']
         # day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(date=date).values_list("volunteer", flat=True)
@@ -463,7 +478,7 @@ def send_survey(request):
             if len(invalid_phone) != 0:
                 messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
         else:
-            messages.warning(request, f'You have already sent surveys for the month of {survey_month}.')
+            messages.error(request, f'You have already sent surveys for the month of {survey_month}.')
     return redirect('pre_send_survey')
 
 
@@ -527,6 +542,7 @@ def survey_page(request):
         else:
             month_string = request.session['survey_month']
         regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
+        print(volunteer.Days.all().filter(date__regex=regex))
         volunteer.Days.all().filter(date__regex=regex).delete()
         read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
