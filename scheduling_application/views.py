@@ -120,8 +120,8 @@ def password_reset_request(request):
                     from_email = 'acc.scheduler.care@gmail.com'
                     c = {
                         "email": user.email,
-                        'domain': '127.0.0.1:8000',         # CHANGE FOR DEPLOYMENT
-                        'site_name': 'ACC Scheduler',       # CHANGE FOR DEPLOYMENT
+                        'domain': get_current_site(request).domain,
+                        'site_name': 'ACC Scheduler',
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
                         'token': default_token_generator.make_token(user),
