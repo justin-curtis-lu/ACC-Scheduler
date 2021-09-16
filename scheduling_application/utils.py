@@ -114,13 +114,20 @@ def find_matches(check_list, date, time_period):
 def update_minors(potential_list):
     pattern = re.compile("(\d\d)[/](\d\d)[/](\d\d\d\d)")
     for volunteer in potential_list:
-        if pattern.match(volunteer['dob']) is not None and check_age(volunteer['dob']):
+        if not volunteer['dob']:
+            volunteer['minor'] = False
+            continue
+        elif pattern.match(volunteer['dob']) is not None and check_age(volunteer['dob']):
             volunteer['minor'] = True
         else:
             volunteer['minor'] = False
     for volunteer in potential_list:
         set_minor = Volunteer.objects.get(id=volunteer['id'])
-        if pattern.match(set_minor.dob) is not None and check_age(set_minor.dob):
+        if not volunteer['dob']:
+            set_minor.minor = False
+            set_minor.save()
+            continue
+        elif pattern.match(set_minor.dob) is not None and check_age(set_minor.dob):
             set_minor.minor = True
             set_minor.save()
         else:
