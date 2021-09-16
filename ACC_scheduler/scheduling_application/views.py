@@ -36,15 +36,23 @@ def console(request):
     Allows middle man access to all user side functions"""
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    # month_integer = SurveyStatus.objects.get(survey_id=1).month
-    # datetime_object = datetime.strptime(str(month_integer), "%m")
-    # full_month_name = datetime_object.strftime("%B")
-    context = {
-        'vol_count': Volunteer.objects.count(),
-        'sen_count': Senior.objects.count(),
-        # 'month': full_month_name
-    }
+    if len(SurveyStatus.objects.all()) == 0:
+        context = {
+            'vol_count': Volunteer.objects.count(),
+            'sen_count': Senior.objects.count(),
+        }
+    else:
+        month_integer = SurveyStatus.objects.last().month
+        datetime_object = datetime.strptime(str(month_integer), "%m")
+        full_month_name = datetime_object.strftime("%B")
+        context = {
+            'vol_count': Volunteer.objects.count(),
+            'sen_count': Senior.objects.count(),
+            'month': full_month_name
+        }
     return render(request, 'scheduling_application/authentication_general/console.html', context)
+
+
 
 
 def login(request):

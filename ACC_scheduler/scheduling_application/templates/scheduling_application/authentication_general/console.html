@@ -46,7 +46,9 @@
                 <br>
                 <p class="special"><big>There are currently {{vol_count}} volunteer(s).</big></p>
                 <p class="special"><big>There are currently {{sen_count}} participant(s).</big></p>
-                <p class="special"><big>The most recent surveys were sent for the month of {{month}}.</big></p>
+                {% if month %}
+                    <p class="special"><big>The most recent surveys were sent for the month of {{month}}.</big></p>
+                {% endif %}
             {% endif %}
             </div>
         </div>
