@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from .models import Senior, Volunteer
+import requests
 
 
 class MakeAppointmentViewTests(TestCase):
@@ -74,9 +75,13 @@ class MakeAppointmentViewTests(TestCase):
         If datetime format is incorrect, display appropriate message
         """
         day_time = "asklhgli"
+        good_daytime = "04/03/2000"
         response = self.client.get(reverse('make_appointment'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Please input date and time in the format 'MM/DD/YYYY XX:XX-YY:YY'.")
+        response = requests.post("http://127:0:0:1/make_appointment", {''})
+        print()
+        print(response)
+        # self.assertContains(response, "Please input date and time in the format 'MM/DD/YYYY XX:XX-YY:YY'.")
         #self.assertQuerysetEqual(response.get, ["hello"])
 
 
