@@ -261,9 +261,18 @@ def add_volunteer(request):
     form = VolunteerForm()
     if request.method == 'POST':
         form = VolunteerForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('view_volunteers')
+        try:
+            if request.POST['notify_email'] == "on" or request.POST['notify_text'] == "on" or request.POST[
+                'notify_call'] == "on":
+                if form.is_valid():
+                    form.save()
+                    return redirect('view_volunteers')
+                else:
+                    messages.error(request, "Invalid Form.")
+                    return redirect('add_volunteer')
+        except:
+            messages.error(request, "Please select one notification method")
+            return redirect('add_volunteer')
     context = {
         'form': form
     }
