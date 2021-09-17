@@ -50,20 +50,6 @@ def console(request):
             'sen_count': Senior.objects.count(),
             'month': full_month_name
         }
-    if request.method == "GET":
-        url = 'https://api2.galaxydigital.com/volunteer/user/list/'
-        headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
-        response = requests.get(url, headers=headers, params=params)
-        vol_data = response.json()
-        # print(vol_data)
-        check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        try:
-            # sync_galaxy(vol_data, check_list)
-            print("synced galaxy")
-            # messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
-        except:
-            messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return render(request, 'scheduling_application/authentication_general/console.html', context)
 
 
@@ -86,9 +72,10 @@ def login(request):
             vol_data = response.json()
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
             try:
-                sync_galaxy(vol_data, check_list)
+                # sync_galaxy(vol_data, check_list)
+                print("synced galaxy")
             except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
-                pass
+                messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
             return redirect('console')
         else:
             messages.error(request, 'invalid credentials')
