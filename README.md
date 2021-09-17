@@ -67,7 +67,7 @@
 ## About The Project
 
 
-<img src="images/console.png" alt="Console" width="750" height="400">
+<img src="images/console.jpg" alt="Console" width="750" height="400">
 
 
 ### Built With
