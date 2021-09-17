@@ -27,8 +27,8 @@ def sync_galaxy(vol_data, check_list):
             # Flag to skip updating if unsubscribed is true
             if not volunteer[0].unsubscribed:
                 try:
-                    if pattern.match(i['birthdate']) is not None:
-                        date = i['birthdate'].split('-')
+                    if pattern.match(str(i['birthdate'])) is not None:
+                        date = str(i['birthdate']).split('-')
                         formatted_date = date[1] + "/" + date[2] + "/" + date[0]
                     else:
                         formatted_date = "N/A"
@@ -42,8 +42,8 @@ def sync_galaxy(vol_data, check_list):
                     if 'Phone Call' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_call=True)
                 except KeyError:
-                    if pattern.match(i['birthdate']) is not None:
-                        date = i['birthdate'].split('-')
+                    if pattern.match(str(i['birthdate'])) is not None:
+                        date = str(i['birthdate']).split('-')
                         formatted_date = date[1] + "/" + date[2] + "/" + date[0]
                     else:
                         formatted_date = "N/A"
@@ -52,12 +52,14 @@ def sync_galaxy(vol_data, check_list):
                     print("except updating", volunteer)
         else:
             # create
+            #print("create")
             try:
-                if pattern.match(i['birthdate']) is not None:
-                    date = i['birthdate'].split('-')
+                if pattern.match(str(i['birthdate'])) is not None:
+                    date = str(i['birthdate']).split('-')
                     formatted_date = date[1] + "/" + date[2] + "/" + date[0]
                 else:
                     formatted_date = "N/A"
+                #print(formatted_date)
                 Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                          phone=i['phone'], email=i['email'], dob=formatted_date,
                                          additional_notes=i['extras']['availability-context'])
@@ -69,8 +71,8 @@ def sync_galaxy(vol_data, check_list):
                     volunteer.update(notify_call=True)
                 print("try creating", i['firstName'], i['lastName'])
             except KeyError:
-                if pattern.match(i['birthdate']) is not None:
-                    date = i['birthdate'].split('-')
+                if pattern.match(str(i['birthdate'])) is not None:
+                    date = str(i['birthdate']).split('-')
                     formatted_date = date[1] + "/" + date[2] + "/" + date[0]
                 else:
                     formatted_date = "N/A"

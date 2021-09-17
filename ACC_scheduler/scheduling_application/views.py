@@ -50,6 +50,20 @@ def console(request):
             'sen_count': Senior.objects.count(),
             'month': full_month_name
         }
+    if request.method == "GET":
+        url = 'https://api2.galaxydigital.com/volunteer/user/list/'
+        headers = {'Accept': 'scheduling_application/json'}
+        params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
+        response = requests.get(url, headers=headers, params=params)
+        vol_data = response.json()
+        # print(vol_data)
+        check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+        try:
+            # sync_galaxy(vol_data, check_list)
+            print("synced galaxy")
+            # messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
+        except:
+            messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return render(request, 'scheduling_application/authentication_general/console.html', context)
 
 
@@ -351,7 +365,7 @@ def volunteer_page(request, pk):
 def galaxy_update_volunteers(request):
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
-    if request.GET.get("sync_GalaxyDigital"):     # CHANGE TO NAME TO SYNC_GALAXY
+    if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
         params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
