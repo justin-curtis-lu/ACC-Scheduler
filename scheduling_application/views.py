@@ -72,9 +72,10 @@ def login(request):
             vol_data = response.json()
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
             try:
-                sync_galaxy(vol_data, check_list)
+                # sync_galaxy(vol_data, check_list)
+                print("synced galaxy")
             except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
-                pass
+                messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
             return redirect('console')
         else:
             messages.error(request, 'invalid credentials')
@@ -278,9 +279,18 @@ def add_volunteer(request):
     form = VolunteerForm()
     if request.method == 'POST':
         form = VolunteerForm(request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect('view_volunteers')
+        try:
+            if request.POST['notify_email'] == "on" or request.POST['notify_text'] == "on" or request.POST[
+                'notify_call'] == "on":
+                if form.is_valid():
+                    form.save()
+                    return redirect('view_volunteers')
+                else:
+                    messages.error(request, "Invalid Form.")
+                    return redirect('add_volunteer')
+        except:
+            messages.error(request, "Please select one notification method")
+            return redirect('add_volunteer')
     context = {
         'form': form
     }
@@ -379,7 +389,7 @@ def galaxy_update_volunteers(request):
         return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
-    if request.GET.get("sync_GalaxyDigital"):     # CHANGE TO NAME TO SYNC_GALAXY
+    if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
         params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}

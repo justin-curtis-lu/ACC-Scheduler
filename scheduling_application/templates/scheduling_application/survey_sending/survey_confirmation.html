@@ -18,6 +18,9 @@
                     {% endfor %}
                 {% endif %}
             <p class="space special">Please send the survey one week before the end of the month to allow for adequate time</p>
+            <p class="space special">Once confirm has been clicked, please wait for a message to pop up before attempting to exit or
+            reload the page</p>
+            <br>
             <p class="space">Are you sure you want to send the survey?</p>
             <form class="" action="{% url 'send_survey' %}">
                 <input type="submit" class="btn btn-light" name="send_survey" value="Confirm" />
