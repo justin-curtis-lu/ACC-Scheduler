@@ -69,6 +69,7 @@
 
 <img src="images/console.jpg" alt="Console" width="750" height="400">
 
+Monthly survey sending to collect availability for 1 on 1 appointments. First volunteer to confirm is matched with the desired participant.
 
 ### Built With
 
