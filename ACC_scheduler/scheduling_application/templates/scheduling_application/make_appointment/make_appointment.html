@@ -62,10 +62,10 @@
         <div class="col-3"><p><b>End Time</b></p></div>
     </div>
     <div class="row">
-            <div class="col-3"><input id="senior_name" type="text" name="senior_name" placeholder="Select participant name" autocomplete="off" readonly="readonly" required><br></div>
-            <div class="col-3"><input type="text" id="date_picker" name="date" autocomplete="off" readonly="readonly" required><br></div>
-            <div class="col-3"><input type="text" id="start_picker" name="start_time" autocomplete="off" readonly="readonly" required><br></div>
-            <div class="col-3"><input type="text" id="end_picker" name="end_time" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input id="senior_name" type="text" name="senior_name" placeholder="Select participant name" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input type="text" id="date_picker" name="date" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input type="text" id="start_picker" name="start_time" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input type="text" id="end_picker" name="end_time" autocomplete="off" readonly="readonly" required><br></div>
     </div>
     </div>
     <br>
@@ -98,12 +98,12 @@
         })
     </script>
     <br>
-    <input type="Submit" name="select_senior">
+    <input type="Submit" class="btn btn-light" name="select_senior">
 </form>
 <br>
 <br>
 </div>
 <div class="center">
-    <a href="{% url 'console' %}"><button>Return to Dashboard</button></a>
+    <a href="{% url 'console' %}"><button class="btn btn-light">Return to Dashboard</button></a>
 </div>
 {% endblock %}

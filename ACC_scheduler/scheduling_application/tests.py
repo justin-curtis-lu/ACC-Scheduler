@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from .models import Senior, Volunteer
+import requests
 
 
 class MakeAppointmentViewTests(TestCase):
@@ -24,7 +25,7 @@ class MakeAppointmentViewTests(TestCase):
         """
         response = self.client.get(reverse('make_appointment'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No participants currently added.")
+        self.assertContains(response, "No data available in table.")
         self.assertQuerysetEqual(response.context['seniors_list'], [])
 
     def test_no_volunteers(self):
@@ -33,30 +34,18 @@ class MakeAppointmentViewTests(TestCase):
         """
         response = self.client.get(reverse('make_appointment'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No volunteers currently added.")
+        self.assertContains(response, "No volunteers are available at this time.")
         self.assertQuerysetEqual(response.context['volunteers_list'], [])
 
     def test_seniors_in_database(self):
         """
-        If there are seniors in the database, an appropriate message is displayed
+        If there are seniors in the database, there should be items in seniors_list
         """
         test_senior = Senior.objects.create(last_name="Doe", first_name="Jane", vaccinated=True, notify_email=False,
                                             notify_text=False, notify_call=True)
         response = self.client.get(reverse('make_appointment'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Participants currently in the database")
         self.assertGreaterEqual(len(response.context['seniors_list']), 1)
-
-    def test_volunteers_in_database(self):
-        """
-        If there are volunteers in the database, an appropriate message is displayed
-        """
-        test_volunteer = Volunteer.objects.create(last_name="Yeo", first_name="Nate", minor=False, vaccinated=True,
-                                                  notify_email=False, notify_text=False, notify_call=True)
-        response = self.client.get(reverse('make_appointment'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Volunteers currently in the database")
-        self.assertGreaterEqual(len(response.context['volunteers_list']), 1)
 
     def test_no_available_volunteers(self):
         """
@@ -77,7 +66,7 @@ class MakeAppointmentViewTests(TestCase):
         good_daytime = "04/03/2000"
         response = self.client.get(reverse('make_appointment'))
         self.assertEqual(response.status_code, 200)
-        response = request.post("http://127:0:0:1/make_appointment", {''})
+        response = requests.post("http://127:0:0:1/make_appointment", {''})
         print()
         print(response)
         # self.assertContains(response, "Please input date and time in the format 'MM/DD/YYYY XX:XX-YY:YY'.")
