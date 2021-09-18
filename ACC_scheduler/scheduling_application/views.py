@@ -477,14 +477,18 @@ def send_survey(request):
                 messages.error(request, f'Emails have not been sent to the following volunteers as their emails are invalid {invalid_emails}')
             if len(invalid_phone) != 0:
                 messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
-        else:
-            messages.error(request, f'You have already sent surveys for the month of {calendar.month_name[int(month)]}.')
+        # else:
+        #    messages.error(request, f'You have already sent surveys for the month of {calendar.month_name[int(month)]}.')
     return redirect('pre_send_survey')
 
 
 def pre_send_survey(request):
     """Extra view which helps prevent mis-clicks of monthly survey sending"""
-    return render(request, 'scheduling_application/survey_sending/survey_confirmation.html')
+    surveys = SurveyStatus.objects.all()
+    context = {
+        'surveys': surveys,
+    }
+    return render(request, 'scheduling_application/survey_sending/survey_confirmation.html', context)
 
 
 def survey_page(request):
