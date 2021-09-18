@@ -227,11 +227,12 @@ def send_monthly_surveys(request, month, year):
     sent_status = False
     invalid_emails = []
     invalid_phone = []
-    if SurveyStatus.objects.filter(month=month).filter(year=year).count() == 0:
-        # send ARE YOU SURE STATEMENT
-        survey = SurveyStatus.objects.create(month=month, year=year, sent=False)
-    else:
-        return sent_status, invalid_emails, invalid_phone
+
+    if SurveyStatus.objects.filter(month=month).filter(year=year).count() != 0:
+        # SEND WARNING
+
+    survey = SurveyStatus.objects.create(month=month, year=year, sent=False)
+
     sent_status = True
     domain = get_current_site(request).domain
     for i in Volunteer.objects.all():
