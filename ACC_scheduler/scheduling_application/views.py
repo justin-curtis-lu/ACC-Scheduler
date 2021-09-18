@@ -298,7 +298,9 @@ def edit_volunteer(request, pk):
     return render(request, 'scheduling_application/volunteers/edit_volunteer.html', context)
 
 
-def view_availability(request, pk, month, year):
+def view_availability(request, pk):
+    month = request.session['current_month']
+    year = request.session['current_year']
     DayFormSet, volunteer, formset, month = generate_v_days(pk, int(month), int(year))
     if request.method == 'POST' and 'datepicker' not in request.POST:
         formset = DayFormSet(request.POST)
@@ -311,13 +313,16 @@ def view_availability(request, pk, month, year):
         date = request.POST.get('datepicker').split('/')
         month = date[0]
         year = date[1]
-        return redirect('view_availability', pk, month, year)
+        request.session['current_month'] = month
+        request.session['current_year'] = year
+        return redirect('view_availability', pk)
     context = {
         'volunteer': volunteer,
         'formset': formset,
         'month': month,
     }
     return render(request, "scheduling_application/volunteers/view_availability.html", context)
+
 
 def volunteer_page(request, pk):
     """View for volunteer profile page"""
@@ -333,9 +338,9 @@ def volunteer_page(request, pk):
             return redirect('edit_volunteer', pk)
     context = {
         'volunteer': volunteer,
-        'current_month': curr_month,
-        'current_year': curr_year
     }
+    request.session['current_month'] = curr_month
+    request.session['current_year'] = curr_year
     return render(request, 'scheduling_application/volunteers/volunteer_page.html', context)
 
 

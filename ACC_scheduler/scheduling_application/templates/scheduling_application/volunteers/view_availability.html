@@ -40,8 +40,6 @@
     <input type="submit" class="btn btn-light">
 </form>
 <br>
-<br>
-
 <form method="POST">
 {% csrf_token %}
 <div class="col-3">
@@ -54,10 +52,8 @@
         minViewMode: "months"
         });
     </script>
-<input type="submit" class="btn btn-light" name="view_month" value="View Selected Month's Availability" />
+<input type="submit" class="btn btn-light" name="view_month" value="View Month" />
 </form>
-
-<br>
 <br>
 <a href="{% url 'view_volunteers' %}"><button class="btn btn-light">back</button></a>
 </div>
