@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
 from scheduling_application import views as sa_views
+from django.conf import settings
 
 urlpatterns = [
     path('', sa_views.home, name='home'),
@@ -32,7 +33,6 @@ urlpatterns = [
          name='password_reset_complete'),
     path("password_reset/", sa_views.password_reset_request, name="password_reset"),
     path('console/', sa_views.console, name='console'),
-    path('admin/', admin.site.urls),
     path('register/', sa_views.register, name='register'),
     path('keys/', sa_views.keys, name='keys'),
     path('login/', sa_views.login, name='login'),
@@ -59,3 +59,6 @@ urlpatterns = [
     path('edit_appointment/<str:pk>', sa_views.edit_appointment, name='edit_appointment'),
     path('view_next_availability/<str:pk>', sa_views.view_next_availability, name='view_next_availability'),
 ]
+
+if settings.ADMIN_ENABLED:
+    urlpatterns.append(path('admin/', admin.site.urls))

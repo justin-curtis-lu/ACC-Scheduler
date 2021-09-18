@@ -32,22 +32,14 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-print(DEBUG)
-
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "False") == "True"
 
-if DEVELOPMENT_MODE is False:
-    print("Running in Prod Mode")
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-else:
+if DEVELOPMENT_MODE:
     print("Running in Dev Mode")
+    ADMIN_ENABLED = True
+    PROTOCOL = 'http'
     CORS_REPLACE_HTTPS_REFERER = False
     HOST_SCHEME = "http://"
     SECURE_PROXY_SSL_HEADER = None
@@ -57,8 +49,18 @@ else:
     SECURE_HSTS_SECONDS = None
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
     SECURE_FRAME_DENY = False
-# Application definition
+else:
+    print("Running in Prod Mode")
+    PROTOCOL = 'https'
+    ADMIN_ENABLED = False
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

@@ -148,7 +148,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
             flag = True
             if i['notify_email']:
                 token = get_random_string(length=32)
-                activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
+                activate_url = settings.PROTOCOL+'://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
                     'email'] + "&token=" + token + "&appointment_id=" + str(appointment_id)
                 email_subject = 'Volunteer Appointment Confirmation'
                 email_message = f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests ' \
@@ -169,7 +169,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                     invalid_emails.append(i['first_name'] + " " + i['last_name'])
             if i['notify_text']:
                 token = get_random_string(length=32)
-                activate_url = 'http://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
+                activate_url = settings.PROTOCOL+'://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
                     'email'] + "&token=" + token  # MAYBE CAN REMOVE EMAIL QUERY
                 account_sid = settings.TWILIO_ACCOUNT_SID
                 auth_token = settings.TWILIO_AUTH
@@ -261,7 +261,7 @@ def send_monthly_surveys(request):
     for i in Volunteer.objects.all():
         token = get_random_string(length=32)
         i.survey_token = token
-        activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + str(survey_month) + "&year=" + str(survey_year) +  "&email=" + i.email \
+        activate_url = settings.PROTOCOL+'://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + str(survey_month) + "&year=" + str(survey_year) +  "&email=" + i.email \
                        + "&token=" + token
         if i.notify_email:
             email_subject = 'Volunteer Availability Survey'

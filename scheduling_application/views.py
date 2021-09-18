@@ -138,7 +138,7 @@ def password_reset_request(request):
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
                         'token': default_token_generator.make_token(user),
-                        'protocol': 'http',
+                        'protocol': settings.PROTOCOL,
                     }
                     email = render_to_string(email_template_name, c)
                     try:
@@ -529,8 +529,11 @@ def send_survey(request):
 def pre_send_survey(request):
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
+    context = {
+        'estimate': Volunteer.objects.count() * 2
+    }
     """Extra view which helps prevent mis-clicks of monthly survey sending"""
-    return render(request, 'scheduling_application/survey_sending/survey_confirmation.html')
+    return render(request, 'scheduling_application/survey_sending/survey_confirmation.html', context)
 
 
 def survey_page(request):
