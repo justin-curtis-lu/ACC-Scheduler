@@ -223,43 +223,26 @@ def notify_senior(appointment, volunteer):
             print(f"{senior.phone} is not a valid phone number.")
 
 
-def send_monthly_surveys(request):
+def send_monthly_surveys(request, month, year):
     sent_status = False
-    dt = datetime.today()
-    curr_month = dt.month
-    curr_year = dt.year
     invalid_emails = []
     invalid_phone = []
-    survey_month = curr_month + 1
-    if survey_month == 13:
-        survey_year = curr_year + 1
-        survey_month = 1
+    if SurveyStatus.objects.filter(month=month).filter(year=year).count() == 0:
+        # send ARE YOU SURE STATEMENT
+        survey = SurveyStatus.objects.create(month=month, year=year, sent=False)
     else:
-        survey_year = curr_year
-        survey_month = curr_month + 1
-
-    if SurveyStatus.objects.filter(month=curr_month).filter(year=curr_year).count() == 0:
-        survey_month = curr_month
-        survey_year = curr_year
-        survey = SurveyStatus.objects.create(month=curr_month, year=curr_year, sent=False)
-    elif SurveyStatus.objects.filter(month=survey_month).filter(year=survey_year).count() == 0:
-        survey = SurveyStatus.objects.create(month=survey_month, year=survey_year, sent=False)
-        # survey = SurveyStatus.objects.get(survey_id=1)
-    else:
-        return sent_status, survey_month, invalid_emails, invalid_phone
-
+        return sent_status, invalid_emails, invalid_phone
     sent_status = True
     domain = get_current_site(request).domain
-
     for i in Volunteer.objects.all():
         token = get_random_string(length=32)
         i.survey_token = token
-        activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + str(survey_month) + "&year=" + str(survey_year) +  "&email=" + i.email \
+        activate_url = 'http://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + month + "&year=" + year +  "&email=" + i.email \
                        + "&token=" + token
         if i.notify_email:
             email_subject = 'Volunteer Availability Survey'
-            email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the month of " + calendar.month_name[survey_month] + ". " \
-                            "If you do not fill out the survey, your previous times will be carried over for the month of " + calendar.month_name[survey_month] + ". " \
+            email_message = "Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the month of " + calendar.month_name[int(month)] + ". " \
+                            "If you do not fill out the survey, your previous times will be carried over for the month of " + calendar.month_name[int(month)] + ". " \
                             "Your time is so appreciated and we could not provide seniors with free programs without you!" \
                             "\n" + activate_url + "\n\nSincerely,\nSenior Escort Program Staff"
             from_email = settings.EMAIL_HOST_USER
@@ -277,9 +260,9 @@ def send_monthly_surveys(request):
             try:
                 message = client.messages.create(
                     body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the month of "
-                         + calendar.month_name[survey_month] + ". "f"If you do not fill out the survey, your previous "
+                         + calendar.month_name[month] + ". "f"If you do not fill out the survey, your previous "
                                                                f"times will be carried over for the month of " +
-                         calendar.month_name[survey_month] + ". " + f"Your time is so appreciated and we could not "
+                         calendar.month_name[month] + ". " + f"Your time is so appreciated and we could not "
                                                                     f"provide seniors with free programs without you!"
                          + f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
                     from_='+19569486977', to=i.phone)
@@ -292,16 +275,12 @@ def send_monthly_surveys(request):
             prev_month = most_recent_day[0:2]
             num_prev_days = int(most_recent_day[3:5])
             prev_days = i.Days.all()[:num_prev_days]
-            if survey_month < 10:
-                month = "0" + str(survey_month)
-            else:
-                month = str(survey_month)
             print(len(prev_days))
-            print("MONTHRANGE", monthrange(int(survey_year), int(survey_month))[1])
+            print("MONTHRANGE", monthrange(int(year), int(month))[1])
             print("prev_month", prev_month)
             print("month", month)
             if prev_month != month:
-                for j in range(0, monthrange(survey_year, survey_month)[1]):
+                for j in range(0, monthrange(int(year), int(month))[1]):
                     if j < 9:
                         day = "0" + str(j + 1)
                     else:
@@ -309,33 +288,25 @@ def send_monthly_surveys(request):
                     try:
                         Day.objects.create(_9_10=prev_days[j]._9_10, _10_11=prev_days[j]._10_11, _11_12=prev_days[j]._11_12,
                                            _12_1=prev_days[j]._12_1, _1_2=prev_days[j]._1_2, all=prev_days[j].all,
-                                           date=month + '/' + day + '/' + str(survey_year), volunteer=i)
+                                           date=month + '/' + day + '/' + year, volunteer=i)
                     except IndexError:
                         Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                                           date=month + '/' + day + '/' + str(survey_year), volunteer=i)
+                                           date=month + '/' + day + '/' + year, volunteer=i)
         except AttributeError:      # if volunteer has no data create new day objects
-            if survey_month < 10:
-                month = "0" + str(survey_month)
-            else:
-                month = str(survey_month)
-            for j in range(0, monthrange(survey_year, survey_month)[1]):
+            for j in range(0, monthrange(int(year), int(month))[1]):
                 if j < 9:
                     day = "0" + str(j + 1)
                 else:
                     day = str(j + 1)
                 Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                                   date=month + '/' + day + '/' + str(survey_year), volunteer=i)
+                                   date=month + '/' + day + '/' + year, volunteer=i)
             print("ATTRIBUTE ERROR")
         i.survey_token = token
         i.save()
         # survey.month = curr_month
     survey.sent = True
     survey.save()
-    print(sent_status)
-    print(survey_month)
-    print(invalid_emails)
-    print(invalid_phone)
-    return sent_status, survey_month, invalid_emails, invalid_phone
+    return sent_status, invalid_emails, invalid_phone
 
 
 def read_survey_data(option_list, volunteer, month, year):

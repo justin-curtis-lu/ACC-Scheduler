@@ -18,7 +18,7 @@
             <tr><td><b>Notify by Text:</b> {{volunteer.notify_text}}</td></tr>
             <tr><td><b>Notify by Call:</b> {{volunteer.notify_call}}</td></tr>
             <tr><td><b>Current Appointments:</b> {{volunteer.current_appointments}}</td></tr>
-            <tr><td><b>Availability:</b> <a href="{% url 'view_availability' volunteer.id %}"><button class="btn btn-light">View/Edit Availability</button></a></td></tr>
+            <tr><td><b>Availability:</b> <a href="{% url 'view_availability' volunteer.id current_month current_year %}"><button class="btn btn-light">View/Edit Availability</button></a></td></tr>
             <tr><td><b>Additional Notes:</b> {{volunteer.additional_notes}}</td></tr>
             <tr><td><b>Unsubscribed:</b> {{volunteer.unsubscribed}}</td></tr>
         </tbody>

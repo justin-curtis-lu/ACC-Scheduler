@@ -22,6 +22,7 @@ from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
 import requests
 from datetime import datetime
+import calendar
 from calendar import monthrange
 
 
@@ -297,54 +298,33 @@ def edit_volunteer(request, pk):
     return render(request, 'scheduling_application/volunteers/edit_volunteer.html', context)
 
 
-def view_availability(request, pk):
-    dt = datetime.today()
-    curr_month = dt.month
-    curr_year = dt.year
-    DayFormSet, volunteer, formset, current_month = generate_v_days(pk, curr_month, curr_year)
-    if request.method == "POST":
+def view_availability(request, pk, month, year):
+    DayFormSet, volunteer, formset, month = generate_v_days(pk, int(month), int(year))
+    if request.method == 'POST' and 'datepicker' not in request.POST:
         formset = DayFormSet(request.POST)
         if formset.is_valid():
             formset.save()
         else:
             print(formset.errors)
         return redirect('volunteer_page', pk)
-
+    elif request.method == 'POST' and 'datepicker' in request.POST:
+        date = request.POST.get('datepicker').split('/')
+        month = date[0]
+        year = date[1]
+        return redirect('view_availability', pk, month, year)
     context = {
         'volunteer': volunteer,
         'formset': formset,
-        'current_month': current_month,
+        'month': month,
     }
     return render(request, "scheduling_application/volunteers/view_availability.html", context)
-
-def view_next_availability(request, pk):
-    dt = datetime.today()
-    next_month = dt.month + 1
-    curr_year = dt.year
-    if next_month == 13:
-        next_month = 1
-        curr_year = dt.year + 1
-    DayFormSet, volunteer, formset, next_month = generate_v_days(pk, next_month, curr_year)
-    if request.method == 'POST':
-        formset = DayFormSet(request.POST)
-        if formset.is_valid():
-            formset.save()
-        else:
-            print(formset.errors)
-        return redirect('volunteer_page', pk)
-
-    context = {
-        'volunteer': volunteer,
-        'formset': formset,
-        'current_month': next_month,
-    }
-    return render(request, "scheduling_application/volunteers/view_next_availability.html", context)
-
-
 
 def volunteer_page(request, pk):
     """View for volunteer profile page"""
     volunteer = Volunteer.objects.get(id=pk)
+    dt = datetime.today()
+    curr_month = str(dt.month)
+    curr_year = str(dt.year)
     if request.method == 'POST':
         if request.POST.get("remove_volunteer"):
             volunteer.delete()
@@ -353,6 +333,8 @@ def volunteer_page(request, pk):
             return redirect('edit_volunteer', pk)
     context = {
         'volunteer': volunteer,
+        'current_month': curr_month,
+        'current_year': curr_year
     }
     return render(request, 'scheduling_application/volunteers/volunteer_page.html', context)
 
@@ -480,15 +462,18 @@ def vol_already_selected(request):
 def send_survey(request):
     """View for middle man to send the monthly surveys"""
     if request.GET.get('send_survey'):
-        sent_status, survey_month, invalid_emails, invalid_phone = send_monthly_surveys(request)
+        date = request.GET['datepicker'].split('/')
+        month = date[0]
+        year = date[1]
+        sent_status, invalid_emails, invalid_phone = send_monthly_surveys(request, month, year)
         if sent_status:
-            messages.success(request, f'Successfully sent surveys for the month of {survey_month}.')
+            messages.success(request, f'Successfully sent surveys for the month of {calendar.month_name[int(month)]}.')
             if len(invalid_emails) != 0:
                 messages.error(request, f'Emails have not been sent to the following volunteers as their emails are invalid {invalid_emails}')
             if len(invalid_phone) != 0:
                 messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
         else:
-            messages.error(request, f'You have already sent surveys for the month of {survey_month}.')
+            messages.error(request, f'You have already sent surveys for the month of {calendar.month_name[int(month)]}.')
     return redirect('pre_send_survey')
 
 

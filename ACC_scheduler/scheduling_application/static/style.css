@@ -125,3 +125,8 @@ div.container4 p {
     margin-right: -50%;
     transform: translate(-50%, -50%) }
 
+div.col-3 {
+    margin-left: auto;
+    margin-right: auto;
+}
+
