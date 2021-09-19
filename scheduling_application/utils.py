@@ -20,42 +20,42 @@ from .forms import DayForm
 def sync_galaxy(vol_data, check_list):
     pattern = re.compile("(\d\d\d\d)[-](\d\d)[-](\d\d)")
     for i in vol_data['data']:
-        # print(i)
-        # print(i['tags'])
-        if 'sacssc' in i['tags']:
-            galaxy_id = int(i['id'])
-            if galaxy_id in check_list:
-                volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-                # print(volunteer)
-                # Flag to skip updating if unsubscribed is true
-                if not volunteer[0].unsubscribed:
-                    try:
-                        if pattern.match(str(i['birthdate'])) is not None:
-                            date = str(i['birthdate']).split('-')
-                            formatted_date = date[1] + "/" + date[2] + "/" + date[0]
-                        else:
-                            formatted_date = "N/A"
-                        volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                         phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'],
-                                         additional_notes=i['extras']['availability-context'])
-                        if 'Email' in i['extras']['preferred-contact-method']:
-                            volunteer.update(notify_email=True)
-                        if 'Text Message' in i['extras']['preferred-contact-method']:
-                            volunteer.update(notify_text=True)
-                        if 'Phone Call' in i['extras']['preferred-contact-method']:
-                            volunteer.update(notify_call=True)
-                    except KeyError:
-                        if pattern.match(str(i['birthdate'])) is not None:
-                            date = str(i['birthdate']).split('-')
-                            formatted_date = date[1] + "/" + date[2] + "/" + date[0]
-                        else:
-                            formatted_date = "N/A"
-                        volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                         phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'])
-                        # print("except updating", volunteer)
-            else:
-                # create
-                #print("create")
+        #print(i)
+        #print(i['tags'])
+        galaxy_id = int(i['id'])
+        if galaxy_id in check_list:
+            volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
+            print(volunteer)
+            # Flag to skip updating if unsubscribed is true
+            if not volunteer[0].unsubscribed:
+                try:
+                    if pattern.match(str(i['birthdate'])) is not None:
+                        date = str(i['birthdate']).split('-')
+                        formatted_date = date[1] + "/" + date[2] + "/" + date[0]
+                    else:
+                        formatted_date = "N/A"
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
+                                     phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'],
+                                     additional_notes=i['extras']['availability-context'])
+                    if 'Email' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_email=True)
+                    if 'Text Message' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_text=True)
+                    if 'Phone Call' in i['extras']['preferred-contact-method']:
+                        volunteer.update(notify_call=True)
+                except KeyError:
+                    if pattern.match(str(i['birthdate'])) is not None:
+                        date = str(i['birthdate']).split('-')
+                        formatted_date = date[1] + "/" + date[2] + "/" + date[0]
+                    else:
+                        formatted_date = "N/A"
+                    volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
+                                     phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'])
+                    print("except updating", volunteer)
+        else:
+            # create
+            #print("create")
+            if 'sacssc' in i["tags"]:
                 try:
                     if pattern.match(str(i['birthdate'])) is not None:
                         date = str(i['birthdate']).split('-')
@@ -63,16 +63,19 @@ def sync_galaxy(vol_data, check_list):
                     else:
                         formatted_date = "N/A"
                     #print(formatted_date)
-                    # print(galaxy_id, i['lastName'], i['firstName', i['phone'], i['email'], formatted_date])
-                    volunteer = Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
+                    Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                              phone=i['phone'], email=i['email'], dob=formatted_date,
                                              additional_notes=i['extras']['availability-context'])
-                    # print(i)
+                    volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
+                    #print(i)
                     if 'Email' in i['extras']['preferred-contact-method']:
+                        #print("email")
                         volunteer.update(notify_email=True)
                     if 'Text Message' in i['extras']['preferred-contact-method']:
+                        #print("text")
                         volunteer.update(notify_text=True)
                     if 'Phone Call' in i['extras']['preferred-contact-method']:
+                        #print("call")
                         volunteer.update(notify_call=True)
                     print("try creating", i['firstName'], i['lastName'])
                 except KeyError:

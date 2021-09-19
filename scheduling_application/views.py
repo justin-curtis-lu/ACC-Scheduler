@@ -384,14 +384,15 @@ def galaxy_update_volunteers(request):
         vol_data = response.json()
         # print(vol_data)
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        print("Massive Flag")
         print(check_list)
+        sync_galaxy(vol_data, check_list)
         try:
-            sync_galaxy(vol_data, check_list)
+            #sync_galaxy(vol_data, check_list)
             messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
         except:
             messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return redirect('console')
+
 
 def make_appointment(request):
     if not request.user.is_authenticated:
