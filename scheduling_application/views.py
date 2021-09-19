@@ -54,8 +54,6 @@ def console(request):
     return render(request, 'scheduling_application/authentication_general/console.html', context)
 
 
-
-
 def login(request):
     """View for the login page
     (uses Django's built-in AuthenticationForm)"""
@@ -68,13 +66,12 @@ def login(request):
             # Syncing with Galaxy
             url = 'https://api2.galaxydigital.com/volunteer/user/list/'
             headers = {'Accept': 'scheduling_application/json'}
-            params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}  # will need to include tags
+            params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}  # will need to include tags
             response = requests.get(url, headers=headers, params=params)
             vol_data = response.json()
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
             try:
-                # sync_galaxy(vol_data, check_list) # Uncomment for final production
-                print("synced galaxy")
+                sync_galaxy(vol_data, check_list)
             except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
                 messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
             return redirect('console')
@@ -280,16 +277,15 @@ def add_volunteer(request):
     form = VolunteerForm()
     if request.method == 'POST':
         form = VolunteerForm(request.POST)
-        try:
-            if request.POST['notify_email'] == "on" or request.POST['notify_text'] == "on" or request.POST[
-                'notify_call'] == "on":
-                if form.is_valid():
-                    form.save()
-                    return redirect('view_volunteers')
-                else:
-                    messages.error(request, "Invalid Form.")
-                    return redirect('add_volunteer')
-        except:
+        if 'notify_email' in request.POST or \
+                'notify_text' in request.POST or 'notify_call' in request.POST:
+            if form.is_valid():
+                form.save()
+                return redirect('view_volunteers')
+            else:
+                messages.error(request, "Invalid Form.")
+                return redirect('add_volunteer')
+        else:
             messages.error(request, "Please select one notification method")
             return redirect('add_volunteer')
     context = {
@@ -309,9 +305,17 @@ def edit_volunteer(request, pk):
     form = VolunteerForm(initial=data)
     if request.method == 'POST':
         form = VolunteerForm(request.POST, instance=volunteer)
-        if form.is_valid():
-            form.save()
-        return redirect('volunteer_page', pk)
+        if 'notify_email' in request.POST or \
+                'notify_text' in request.POST or 'notify_call' in request.POST:
+            if form.is_valid():
+                form.save()
+                return redirect('volunteer_page', pk)
+            else:
+                messages.error(request, "Invalid Form.")
+                return redirect('edit_volunteer', pk)
+        else:
+            messages.error(request, "Please select one notification method")
+            return redirect('edit_volunteer', pk)
     context = {
         'form': form
     }
@@ -370,17 +374,18 @@ def volunteer_page(request, pk):
 
 # Collection of views for Sync GalaxyDigital, SendSurveys, and Schedule an Appointment
 def galaxy_update_volunteers(request):
-    if not request.user.is_authenticated:
-        return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
     if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
+        params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
+        # print(vol_data)
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+        print("Massive Flag")
+        print(check_list)
         try:
             sync_galaxy(vol_data, check_list)
             messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
@@ -524,6 +529,7 @@ def pre_send_survey(request):
     surveys = SurveyStatus.objects.all()
     context = {
         'surveys': surveys,
+        'estimate' : Volunteer.objects.count() * 2.25
     }
     return render(request, 'scheduling_application/survey_sending/survey_confirmation.html', context)
 

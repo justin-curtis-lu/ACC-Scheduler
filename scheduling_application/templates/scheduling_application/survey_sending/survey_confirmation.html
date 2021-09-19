@@ -17,10 +17,8 @@
                         {% endif %}
                     {% endfor %}
                 {% endif %}
-            <p class="space special">Please send the survey one week before the end of the month to allow for adequate response time</p>
-            <p class="space special">Survey Sending will take around ~ {{estimate}} second(s)</p>
-            <br>
-            <p class="space special">Once confirm has been clicked, please wait for a message to pop up before attempting to exit or
+            <p class="space special">Survey Sending will take around ~ <b>{{estimate}}</b> second(s)</p>
+            <p class="special">Once confirm has been clicked, please wait for a message to pop up before attempting to exit or
             reload the page</p>
             <br>
             <table id="surveyTable" class="table table-striped table-bordered table-sm">
@@ -50,7 +48,7 @@
             </script>
             <form class="" action="{% url 'send_survey' %}">
                 <div class="col-3">
-                    <input type="text" class="form-control" name="datepicker" id="datepicker" required />
+                    <input type="text" class="form-control" name="datepicker" id="datepicker" autocomplete="off" required />
                 </div>
                 <script>
                     $("#datepicker").datepicker( {

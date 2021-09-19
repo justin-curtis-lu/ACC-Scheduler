@@ -43,7 +43,7 @@
 <form method="POST">
 {% csrf_token %}
 <div class="col-3">
-    <input type="text" class="form-control" name="datepicker" id="datepicker" required />
+    <input type="text" class="form-control" name="datepicker" id="datepicker" autocomplete="off" required />
 </div>
 <script>
         $("#datepicker").datepicker( {

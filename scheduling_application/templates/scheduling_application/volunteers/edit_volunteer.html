@@ -1,6 +1,15 @@
 {% extends 'scheduling_application/base.html' %}
 {% block content %}
 <div class="center">
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+<div class="alert alert-danger" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
 <h1><b>Edit Volunteer</b></h1>
 <br>
 <table>

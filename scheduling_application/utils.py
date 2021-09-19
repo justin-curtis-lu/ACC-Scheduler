@@ -20,13 +20,13 @@ from .forms import DayForm
 def sync_galaxy(vol_data, check_list):
     pattern = re.compile("(\d\d\d\d)[-](\d\d)[-](\d\d)")
     for i in vol_data['data']:
-        print(i)
-        print(i['tags'])
+        # print(i)
+        # print(i['tags'])
         if 'sacssc' in i['tags']:
             galaxy_id = int(i['id'])
             if galaxy_id in check_list:
                 volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-                print(volunteer)
+                # print(volunteer)
                 # Flag to skip updating if unsubscribed is true
                 if not volunteer[0].unsubscribed:
                     try:
@@ -52,7 +52,7 @@ def sync_galaxy(vol_data, check_list):
                             formatted_date = "N/A"
                         volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                          phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'])
-                        print("except updating", volunteer)
+                        # print("except updating", volunteer)
             else:
                 # create
                 #print("create")
@@ -63,9 +63,11 @@ def sync_galaxy(vol_data, check_list):
                     else:
                         formatted_date = "N/A"
                     #print(formatted_date)
+                    # print(galaxy_id, i['lastName'], i['firstName', i['phone'], i['email'], formatted_date])
                     volunteer = Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                              phone=i['phone'], email=i['email'], dob=formatted_date,
                                              additional_notes=i['extras']['availability-context'])
+                    # print(i)
                     if 'Email' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_email=True)
                     if 'Text Message' in i['extras']['preferred-contact-method']:
