@@ -8,10 +8,10 @@
                 {{ form.as_p }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Sign Up</button>
+                <button class="btn btn-light" type="submit">Sign Up</button>
             </div>
         </form>
-        <a href="{% url 'home' %}"><button>Return to main page</button></a>
+        <a href="{% url 'home' %}"><button class="btn btn-light">Return to main page</button></a>
         <div class="border-top pt-3">
             <small class="text-muted">
                 Already Have An Account? <a class="ml-2" href="{% url 'login' %}">Sign In</a>

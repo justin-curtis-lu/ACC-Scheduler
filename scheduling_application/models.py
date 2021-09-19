@@ -72,7 +72,7 @@ class SurveyStatus(models.Model):
     month = models.IntegerField(null=True)
     year = models.IntegerField(null=True)
     sent = models.BooleanField(default=False)
-    survey_id = models.IntegerField(null=True)
+    date_sent = models.CharField(default=None, max_length=10, null=True)
 
 
 class Appointment(models.Model):
