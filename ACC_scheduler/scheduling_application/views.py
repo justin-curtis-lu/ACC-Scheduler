@@ -67,7 +67,7 @@ def login(request):
             # Syncing with Galaxy
             url = 'https://api2.galaxydigital.com/volunteer/user/list/'
             headers = {'Accept': 'scheduling_application/json'}
-            params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}  # will need to include tags
+            params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}  # will need to include tags
             response = requests.get(url, headers=headers, params=params)
             vol_data = response.json()
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
@@ -364,16 +364,20 @@ def galaxy_update_volunteers(request):
     if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH, 'return[]': "extras"}
+        params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
+        # print(vol_data)
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+        print(check_list)
+        sync_galaxy(vol_data, check_list)
         try:
-            sync_galaxy(vol_data, check_list)
+            #sync_galaxy(vol_data, check_list)
             messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
         except:
             messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return redirect('console')
+
 
 def make_appointment(request):
     """View for the page where users can schedule an appointment.
