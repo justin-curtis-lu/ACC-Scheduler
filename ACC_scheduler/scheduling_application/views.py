@@ -72,7 +72,7 @@ def login(request):
             vol_data = response.json()
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
             try:
-                # sync_galaxy(vol_data, check_list)
+                sync_galaxy(vol_data, check_list)
                 print("synced galaxy")
             except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
                 messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
