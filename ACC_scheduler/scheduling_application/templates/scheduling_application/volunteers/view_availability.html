@@ -21,14 +21,14 @@
             <!-- {{forloop.counter}} -->
             {% if forloop.counter|divisibleby:2 %}
             <div class="row">
-                    <div class="col">{{ current_month }}/{{forloop.counter}}</div>
+                    <div class="col">{{ month }}/{{forloop.counter}}</div>
                     {% for field in form %}
                         <div class="col">{{ field }}</div>
                     {% endfor %}
             </div>
             {% else %}
             <div class="row bg-secondary text-white">
-                    <div class="col">{{ current_month }}/{{forloop.counter}}</div>
+                    <div class="col">{{ month }}/{{forloop.counter}}</div>
                     {% for field in form %}
                         <div class="col">{{ field }}</div>
                     {% endfor %}
@@ -40,8 +40,20 @@
     <input type="submit" class="btn btn-light">
 </form>
 <br>
-<a href="{% url 'view_next_availability' volunteer.id %}"><button class="btn btn-light">View Next Month's Availability</button></a>
-<br>
+<form method="POST">
+{% csrf_token %}
+<div class="col-3">
+    <input type="text" class="form-control" name="datepicker" id="datepicker" required />
+</div>
+<script>
+        $("#datepicker").datepicker( {
+        format: "mm/yyyy",
+        startView: "months",
+        minViewMode: "months"
+        });
+</script>
+<input type="submit" class="btn btn-light" name="view_month" value="View Month" />
+</form>
 <br>
 <a href="{% url 'view_volunteers' %}"><button class="btn btn-light">back</button></a>
 </div>

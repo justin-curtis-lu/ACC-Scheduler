@@ -57,5 +57,4 @@ urlpatterns = [
     path('view_appointments/', sa_views.view_appointments, name='view_appointments'),
     path('appointment_page/<str:pk>', sa_views.appointment_page, name='appointment_page'),
     path('edit_appointment/<str:pk>', sa_views.edit_appointment, name='edit_appointment'),
-    path('view_next_availability/<str:pk>', sa_views.view_next_availability, name='view_next_availability'),
 ]
