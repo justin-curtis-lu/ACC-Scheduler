@@ -25,7 +25,7 @@ def sync_galaxy(vol_data, check_list):
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
             volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-            print(volunteer)
+            # print(volunteer)
             # Flag to skip updating if unsubscribed is true
             if not volunteer[0].unsubscribed:
                 try:
@@ -51,7 +51,7 @@ def sync_galaxy(vol_data, check_list):
                         formatted_date = "N/A"
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                      phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'])
-                    print("except updating", volunteer)
+                    # print("except updating", volunteer)
         else:
             # create
             #print("create")
@@ -151,7 +151,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
     invalid_emails = []
     invalid_phone = []
     for i in potential_list:
-        print(i)
+        # print(i)
         if str(i['id']) in selected_volunteers.getlist('volunteer'):
             flag = True
             if i['notify_email']:
@@ -173,7 +173,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                 try:
                     send_mail(email_subject, email_message, from_email, to_email)
                 except SMTPRecipientsRefused:
-                    print(f"{to_email} is not a valid email.")
+                    # print(f"{to_email} is not a valid email.")
                     invalid_emails.append(i['first_name'] + " " + i['last_name'])
             if i['notify_text']:
                 token = get_random_string(length=32)
@@ -195,7 +195,7 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                              '\nSacramento Senior Saftey Collaborative Staff',
                         from_='+19569486977', to=i['phone'])
                 except TwilioException:
-                    print(f"{i['phone']} is not a valid phone number.")
+                    # print(f"{i['phone']} is not a valid phone number.")
                     invalid_phone.append(i['first_name'] + " " + i['last_name'])
             if i['notify_call']:
                 first = i['first_name']
@@ -220,7 +220,8 @@ def notify_senior(appointment, volunteer):
         try:
             send_mail(email_subject, email_message, from_email, to_email)
         except SMTPRecipientsRefused:
-            print(f"{to_email} is not a valid email.")
+            pass
+            # print(f"{to_email} is not a valid email.")
     if senior.notify_text:
         account_sid = settings.TWILIO_ACCOUNT_SID
         auth_token = settings.TWILIO_AUTH
@@ -235,7 +236,8 @@ def notify_senior(appointment, volunteer):
                      '\n\nIf you have any questions or concerns, please call (916) 476-3192.\n\nSincerely,\nSacramento Senior Saftey Collaborative Staff',
                 from_='+19569486977', to=senior.phone)
         except TwilioException:
-            print(f"{senior.phone} is not a valid phone number.")
+            pass
+            # print(f"{senior.phone} is not a valid phone number.")
 
 
 def send_monthly_surveys(request, month, year):
@@ -252,7 +254,8 @@ def send_monthly_surveys(request, month, year):
     for i in Volunteer.objects.all():
         token = get_random_string(length=32)
         i.survey_token = token
-        activate_url = settings.PROTOCOL+'://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + month + "&year=" + year +  "&email=" + i.email \
+        i.save()
+        activate_url = settings.PROTOCOL+'://' + domain + "/survey_page" + "/?id=" + str(i.id) + "&month=" + month + "&year=" + year \
                        + "&token=" + token
         if i.notify_email:
             email_subject = 'Volunteer Availability Survey'
@@ -264,8 +267,9 @@ def send_monthly_surveys(request, month, year):
             to_email = [i.email]
             try:
                 send_mail(email_subject, email_message, from_email, to_email)
+                # print("test")
             except SMTPRecipientsRefused:
-                print(f"{to_email} is not a valid email.")
+                # print(f"{to_email} is not a valid email.")
                 invalid_emails.append(i.first_name + " " + i.last_name)
             emails_sent = True
         if i.notify_text:
@@ -275,25 +279,25 @@ def send_monthly_surveys(request, month, year):
             try:
                 message = client.messages.create(
                     body="Hello Volunteer!\n\nPlease fill out the survey to provide your availability for the month of "
-                         + calendar.month_name[month] + ". "f"If you do not fill out the survey, your previous "
+                         + calendar.month_name[int(month)] + ". "f"If you do not fill out the survey, your previous "
                                                                f"times will be carried over for the month of " +
-                         calendar.month_name[month] + ". " + f"Your time is so appreciated and we could not "
+                         calendar.month_name[int(month)] + ". " + f"Your time is so appreciated and we could not "
                                                                     f"provide seniors with free programs without you!"
-                         + f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff",
-                    from_='+19569486977', to=i.phone)
+                         + f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff", from_='+19569486977', to=i.phone)
             except TwilioException:
-                print(f"{i.phone} is not a valid phone number.")
+                # print(f"{i.phone} is not a valid phone number.")
                 invalid_phone.append(i.first_name + " " + i.last_name)
         # availability creation
         try:                # creates new month objects w/ last month's info if user has availability from last month
             most_recent_day = i.Days.last().date
             prev_month = most_recent_day[0:2]
+            # print(most_recent_day)
             num_prev_days = int(most_recent_day[3:5])
             prev_days = i.Days.all()[:num_prev_days]
-            print(len(prev_days))
-            print("MONTHRANGE", monthrange(int(year), int(month))[1])
-            print("prev_month", prev_month)
-            print("month", month)
+            # print(len(prev_days))
+            # print("MONTHRANGE", monthrange(int(year), int(month))[1])
+            # print("prev_month", prev_month)
+            # print("month", month)
             if prev_month != month:
                 for j in range(0, monthrange(int(year), int(month))[1]):
                     if j < 9:
@@ -315,9 +319,7 @@ def send_monthly_surveys(request, month, year):
                     day = str(j + 1)
                 Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
                                    date=month + '/' + day + '/' + year, volunteer=i)
-            print("ATTRIBUTE ERROR")
-        i.survey_token = token
-        i.save()
+            # print("ATTRIBUTE ERROR")
         # survey.month = curr_month
     survey.sent = True
     survey.save()
@@ -331,7 +333,8 @@ def read_survey_data(option_list, volunteer, month, year):
                 day_string = "0" + str(i)
             else:
                 day_string = str(i)
-            date_string = "0" + str(month) + "/" + day_string + "/" + str(year)
+
+            date_string = str(month) + "/" + day_string + "/" + str(year)
         else:
             if i < 10:
                 day_string = "0" + str(i)
@@ -346,10 +349,8 @@ def read_survey_data(option_list, volunteer, month, year):
             day_string = "0" + date[0]
         else:
             day_string = date[0]
-        if int(month) < 10:
-            date_string = "0" + str(month) + "/" + day_string + "/" + str(year)
-        else:
-            date_string = str(month) + "/" + day_string + "/" + str(year)
+
+        date_string = str(month) + "/" + day_string + "/" + str(year)
         day = volunteer.Days.get(date=date_string)
         if date[1] == "0":
             day._9_10 = True
@@ -383,7 +384,7 @@ def generate_v_days(pk, month, year):
     try:
         day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + year)
     except Day.DoesNotExist:
-        print("CREATING DAYS")
+        # print("CREATING DAYS")
         for i in range(1, days_in_month+1):
             if i < 10:
                 day = '0' + str(i)
@@ -412,3 +413,17 @@ def generate_v_days(pk, month, year):
     formset = DayFormSet(initial=initial_list,
                          queryset=volunteer.Days.all().filter(date__regex=regex))
     return DayFormSet, volunteer, formset, month
+
+
+def unsub_comms(volunteer):
+    volunteer.notify_email = False
+    volunteer.notify_text = False
+    volunteer.save()
+
+
+def unsub_all(volunteer):
+    volunteer.notify_email = False
+    volunteer.notify_text = False
+    volunteer.Days.filter(volunteer=volunteer).delete()
+    volunteer.unsubscribed = True
+    volunteer.save()

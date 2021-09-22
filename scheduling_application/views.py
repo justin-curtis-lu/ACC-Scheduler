@@ -16,7 +16,7 @@ from django.db.models.query_utils import Q
 from django.utils.datastructures import MultiValueDictKeyError
 # App imports
 from .utils import sync_galaxy, find_matches, update_minors, notify_senior, send_monthly_surveys,\
-    send_emails, read_survey_data, generate_v_days
+    send_emails, read_survey_data, generate_v_days, unsub_all, unsub_comms
 from .forms import UserRegisterForm, SeniorForm, VolunteerForm, AppointmentForm, AuthenticationForm
 from .models import Senior, Volunteer, Appointment, Day, SurveyStatus
 # External imports
@@ -376,6 +376,8 @@ def volunteer_page(request, pk):
 def galaxy_update_volunteers(request):
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
@@ -384,7 +386,7 @@ def galaxy_update_volunteers(request):
         vol_data = response.json()
         # print(vol_data)
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        print(check_list)
+        # print(check_list)
         sync_galaxy(vol_data, check_list)
         try:
             #sync_galaxy(vol_data, check_list)
@@ -504,19 +506,16 @@ def send_survey(request):
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
     """View for middle man to send the monthly surveys"""
-    if request.GET.get('send_survey'):
-        date = request.GET['datepicker'].split('/')
-        month = date[0]
-        year = date[1]
-        sent_status, invalid_emails, invalid_phone = send_monthly_surveys(request, month, year)
-        if sent_status:
-            messages.success(request, f'Successfully sent surveys for the month of {calendar.month_name[int(month)]}.')
-            if len(invalid_emails) != 0:
-                messages.error(request, f'Emails have not been sent to the following volunteers as their emails are invalid {invalid_emails}')
-            if len(invalid_phone) != 0:
-                messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
-        # else:
-        #    messages.error(request, f'You have already sent surveys for the month of {calendar.month_name[int(month)]}.')
+    date = request.GET['datepicker'].split('/')
+    month = date[0]
+    year = date[1]
+    sent_status, invalid_emails, invalid_phone = send_monthly_surveys(request, month, year)
+    if sent_status:
+        messages.success(request, f'Successfully sent surveys for the month of {calendar.month_name[int(month)]}.')
+        if len(invalid_emails) != 0:
+            messages.error(request, f'Emails have not been sent to the following volunteers as their emails are invalid {invalid_emails}')
+        if len(invalid_phone) != 0:
+            messages.error(request, f'Texts have not been sent to the following volunteers as their phone numbers are invalid {invalid_phone}')
     return redirect('pre_send_survey')
 
 
@@ -570,18 +569,11 @@ def survey_page(request):
         # Unsubscribe SMS/Email
         if comms:
             volunteer = Volunteer.objects.get(id=vol_id)
-            volunteer.notify_email = False
-            volunteer.notify_text = False
-            volunteer.save()
+            unsub_comms(volunteer)
         # Unsubscribe from entire service
         if everything:
             volunteer = Volunteer.objects.get(id=vol_id)
-            volunteer.notify_email = False
-            volunteer.notify_text = False
-            volunteer = Volunteer.objects.get(id=vol_id)
-            volunteer.Days.filter(volunteer=volunteer).delete()
-            volunteer.unsubscribed = True
-            volunteer.save()
+            unsub_all(volunteer)
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
     elif request.method == 'POST':
         vol_id = request.session['vol_id']
@@ -592,7 +584,7 @@ def survey_page(request):
         else:
             month_string = request.session['survey_month']
         regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
-        print(volunteer.Days.all().filter(date__regex=regex))
+        # print(volunteer.Days.all().filter(date__regex=regex))
         volunteer.Days.all().filter(date__regex=regex).delete()
         read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
