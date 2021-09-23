@@ -84,7 +84,6 @@ class Appointment(models.Model):
     date_and_time = models.CharField(max_length=50)
     purpose_of_trip = models.TextField(default=None, null=True, blank=True)
     notes = models.TextField(default="N/A", null=True, blank=True)
-    # Add a Status field (Waiting for confirmation, Confirmed <- should be triggered by the clicked link)
 
     @property
     def details(self):

@@ -66,13 +66,13 @@ def login(request):
             # Syncing with Galaxy
             url = 'https://api2.galaxydigital.com/volunteer/user/list/'
             headers = {'Accept': 'scheduling_application/json'}
-            params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}  # will need to include tags
+            params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
             response = requests.get(url, headers=headers, params=params)
             vol_data = response.json()
             check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
             try:
                 sync_galaxy(vol_data, check_list)
-            except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
+            except KeyError:  # Incorrect GD Key exception
                 messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
             return redirect('console')
         else:
@@ -384,12 +384,9 @@ def galaxy_update_volunteers(request):
         params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
-        # print(vol_data)
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        # print(check_list)
-        sync_galaxy(vol_data, check_list)
         try:
-            #sync_galaxy(vol_data, check_list)
+            sync_galaxy(vol_data, check_list)
             messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
         except:
             messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
@@ -415,7 +412,6 @@ def make_appointment(request):
             messages.error(request, "Invalid appointment time period.")
             return redirect('make_appointment')
         time_period = request.POST['start_time'] + '-' + request.POST['end_time']
-        # day_of_month = int(day_time[0].split('/')[1])
         check_list = Day.objects.filter(date=date).values_list("volunteer", flat=True)
         potential_list = find_matches(check_list, date, time_period)
         if not potential_list:
@@ -522,14 +518,11 @@ def send_survey(request):
 def pre_send_survey(request):
     if not request.user.is_authenticated:
         return render(request, 'scheduling_application/authentication_general/home.html', {})
-    context = {
-        'estimate': Volunteer.objects.count() * 2
-    }
     """Extra view which helps prevent mis-clicks of monthly survey sending"""
     surveys = SurveyStatus.objects.all()
     context = {
         'surveys': surveys,
-        'estimate' : Volunteer.objects.count() * 2.25
+        'estimate': Volunteer.objects.count() * 2.25
     }
     return render(request, 'scheduling_application/survey_sending/survey_confirmation.html', context)
 
@@ -584,7 +577,6 @@ def survey_page(request):
         else:
             month_string = request.session['survey_month']
         regex = r'((' + month_string + r')[/]\d\d[/](' + request.session['survey_year'] + r'))'
-        # print(volunteer.Days.all().filter(date__regex=regex))
         volunteer.Days.all().filter(date__regex=regex).delete()
         read_survey_data(option_list, volunteer, request.session['survey_month'], request.session['survey_year'])
         return render(request, "scheduling_application/survey_sending/survey_complete.html", {})
