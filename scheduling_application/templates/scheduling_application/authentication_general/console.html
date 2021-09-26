@@ -1,0 +1,57 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+        {% endif %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <form class="space" action="{% url 'view_appointments' %}">
+                <input type="submit" class="btn btn-light" value="View all Appointments" />
+            </form>
+            <form class="space" action="{% url 'view_seniors' %}">
+                <input type="submit" class="btn btn-light" value="View all Participants" />
+            </form>
+            <form class="space" action="{% url 'view_volunteers' %}">
+                <input type="submit" class="btn btn-light" value="View all Volunteers" />
+            </form>
+            <form class="space" action="{% url 'make_appointment' %}">
+                <input type="submit" class="btn btn-light" value="Schedule an Appointment" />
+            </form>
+            <form class="space" action="{% url 'galaxy_update_volunteers' %}">
+                <input type="submit" name="sync_GalaxyDigital" class="btn btn-light" value="Update User Information From GalaxyDigital" />
+            </form>
+            <form class="space" action="{% url 'pre_send_survey' %}">
+                <input type="submit" name="send_survey" class="btn btn-light" value="Send Monthly Surveys" />
+            </form>
+        </div>
+        <div class="col">
+            <div class="center">
+            {% if user.is_authenticated %}
+                <h2 class="space"><big>Welcome back, {{user}}</big></h2>
+                <br>
+                <p class="special"><big>There are currently {{vol_count}} volunteer(s).</big></p>
+                <p class="special"><big>There are currently {{sen_count}} participant(s).</big></p>
+                {% if month %}
+                    <p class="special"><big>The most recent surveys were sent for the month of {{month}}.</big></p>
+                {% endif %}
+            {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+{% endblock %}

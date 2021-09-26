@@ -1,0 +1,132 @@
+/* Temporary Home Page Styling */
+body {
+    margin: 0;
+    padding: 0;
+}
+header {
+    /*position: fixed;*/
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+h1 {
+    margin-left: 40px;
+    letter-spacing: 2px;
+}
+[create],
+[login] {
+    margin: 20px 20px 20px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    color:black;
+}
+a:visited {
+    color: black;
+}
+[create] {
+    margin-left: auto;
+}
+[login] {
+    margin-right: 100px;
+}
+article {
+    display: flex;
+    flex-direction: row;
+    margin-top: 25px;
+    justify-content: center;
+}
+section {
+    margin: 0px auto 0px auto;
+}
+[About] {
+    width: 500px;
+}
+[schedule] {
+    text-decoration: none;
+    font-weight: bold;
+    color:black;
+}
+[Contacts] {
+    width: 250px;
+}
+
+/* Temporary centering */
+.center {
+    text-align: center;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.space{
+    margin-top: 5rem;
+}
+
+.small{
+    margin-top: 2rem;
+}
+
+
+
+.home-spacer{
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  color: #848e9c;
+  font-size: 12px;
+  width: 100%;
+  height: 2.5rem;            /* Footer height */
+}
+
+.bigger {
+    font-size: 40px;
+    color: #0b0e11;
+    font-weight: 100;
+    font-family: Arial,sans-serif!important;
+}
+
+.special {
+   font-size: 14px;
+}
+
+.error {
+   font-size: 14px;
+   color: red;
+}
+
+.center {
+    margin: auto;
+    width: 60%;
+}
+
+.success {
+    color: green;
+}
+
+.warning {
+    color: red;
+}
+
+div.container4 {
+    height: 10em;
+    position: relative }
+div.container4 p {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%) }
+
+div.col-3 {
+    margin-left: auto;
+    margin-right: auto;
+}
+

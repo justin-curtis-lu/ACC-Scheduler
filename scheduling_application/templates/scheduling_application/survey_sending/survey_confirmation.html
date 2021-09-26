@@ -1,0 +1,68 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+    <div class="container">
+
+        <div class="center space">
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            <p class="space special">Survey Sending will take around ~ <b>{{estimate}}</b> second(s)</p>
+            <p class="special">Once confirm has been clicked, please wait for a message to pop up before attempting to exit or
+            reload the page</p>
+            <br>
+            <table id="surveyTable" class="table table-striped table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">Month</th>
+                        <th scope="col">Year</th>
+                        <th scope="col">Date Sent</th>
+                        <th scope="col">Sent Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for survey in surveys %}
+                    <tr>
+                        <td>{{ survey.month }}</td>
+                        <td>{{ survey.year }}</td>
+                        <td>{{ survey.date_sent }}</td>
+                        <td>{{ survey.sent }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <script>
+                $(document).ready( function () {
+                $('#surveyTable').DataTable();
+                } );
+            </script>
+            <form class="" action="{% url 'send_survey' %}">
+                <div class="col-3">
+                    <input type="text" class="form-control" name="datepicker" id="datepicker" autocomplete="off" required />
+                </div>
+                <script>
+                    $("#datepicker").datepicker( {
+                    format: "mm/yyyy",
+                    startView: "months",
+                    minViewMode: "months"
+                    });
+                </script>
+                <p class="space">Are you sure you want to send the survey?</p>
+                <input type="submit" class="btn btn-light" name="send_survey" value="Confirm" />
+            </form>
+            <form class="space" action="{% url 'console' %}">
+                <input type="submit" class="btn btn-light" name="send_survey" value="Exit" />
+            </form>
+        </div>
+    </div>
+{% endblock %}

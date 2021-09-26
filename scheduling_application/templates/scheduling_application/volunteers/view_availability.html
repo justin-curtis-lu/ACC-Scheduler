@@ -1,0 +1,60 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="center">
+<h1><b>{{ volunteer.first_name }} {{ volunteer.last_name }}'s Availability</b></h1>
+<br>
+<div class="row">
+        <div class="col">Day of Month</div>
+        <div class="col">9:00-10:00</div>
+        <div class="col">10:00-11:00</div>
+        <div class="col">11:00-12:00</div>
+        <div class="col">12:00-1:00</div>
+        <div class="col">1:00-2:00</div>
+        <div class="col">All Day</div>
+        <div class="col"></div>
+</div>
+<form method="POST">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table>
+        {% for form in formset %}
+            <!-- {{forloop.counter}} -->
+            {% if forloop.counter|divisibleby:2 %}
+            <div class="row">
+                    <div class="col">{{ month }}/{{forloop.counter}}</div>
+                    {% for field in form %}
+                        <div class="col">{{ field }}</div>
+                    {% endfor %}
+            </div>
+            {% else %}
+            <div class="row bg-secondary text-white">
+                    <div class="col">{{ month }}/{{forloop.counter}}</div>
+                    {% for field in form %}
+                        <div class="col">{{ field }}</div>
+                    {% endfor %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </table>
+    <br>
+    <input type="submit" class="btn btn-light">
+</form>
+<br>
+<form method="POST">
+{% csrf_token %}
+<div class="col-3">
+    <input type="text" class="form-control" name="datepicker" id="datepicker" autocomplete="off" required />
+</div>
+<script>
+        $("#datepicker").datepicker( {
+        format: "mm/yyyy",
+        startView: "months",
+        minViewMode: "months"
+        });
+</script>
+<input type="submit" class="btn btn-light" name="view_month" value="View Month" />
+</form>
+<br>
+<a href="{% url 'view_volunteers' %}"><button class="btn btn-light">back</button></a>
+</div>
+{% endblock %}

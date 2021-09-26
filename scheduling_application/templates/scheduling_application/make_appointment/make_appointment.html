@@ -1,0 +1,109 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="center space">
+
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+<div class="alert alert-danger" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+<br>
+<h2><b> Schedule an Appointment </b></h2>
+<br>
+<br>
+<form method='POST' action=''>
+    {% csrf_token %}
+    <table id="seniorTable" class="table table-striped table-bordered table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Email</th>
+                <th scope="col">Additional Notes</th>
+                <th scope="col">Notify by Email</th>
+                <th scope="col">Notify by Text</th>
+                <th scope="col">Notify by Call</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in seniors_list %}
+            <tr>
+                <td>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="senior_id" value="{{ item.id }}" />
+                        <a href="#" class="special_field_link">{{ item.full_name }}</a>
+                    </form>
+                </td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.additional_notes }}</td>
+                <td>{{ item.notify_email }}</td>
+                <td>{{ item.notify_text }}</td>
+                <td>{{ item.notify_call }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <br>
+    <script src="../../static/jquery.datetimepicker.full.min.js"></script>
+    <div class="container">
+    <div class="row">
+        <div class="col-3"><p><b>Participant</b></p></div>
+        <div class="col-3"><p><b>Date</b></p></div>
+        <div class="col-3"><p><b>Start Time</b></p></div>
+        <div class="col-3"><p><b>End Time</b></p></div>
+    </div>
+    <div class="row">
+        <div class="col-3"><input id="senior_name" type="text" name="senior_name" placeholder="Click participant name" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input type="text" id="date_picker" name="date" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input type="text" id="start_picker" name="start_time" autocomplete="off" readonly="readonly" required><br></div>
+        <div class="col-3"><input type="text" id="end_picker" name="end_time" autocomplete="off" readonly="readonly" required><br></div>
+    </div>
+    </div>
+    <br>
+    <script>
+        $(document).ready( function () {
+            $('#seniorTable').DataTable();
+        } );
+        $(".special_field_link").click(function(){
+            $("#senior_name").val($(this).text());
+        });
+        $('#date_picker').datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+        })
+        $('#start_picker').datetimepicker({
+            datepicker: false,
+            format: 'H:i',
+            allowTimes:[
+            '9:00', '9:30', '10:00', '10:30', '11:00',
+            '11:30', '12:00', '12:30', '13:00', '13:30', '14:00'
+            ]
+        })
+        $('#end_picker').datetimepicker({
+            datepicker: false,
+            format: 'H:i',
+            allowTimes:[
+            '9:00', '9:30', '10:00', '10:30', '11:00',
+            '11:30', '12:00', '12:30', '13:00', '13:30', '14:00'
+            ]
+        })
+    </script>
+    <br>
+    <input type="Submit" class="btn btn-light" name="select_senior">
+</form>
+<br>
+<br>
+</div>
+<div class="center">
+    <a href="{% url 'console' %}"><button class="btn btn-light">Return to Dashboard</button></a>
+</div>
+{% endblock %}

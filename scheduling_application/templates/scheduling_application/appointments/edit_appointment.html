@@ -1,0 +1,16 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="center">
+<h1><b>Edit Appointment</b></h1>
+<br>
+<table>
+        <form action="" method="POST">
+                {% csrf_token %}
+                {{form.as_p}}
+                <input type="submit" class="btn btn-light">
+        </form>
+</table>
+<br>
+<a href="{% url 'view_appointments' %}"><button class="btn btn-light">back</button></a>
+</div>
+{% endblock %}

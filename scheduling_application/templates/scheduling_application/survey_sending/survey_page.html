@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../static/style.css">
+</head>
+<body>
+<div class="center">
+<form action="/survey_page/?id={{ request.POST.id }}" method="POST">
+{% csrf_token %}
+<div class="row">
+<div class="col"></div>
+<div class="col">9:00-10:00</div>
+<div class="col">10:00-11:00</div>
+<div class="col">11:00-12:00</div>
+<div class="col">12:00-1:00</div>
+<div class="col">1:00-2:00</div>
+<div class="col">All Day</div>
+</div>
+    {% for i in num_days %}
+        {% if forloop.counter|divisibleby:2 %}
+            <div class="row">
+        {% else %}
+            <div class="row bg-secondary text-white">
+        {% endif %}
+            <div class="col">{{ month }}/{{ forloop.counter }}</div>
+            <div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option{{ forloop.counter }}-0" aria-label="..."></div>
+            <div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option{{ forloop.counter }}-1" aria-label="..."></div>
+            <div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option{{ forloop.counter }}-2" aria-label="..."></div>
+            <div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option{{ forloop.counter }}-3" aria-label="..."></div>
+            <div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option{{ forloop.counter }}-4" aria-label="..."></div>
+            <div class="col"><input class="form-check-input position-static" type="checkbox" name="survey-value" value="option{{ forloop.counter }}-5" aria-label="..."></div>
+        </div>
+    {% endfor %}
+<input class="small" type="submit">
+</form>
+</div>
+
+<form class="center" action="" method="post">
+    {% csrf_token %}
+    <p class="space">
+        Unsubscribe from monthly surveys click
+    </p>
+    <input type="submit" class="btn btn-light" value="here" name="unsubscribe"/>
+</form>
+</body>
+</html>

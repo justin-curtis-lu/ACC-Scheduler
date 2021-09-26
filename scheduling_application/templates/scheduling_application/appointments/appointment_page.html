@@ -1,0 +1,32 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+<div class="center">
+    <table class="table" style="width:25%">
+        <thead>
+            <tr>
+                <th scope="col">Appointment {{appointment.id}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><b>Participant:</b> {{appointment.senior}}</td></tr>
+            <tr><td><b>Volunteer:</b> {{appointment.volunteer}}</td></tr>
+            <tr><td><b>Start Address:</b> {{appointment.start_address}}</td></tr>
+            <tr><td><b>Destination:</b> {{appointment.end_address}}</td></tr>
+            <tr><td><b>Date and Time:</b> {{appointment.date_and_time}}</td></tr>
+            <tr><td><b>Purpose of Trip:</b> {{appointment.purpose_of_trip}}</td></tr>
+            <tr><td><b>Additional Notes:</b> {{appointment.notes}}</td></tr>
+        </tbody>
+    </table>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-light" name="edit_appointment" value="edit_appointment">Edit Appointment</button>
+    </form>
+    <br>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-light" name="remove_appointment" value="remove_appointment">Remove Appointment</button>
+    </form>
+    <br>
+    <a href="{% url 'view_appointments' %}"><button class="btn btn-light">back</button></a>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'scheduling_application/base.html' %}
+{% block content %}
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            {% if message.tags %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+            {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+<div class="space">
+    <p class="text-center bigger" > Sign In </p>
+    <p class="special text-center"> Welcome to the SacSSC console! <p>
+    <div class="card center" style="width: 24rem;">
+        <div class="card-body">
+            <form class="form-group" method="POST">
+                {% csrf_token %}
+                    <p class="special"> Username </p>
+                    {{ form.username }}
+                    <br>
+                    <br>
+                    <p class="special"> Password </p>
+                    {{ form.password }}
+                    <br>
+                    <br>
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                                <div class="alert alert-success" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <input class="special" type="Submit">
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+<div class="center">
+    <p class="special text-center">Forgot your password? Click <a href="{% url 'password_reset' %}"><button>here</button></a></p>
+</div>
+{% endblock %}
