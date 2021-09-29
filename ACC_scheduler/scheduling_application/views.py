@@ -65,18 +65,6 @@ def login(request):
         if form.is_valid():
             user = form.get_user()
             auth.login(request, user)
-            # Syncing with Galaxy
-            url = 'https://api2.galaxydigital.com/volunteer/user/list/'
-            headers = {'Accept': 'scheduling_application/json'}
-            params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}  # will need to include tags
-            response = requests.get(url, headers=headers, params=params)
-            vol_data = response.json()
-            check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-            try:
-                sync_galaxy(vol_data, check_list)
-                print("synced galaxy")
-            except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
-                messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
             return redirect('console')
         else:
             messages.error(request, 'invalid credentials')
@@ -134,8 +122,8 @@ def password_reset_request(request):
                     from_email = 'acc.scheduler.care@gmail.com'
                     c = {
                         "email": user.email,
-                        'domain': '127.0.0.1:8000',         # CHANGE FOR DEPLOYMENT
-                        'site_name': 'ACC Scheduler',       # CHANGE FOR DEPLOYMENT
+                        'domain': get_current_site(request).domain,
+                        'site_name': 'ACC Scheduler',     
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
                         'token': default_token_generator.make_token(user),
@@ -351,18 +339,29 @@ def galaxy_update_volunteers(request):
     if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
+        params = {'key': settings.GALAXY_AUTH, 'limit': 50, 'where[tags]': 'sacssc', 'return[]': ["extras", "tags"]}
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
-        # print(vol_data)
+        print(len(vol_data))
+        print(vol_data['rows'])
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-        print(check_list)
-        sync_galaxy(vol_data, check_list)
         try:
-            #sync_galaxy(vol_data, check_list)
+            sync_galaxy(vol_data, check_list)
+            num_rows = int(vol_data['rows'])
+            total_rows = num_rows
+            while num_rows >= 50:
+                params = {'key': settings.GALAXY_AUTH, 'limit': 50, 'offset': total_rows, 'where[tags]': 'sacssc',
+                          'return[]': ["extras", "tags"]}
+                response = requests.get(url, headers=headers, params=params)
+                vol_data = response.json()
+                num_rows = int(vol_data['rows'])
+                total_rows += num_rows
+                check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+                sync_galaxy(vol_data, check_list)
             messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
-        except:
+        except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
             messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
+
     return redirect('console')
 
 

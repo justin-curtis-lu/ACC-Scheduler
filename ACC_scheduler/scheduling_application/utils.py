@@ -21,11 +21,11 @@ def sync_galaxy(vol_data, check_list):
     pattern = re.compile("(\d\d\d\d)[-](\d\d)[-](\d\d)")
     for i in vol_data['data']:
         #print(i)
-        #print(i['tags'])
+        #print(i['firstName'], i['lastName'], i['tags'])
         galaxy_id = int(i['id'])
         if galaxy_id in check_list:
             volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
-            print(volunteer)
+            # print(volunteer)
             # Flag to skip updating if unsubscribed is true
             if not volunteer[0].unsubscribed:
                 try:
@@ -55,7 +55,7 @@ def sync_galaxy(vol_data, check_list):
         else:
             # create
             #print("create")
-            if 'sacssc' in i["tags"]:
+            if 'sacssc' in i["tags"] or 'SacSSC' in i["tags"]:
                 try:
                     if pattern.match(str(i['birthdate'])) is not None:
                         date = str(i['birthdate']).split('-')
@@ -64,7 +64,7 @@ def sync_galaxy(vol_data, check_list):
                         formatted_date = "N/A"
                     #print(formatted_date)
                     Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                             phone=i['phone'], email=i['email'], dob=formatted_date,
+                                             phone=i['phone'], email=i['email'], dob=formatted_date, notify_call=True,
                                              additional_notes=i['extras']['availability-context'])
                     volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
                     #print(i)
@@ -85,7 +85,7 @@ def sync_galaxy(vol_data, check_list):
                     else:
                         formatted_date = "N/A"
                     Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                             phone=i['phone'], email=i['email'], dob=formatted_date)
+                                             phone=i['phone'], email=i['email'], dob=formatted_date, notify_call=True)
                     print("except creating", i['firstName'], i['lastName'])
 
 
