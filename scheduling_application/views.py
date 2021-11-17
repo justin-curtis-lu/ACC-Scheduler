@@ -365,6 +365,8 @@ def volunteer_page(request, pk):
 def galaxy_update_volunteers(request):
     """View which pulls volunteer data from Galaxy Digital
     API and updates on app side"""
+    if not request.user.is_authenticated:
+        return render(request, 'scheduling_application/authentication_general/home.html', {})
     if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
