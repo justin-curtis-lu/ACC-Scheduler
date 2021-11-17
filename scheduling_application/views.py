@@ -63,17 +63,6 @@ def login(request):
         if form.is_valid():
             user = form.get_user()
             auth.login(request, user)
-            # Syncing with Galaxy
-            url = 'https://api2.galaxydigital.com/volunteer/user/list/'
-            headers = {'Accept': 'scheduling_application/json'}
-            params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
-            response = requests.get(url, headers=headers, params=params)
-            vol_data = response.json()
-            check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
-            try:
-                sync_galaxy(vol_data, check_list)
-            except KeyError:  # Incorrect GD Key exception
-                messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
             return redirect('console')
         else:
             messages.error(request, 'invalid credentials')
@@ -381,14 +370,27 @@ def galaxy_update_volunteers(request):
     if request.GET.get("sync_GalaxyDigital"):
         url = 'https://api2.galaxydigital.com/volunteer/user/list/'
         headers = {'Accept': 'scheduling_application/json'}
-        params = {'key': settings.GALAXY_AUTH, 'return[]': ["extras", "tags"]}
+        params = {'key': settings.GALAXY_AUTH, 'limit': 50, 'where[tags]': 'sacssc', 'return[]': ["extras", "tags"]}
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
+        print(len(vol_data))
+        print(vol_data['rows'])
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
         try:
             sync_galaxy(vol_data, check_list)
+            num_rows = int(vol_data['rows'])
+            total_rows = num_rows
+            while num_rows >= 50:
+                params = {'key': settings.GALAXY_AUTH, 'limit': 50, 'offset': total_rows, 'where[tags]': 'sacssc',
+                          'return[]': ["extras", "tags"]}
+                response = requests.get(url, headers=headers, params=params)
+                vol_data = response.json()
+                num_rows = len(vol_data['data'])
+                total_rows += num_rows
+                check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
+                sync_galaxy(vol_data, check_list)
             messages.success(request, f'Successfully updated the application with Galaxy Digital Data!')
-        except:
+        except KeyError:    # FOR IF THE GALAXY API KEY IS INCORRECT
             messages.warning(request, f'Unsuccessful attempt at updating Galaxy Digital Data!')
     return redirect('console')
 

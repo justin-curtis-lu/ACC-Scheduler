@@ -48,8 +48,9 @@ def sync_galaxy(vol_data, check_list):
                         formatted_date = "N/A"
                     volunteer.update(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
                                      phone=i['phone'], email=i['email'], dob=formatted_date, address=i['address'])
+                    print("except updating", volunteer)
         else:
-            if 'sacssc' in i["tags"]:
+            if 'sacssc' in i["tags"] or 'SacSSC' in i["tags"]:
                 try:
                     if pattern.match(str(i['birthdate'])) is not None:
                         date = str(i['birthdate']).split('-')
@@ -57,7 +58,7 @@ def sync_galaxy(vol_data, check_list):
                     else:
                         formatted_date = "N/A"
                     Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                             phone=i['phone'], email=i['email'], dob=formatted_date,
+                                             phone=i['phone'], email=i['email'], dob=formatted_date, notify_call=True,
                                              additional_notes=i['extras']['availability-context'])
                     volunteer = Volunteer.objects.filter(galaxy_id=galaxy_id)
                     if 'Email' in i['extras']['preferred-contact-method']:
@@ -66,6 +67,7 @@ def sync_galaxy(vol_data, check_list):
                         volunteer.update(notify_text=True)
                     if 'Phone Call' in i['extras']['preferred-contact-method']:
                         volunteer.update(notify_call=True)
+                    print("try creating", i['firstName'], i['lastName'])
                 except KeyError:
                     if pattern.match(str(i['birthdate'])) is not None:
                         date = str(i['birthdate']).split('-')
@@ -73,7 +75,8 @@ def sync_galaxy(vol_data, check_list):
                     else:
                         formatted_date = "N/A"
                     Volunteer.objects.create(galaxy_id=galaxy_id, last_name=i['lastName'], first_name=i['firstName'],
-                                             phone=i['phone'], email=i['email'], dob=formatted_date)
+                                             phone=i['phone'], email=i['email'], dob=formatted_date, notify_call=True)
+                    print("except creating", i['firstName'], i['lastName'])
 
 
 def find_matches(check_list, date, time_period):
