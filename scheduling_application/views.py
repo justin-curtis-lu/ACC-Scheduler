@@ -383,7 +383,7 @@ def galaxy_update_volunteers(request):
                           'return[]': ["extras", "tags"]}
                 response = requests.get(url, headers=headers, params=params)
                 vol_data = response.json()
-                num_rows = int(vol_data['rows'])
+                num_rows = len(vol_data['data'])
                 total_rows += num_rows
                 check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
                 sync_galaxy(vol_data, check_list)
