@@ -373,6 +373,7 @@ def galaxy_update_volunteers(request):
         params = {'key': settings.GALAXY_AUTH, 'limit': 50, 'where[tags]': 'sacssc', 'return[]': ["extras", "tags"]}
         response = requests.get(url, headers=headers, params=params)
         vol_data = response.json()
+        print(response.status_code)
         print(len(vol_data))
         print(vol_data['rows'])
         check_list = Volunteer.objects.values_list('galaxy_id', flat=True)
