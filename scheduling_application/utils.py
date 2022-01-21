@@ -267,55 +267,60 @@ def send_monthly_surveys(request, month, year):
                          + f"\n{activate_url}\n\nSincerely,\nSenior Escort Program Staff", from_='+19569486977', to=i.phone)
             except TwilioException:
                 invalid_phone.append(i.first_name + " " + i.last_name)
-        # availability creation
-        try:  # creates new month objects w/ last month's info if user has availability from last month
-            most_recent_day = i.Days.last().date
-            prev_month = most_recent_day[0:2]
-            num_prev_days = int(most_recent_day[3:5])
-            prev_days = i.Days.all()[:num_prev_days]
-            if prev_month != month:
-                for j in range(0, monthrange(int(year), int(month))[1]):
-                    if j < 9:
-                        day = "0" + str(j + 1)
-                    else:
-                        day = str(j + 1)
-                    try:
-                        Day.objects.create(_9_10=prev_days[j]._9_10, _10_11=prev_days[j]._10_11, _11_12=prev_days[j]._11_12,
-                                           _12_1=prev_days[j]._12_1, _1_2=prev_days[j]._1_2, all=prev_days[j].all,
-                                           date=month + '/' + day + '/' + year, volunteer=i)
-                    except IndexError:
-                        Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                                           date=month + '/' + day + '/' + year, volunteer=i)
-        except AttributeError:  # if volunteer has no data create new day objects
-            for j in range(0, monthrange(int(year), int(month))[1]):
-                if j < 9:
-                    day = "0" + str(j + 1)
-                else:
-                    day = str(j + 1)
-                Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                                   date=month + '/' + day + '/' + year, volunteer=i)
+        # # availability creation
+        # try:  # creates new month objects w/ last month's info if user has availability from last month
+        #     most_recent_day = i.Days.last().date
+        #     prev_month = most_recent_day[0:2]
+        #     num_prev_days = int(most_recent_day[3:5])
+        #     prev_days = i.Days.all()[:num_prev_days]
+        #     if prev_month != month:
+        #         for j in range(0, monthrange(int(year), int(month))[1]):
+        #             if j < 9:
+        #                 day = "0" + str(j + 1)
+        #             else:
+        #                 day = str(j + 1)
+        #             try:
+        #                 Day.objects.create(_9_10=prev_days[j]._9_10, _10_11=prev_days[j]._10_11, _11_12=prev_days[j]._11_12,
+        #                                    _12_1=prev_days[j]._12_1, _1_2=prev_days[j]._1_2, all=prev_days[j].all,
+        #                                    date=month + '/' + day + '/' + year, volunteer=i)
+        #             except IndexError:
+        #                 Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+        #                                    date=month + '/' + day + '/' + year, volunteer=i)
+        # except AttributeError:  # if volunteer has no data create new day objects
+        #     for j in range(0, monthrange(int(year), int(month))[1]):
+        #         if j < 9:
+        #             day = "0" + str(j + 1)
+        #         else:
+        #             day = str(j + 1)
+        #         Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+        #                            date=month + '/' + day + '/' + year, volunteer=i)
     survey.sent = True
     survey.save()
     return sent_status, invalid_emails, invalid_phone
 
 
 def read_survey_data(option_list, volunteer, month, year):
-    for i in range(1, monthrange(int(year), int(month))[1] + 1):
-        if int(month) < 10:
-            if i < 10:
-                day_string = "0" + str(i)
-            else:
-                day_string = str(i)
+    try:
+        day1 = volunteer.Days.get(date=month + '/' + '01' + '/' + year)
+        print("Catch that we already have made a day")
+    except Day.DoesNotExist:
+        print("No day exists, continue")
+        for i in range(1, monthrange(int(year), int(month))[1] + 1):
+            if int(month) < 10:
+                if i < 10:
+                    day_string = "0" + str(i)
+                else:
+                    day_string = str(i)
 
-            date_string = str(month) + "/" + day_string + "/" + str(year)
-        else:
-            if i < 10:
-                day_string = "0" + str(i)
+                date_string = str(month) + "/" + day_string + "/" + str(year)
             else:
-                day_string = str(i)
-            date_string = str(month) + "/" + day_string + "/" + str(year)
-        Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
-                           date=date_string, volunteer=volunteer)
+                if i < 10:
+                    day_string = "0" + str(i)
+                else:
+                    day_string = str(i)
+                date_string = str(month) + "/" + day_string + "/" + str(year)
+            Day.objects.create(_9_10=False, _10_11=False, _11_12=False, _12_1=False, _1_2=False, all=False,
+                               date=date_string, volunteer=volunteer)
     for i in option_list:
         date = i[6:].split("-")
         if int(date[0]) < 10:
