@@ -143,10 +143,9 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
     for i in potential_list:
         if str(i['id']) in selected_volunteers.getlist('volunteer'):
             flag = True
-            if i['notify_email']:
+            if i['notify_email'] and i['email']:
                 token = get_random_string(length=32)
-                activate_url = settings.PROTOCOL+'://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
-                    'email'] + "&token=" + token + "&appointment_id=" + str(appointment_id)
+                activate_url = settings.PROTOCOL+'://' + domain + "/success" + "/?id=" + str(i['id']) + "&token=" + token + "&appointment_id=" + str(appointment_id)
                 email_subject = 'Volunteer Appointment Confirmation'
                 email_message = f'Hello Volunteer!\n\nWe have a Senior Escort Program Participant who requests ' \
                                 f'a buddy! Based on your availability, you would be a perfect match!\n' + \
@@ -163,10 +162,9 @@ def send_emails(potential_list, selected_volunteers, senior, appointment, domain
                     send_mail(email_subject, email_message, from_email, to_email)
                 except SMTPRecipientsRefused:
                     invalid_emails.append(i['first_name'] + " " + i['last_name'])
-            if i['notify_text']:
+            if i['notify_text'] and i['phone']:
                 token = get_random_string(length=32)
-                activate_url = settings.PROTOCOL+'://' + domain + "/success" + "/?id=" + str(i['id']) + "&email=" + i[
-                    'email'] + "&token=" + token
+                activate_url = settings.PROTOCOL+'://' + domain + "/success" + "/?id=" + str(i['id']) + "&token=" + token
                 account_sid = settings.TWILIO_ACCOUNT_SID
                 auth_token = settings.TWILIO_AUTH
                 client = Client(account_sid, auth_token)

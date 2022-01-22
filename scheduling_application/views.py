@@ -354,7 +354,7 @@ def volunteer_page(request, pk):
         elif request.POST.get("edit_volunteer"):
             return redirect('edit_volunteer', pk)
     context = {
-        'volunteer': volunteer,
+        'volunteer': volunteer
     }
     request.session['current_month'] = curr_month
     request.session['current_year'] = curr_year
